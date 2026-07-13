@@ -10,9 +10,34 @@
 		A4DD81A6300533FD00C5A95E /* Mogapa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mogapa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A4DD81E9300543FB00C5A95E /* Exceptions for "Mogapa" folder in "Mogapa" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Data/Repositories/.gitkeep,
+				DesignSystem/.gitkeep,
+				Domain/Models/.gitkeep,
+				Domain/Repositories/.gitkeep,
+				Features/DragGesture/.gitkeep,
+				Features/FastSpeech/.gitkeep,
+				Features/Home/.gitkeep,
+				Features/MyPage/.gitkeep,
+				Features/Presentation/.gitkeep,
+				Features/QuickBoard/.gitkeep,
+				Features/RecentSpeech/.gitkeep,
+				Features/TextStylePicker/.gitkeep,
+				Services/.gitkeep,
+			);
+			target = A4DD81A5300533FD00C5A95E /* Mogapa */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A4DD81A8300533FD00C5A95E /* Mogapa */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A4DD81E9300543FB00C5A95E /* Exceptions for "Mogapa" folder in "Mogapa" target */,
+			);
 			path = Mogapa;
 			sourceTree = "<group>";
 		};
