@@ -14,10 +14,7 @@
 		A4DD81E9300543FB00C5A95E /* Exceptions for "Mogapa" folder in "Mogapa" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Data/Repositories/.gitkeep,
 				DesignSystem/.gitkeep,
-				Domain/Models/.gitkeep,
-				Domain/Repositories/.gitkeep,
 				Features/DragGesture/.gitkeep,
 				Features/FastSpeech/.gitkeep,
 				Features/Home/.gitkeep,
