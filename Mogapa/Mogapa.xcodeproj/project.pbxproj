@@ -21,11 +21,9 @@
 				Features/DragGesture/.gitkeep,
 				Features/FastSpeech/.gitkeep,
 				Features/Home/.gitkeep,
-				Features/MyPage/.gitkeep,
 				Features/Presentation/.gitkeep,
 				Features/QuickBoard/.gitkeep,
 				Features/RecentSpeech/.gitkeep,
-				Features/TextStylePicker/.gitkeep,
 				Services/.gitkeep,
 			);
 			target = A4DD81A5300533FD00C5A95E /* Mogapa */;
