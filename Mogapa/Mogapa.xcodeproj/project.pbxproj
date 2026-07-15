@@ -19,7 +19,6 @@
 				Features/FastSpeech/.gitkeep,
 				Features/Home/.gitkeep,
 				Features/Presentation/.gitkeep,
-				Features/QuickBoard/.gitkeep,
 				Features/RecentSpeech/.gitkeep,
 				Services/.gitkeep,
 			);
