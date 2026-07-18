@@ -14,14 +14,15 @@
 		A4DD81E9300543FB00C5A95E /* Exceptions for "Mogapa" folder in "Mogapa" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				DesignSystem/.gitkeep,
 				Features/DragGesture/.gitkeep,
 				Features/FastSpeech/.gitkeep,
 				Features/Home/.gitkeep,
 				Features/Presentation/.gitkeep,
 				Features/RecentSpeech/.gitkeep,
 				Info.plist,
-				Services/.gitkeep,
+				Shared/DesignSystem/.gitkeep,
+				Shared/Persistence/.gitkeep,
+				Shared/Services/.gitkeep,
 			);
 			target = A4DD81A5300533FD00C5A95E /* Mogapa */;
 		};
