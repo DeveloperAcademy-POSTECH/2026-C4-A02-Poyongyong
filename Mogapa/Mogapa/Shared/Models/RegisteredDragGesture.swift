@@ -19,7 +19,6 @@ final class RegisteredDragGesture {
     var createdAt: Date
     var updatedAt: Date
 
-    @Relationship(deleteRule: .cascade, inverse: \DragPoint.gesture)
     var points: [DragPoint]
 
     init(

@@ -19,6 +19,7 @@
 				Features/Home/.gitkeep,
 				Features/Presentation/.gitkeep,
 				Shared/DesignSystem/.gitkeep,
+				Shared/Persistence/.gitkeep,
 				Shared/Services/.gitkeep,
 			);
 			target = A4DD81A5300533FD00C5A95E /* Mogapa */;
