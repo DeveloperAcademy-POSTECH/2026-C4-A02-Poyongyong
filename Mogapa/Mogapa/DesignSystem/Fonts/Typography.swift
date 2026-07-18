@@ -44,7 +44,7 @@ enum Typography {
 }
 
 extension View {
-    func style(_ typography: Typography) -> some View {
+    func typography(_ typography: Typography) -> some View {
         self
             .font(.pretendard(typography.weight, size: typography.size))
             .tracking(typography.size * typography.letterSpacingPercent / 100)
