@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct MogapaApp: App {
@@ -13,5 +14,6 @@ struct MogapaApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(AppPersistence.shared)
     }
 }
