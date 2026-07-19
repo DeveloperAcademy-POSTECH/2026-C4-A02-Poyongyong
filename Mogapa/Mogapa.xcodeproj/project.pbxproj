@@ -18,10 +18,8 @@
 				Features/FastSpeech/.gitkeep,
 				Features/Home/.gitkeep,
 				Features/Presentation/.gitkeep,
-				Features/RecentSpeech/.gitkeep,
 				Info.plist,
 				Shared/DesignSystem/.gitkeep,
-				Shared/Persistence/.gitkeep,
 				Shared/Services/.gitkeep,
 			);
 			target = A4DD81A5300533FD00C5A95E /* Mogapa */;
