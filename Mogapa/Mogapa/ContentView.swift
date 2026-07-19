@@ -14,7 +14,7 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("포용용 화이팅")
-                .style(.bodyBold)
+                .typography(.bodyBold)
         }
         .padding()
     }
