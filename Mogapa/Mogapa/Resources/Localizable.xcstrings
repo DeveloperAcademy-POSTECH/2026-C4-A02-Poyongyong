@@ -1,6 +1,12 @@
 {
   "sourceLanguage" : "ko",
   "strings" : {
+    "드래그 제스처로\n빠른 말하기" : {
+
+    },
+    "드래그 후 손을 떼면 출력 후 자동 종료" : {
+
+    },
     "빠른 말하기" : {
       "extractionState" : "manual",
       "localizations" : {
