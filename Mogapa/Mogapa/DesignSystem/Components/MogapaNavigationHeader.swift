@@ -2,7 +2,7 @@
 //  MogapaNavigationHeader.swift
 //  Mogapa
 //
-//  Created by Codex on 7/20/26.
+//  Created by Purple on 7/20/26.
 //
 
 import SwiftUI
