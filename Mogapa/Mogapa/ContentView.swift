@@ -15,6 +15,7 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("포용용 화이팅")
                 .typography(.bodyBold)
+                .foregroundColor(.backgroundbgDefault)
         }
         .padding()
     }
