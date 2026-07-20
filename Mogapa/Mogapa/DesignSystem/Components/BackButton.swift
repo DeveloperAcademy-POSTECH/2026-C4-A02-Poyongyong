@@ -44,14 +44,12 @@ struct BasicButton: View {
                 if let systemImage {
                     Image(systemName: systemImage)
                 }
-
                 if let title {
                     Text(title)
                 }
             }
             .font(font)
             .foregroundStyle(foregroundStyle)
-            .padding(.horizontal, shape == .circle ? 0 : 16)
             .frame(
                 width: shape == .circle ? 44 : nil,
                 height: 44
