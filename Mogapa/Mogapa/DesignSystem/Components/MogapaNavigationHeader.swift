@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct MogapaNavigationHeader: View {
     let title: String
@@ -66,7 +65,7 @@ struct MogapaNavigationHeader: View {
         }
         .frame(height: 56)
         .padding(.bottom, 10)
-        .background(Color(uiColor: UIColor(red: 1, green: 1, blue: 1, alpha: 1)))
+        .background(.backgroundbgCanvas)
     }
 }
 
