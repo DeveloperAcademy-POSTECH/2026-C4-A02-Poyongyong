@@ -16,7 +16,6 @@
 			membershipExceptions = (
 				Features/DragGesture/.gitkeep,
 				Features/FastSpeech/.gitkeep,
-				Features/Home/.gitkeep,
 				Features/Presentation/.gitkeep,
 				Features/Setting/.gitkeep,
 				Info.plist,
