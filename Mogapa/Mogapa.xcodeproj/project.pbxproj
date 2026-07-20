@@ -16,8 +16,8 @@
 			membershipExceptions = (
 				Features/DragGesture/.gitkeep,
 				Features/FastSpeech/.gitkeep,
-				Features/Home/.gitkeep,
 				Features/Presentation/.gitkeep,
+				Features/Setting/.gitkeep,
 				Info.plist,
 				Shared/DesignSystem/.gitkeep,
 				Shared/Services/.gitkeep,
@@ -272,7 +272,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R8BWH97K4C;
+				DEVELOPMENT_TEAM = SKJ52VG58X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Mogapa/Info.plist;
@@ -307,7 +307,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = R8BWH97K4C;
+				DEVELOPMENT_TEAM = SKJ52VG58X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Mogapa/Info.plist;
