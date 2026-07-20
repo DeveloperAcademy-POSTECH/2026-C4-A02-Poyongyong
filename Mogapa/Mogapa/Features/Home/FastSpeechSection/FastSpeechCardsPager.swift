@@ -117,7 +117,6 @@ private extension FastSpeechCardsPager {
                             phrase.text
                         ),
                     onTap: {
-                        
                         onPhraseSelected(
                             phrase
                         )
@@ -153,39 +152,39 @@ private extension Array {
     }
 }
 
-#Preview {
-    FastSpeechCardsPager(
-        category: FastSpeechCategory(
-            name: "일상",
-            sortOrder: 0
-        ),
-        selectedPhraseID: nil,
-        previewText: { $0 },
-        onPhraseSelected: { _ in }
-    )
-}
-
 //#Preview {
-//    let category = FastSpeechCategory(
-//        name: "일상",
-//        sortOrder: 0
-//    )
-//
-//    category.phrases = [
-//        FastSpeechPhrase(
-//            text: "잠시만 기다려 주세요.",
+//    FastSpeechCardsPager(
+//        category: FastSpeechCategory(
+//            name: "일상",
 //            sortOrder: 0
 //        ),
-//        FastSpeechPhrase(
-//            text: "천천히 말씀해 주세요.",
-//            sortOrder: 1
-//        )
-//    ]
-//
-//    return FastSpeechCardsPager(
-//        category: category,
 //        selectedPhraseID: nil,
 //        previewText: { $0 },
 //        onPhraseSelected: { _ in }
 //    )
 //}
+
+#Preview {
+    let category = FastSpeechCategory(
+        name: "일상",
+        sortOrder: 0
+    )
+
+    category.phrases = [
+        FastSpeechPhrase(
+            text: "잠시만 기다려 주세요.",
+            sortOrder: 0
+        ),
+        FastSpeechPhrase(
+            text: "천천히 말씀해 주세요.",
+            sortOrder: 1
+        )
+    ]
+
+    return FastSpeechCardsPager(
+        category: category,
+        selectedPhraseID: nil,
+        previewText: { $0 },
+        onPhraseSelected: { _ in }
+    )
+}

@@ -47,10 +47,7 @@ private extension FastSpeechCardView {
             VStack {
                 Text(previewText)
                     .typography(.title2Medium)
-                    .foregroundStyle(
-                        isSelected
-                        ? .textsecondary : .textsecondary
-                    )
+                    .foregroundColor(.textsecondary)
                     .frame(
                         maxWidth: .infinity, alignment: .leading
                     )
@@ -65,7 +62,6 @@ private extension FastSpeechCardView {
                 .font(.system(size: 32, weight: .bold))
                 .foregroundStyle(.white)
             }
-            
         }
         .frame(maxWidth: .infinity)
         .frame(
