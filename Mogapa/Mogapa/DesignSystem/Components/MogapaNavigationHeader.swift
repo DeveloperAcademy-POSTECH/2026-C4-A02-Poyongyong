@@ -41,25 +41,26 @@ struct MogapaNavigationHeader: View {
                 .frame(maxWidth: .infinity)
 
             HStack {
-                Button(action: onLeftTap) {
-                    Image(systemName: leftIcon)
-                        .font(.system(size: 24, weight: .medium))
-                        .foregroundStyle(.textprimary)
-                        .frame(width: 44, height: 44)
+                BasicButton(
+                    systemImage: leftIcon,
+                    shape: .circle,
+                    foregroundStyle: .textprimary,
+                    font: .system(size: 24, weight: .medium)
+                ) {
+                    onLeftTap()
                 }
-                .buttonStyle(.plain)
                 .accessibilityLabel(Text(leftAccessibilityLabel))
 
                 Spacer()
 
-                Button(action: onRightTap) {
-                    Text(rightTitle)
-                        .typography(.title2Medium)
-                        .foregroundStyle(.textsecondary)
-                        .frame(minWidth: 44, minHeight: 44)
-                        .padding(.horizontal, 10)
+                BasicButton(
+                    title: rightTitle,
+                    shape: .capsule,
+                    foregroundStyle: .textsecondary,
+                    font: .pretendard(.medium, size: 20)
+                ) {
+                    onRightTap()
                 }
-                .buttonStyle(.plain)
             }
             .padding(.horizontal, 20)
         }
