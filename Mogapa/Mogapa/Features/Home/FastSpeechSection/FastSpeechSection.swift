@@ -21,10 +21,7 @@ struct FastSpeechSection: View {
     
     var body: some View {
         
-        VStack(
-            alignment: .leading,
-            spacing: 12
-        ) {
+        VStack(spacing: 12){
             header
             
             FastSpeechCategorySelector(
@@ -38,12 +35,7 @@ struct FastSpeechSection: View {
                 previewText: previewText,
                 onPhraseSelected: onPhraseSelected
             )
-            .frame(height: 330)
         }
-        .frame(
-            maxWidth: .infinity,
-            alignment: .leading
-        )
     }
 }
 
@@ -62,11 +54,11 @@ private extension FastSpeechSection {
 
             } label: {
                 Image(systemName: "chevron.right")
-                .font(.system(size: 20,weight: .semibold))
+                .font(.system(size:20))
                 .foregroundColor(.textprimary)
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal,20)
     }
 }
 

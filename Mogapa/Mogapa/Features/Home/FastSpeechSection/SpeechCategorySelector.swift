@@ -31,12 +31,8 @@ struct FastSpeechCategorySelector: View {
                 }
                 
                 ForEach(
-                    Array(
-                        categories.enumerated()
-                    ),
-                    id:
-                        \.element.id
-                    
+                    Array(categories.enumerated()),
+                    id:\.element.id
                 ) { index, category in
                     CategoryLabel(
                         title:
