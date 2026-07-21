@@ -1,5 +1,5 @@
 //
-//  HeaderView.swift
+//  DragHeader.swift
 //  Mogapa
 //
 //  Created by Sue on 7/21/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HeaderView: View {
+struct DragHeader: View {
     var body: some View {
         HStack(alignment: .top, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
@@ -33,7 +33,7 @@ struct HeaderView: View {
 }
 
 #Preview {
-    HeaderView()
+    DragHeader()
         .background(.black)
 }
 

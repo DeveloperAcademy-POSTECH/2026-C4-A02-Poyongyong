@@ -96,11 +96,6 @@ final class HomeViewModel: ObservableObject {
             return text
         }
         return words
-            .prefix(
-                maximumPreviewWordCount
-            )
-            .joined(separator: " "
-            )
-        + "..."
+            .prefix(maximumPreviewWordCount).joined(separator: " ") + "..."
     }
 }
