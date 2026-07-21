@@ -9,12 +9,14 @@ import SwiftUI
 
 struct GestureModalContent: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     let title: String
 
     @State private var text = ""
     @State private var points: [CGPoint] = []
     @State private var isCanvasFocused = false
+    @State private var errorMessage: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -45,8 +47,7 @@ struct GestureModalContent: View {
                 dismiss()
             },
             onConfirm: {
-                print("저장")
-                dismiss()
+                saveGesture()
             }
         )
         .padding(.top, 22)
@@ -58,6 +59,12 @@ struct GestureModalContent: View {
             gesturePhraseSection
 
             drawingSection
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .typography(.calloutLight)
+                    .foregroundStyle(.red)
+            }
 
             Spacer(minLength: 0)
         }
@@ -74,8 +81,8 @@ struct GestureModalContent: View {
 
             Text(
                 """
-                드래그 제스처는 자막 없이 음성만 재생돼요
-                이해하기 쉬운 간단하고 짧은 문구를 추천해요.
+                드래그 제스처는 자막 없이 음성만 재생돼요.
+                이해하기 쉬운, 간단하고 짧은 문구를 추천해요.
                 """
             )
             .typography(.calloutLight)
@@ -136,5 +143,46 @@ struct GestureModalContent: View {
             from: nil,
             for: nil
         )
+    }
+}
+
+// MARK: - Save
+
+private extension GestureModalContent {
+
+    func saveGesture() {
+        let trimmedText = text.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
+        guard !trimmedText.isEmpty else {
+            errorMessage = "읽을 문장을 입력해 주세요."
+            return
+        }
+
+        guard points.count >= 8 else {
+            errorMessage = "패턴을 조금 더 길게 그려 주세요."
+            return
+        }
+
+        let normalizedPoints = DragGestureNormalizer.normalize(points)
+
+        guard !normalizedPoints.isEmpty else {
+            errorMessage = "패턴을 저장하지 못했습니다."
+            return
+        }
+
+        let gesture = RegisteredDragGesture(
+            name: trimmedText,
+            phrase: trimmedText,
+            points: normalizedPoints
+        )
+
+        do {
+            try DragGestureRepository(modelContext: modelContext).insertGesture(gesture)
+            dismiss()
+        } catch {
+            errorMessage = "패턴을 저장하지 못했습니다."
+        }
     }
 }
