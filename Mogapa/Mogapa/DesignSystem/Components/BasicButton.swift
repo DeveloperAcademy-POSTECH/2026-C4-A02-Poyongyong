@@ -1,5 +1,5 @@
 //
-//  BackButton.swift
+//  BasicButton.swift
 //  Mogapa
 //
 //  Created by Minjae Son on 7/20/26.
@@ -12,19 +12,21 @@ struct BasicButton: View {
     let systemImage: String?
     let shape: BasicButtonShape
     let foregroundStyle: AnyShapeStyle
+    let tint: Color
     let font: Font
     let action: () -> Void
-    
+
     enum BasicButtonShape {
         case circle
         case capsule
     }
-    
+
     init(
         title: String? = nil,
         systemImage: String? = nil,
         shape: BasicButtonShape = .capsule,
         foregroundStyle: some ShapeStyle = .primary,
+        tint: Color = .clear,
         font: Font = .system(size: 22),
         action: @escaping () -> Void
     ) {
@@ -32,19 +34,18 @@ struct BasicButton: View {
         self.systemImage = systemImage
         self.shape = shape
         self.foregroundStyle = AnyShapeStyle(foregroundStyle)
+        self.tint = tint
         self.font = font
         self.action = action
     }
-    
+
     var body: some View {
-        Button {
-            action()
-        } label: {
+        Button(action: action) {
             HStack(spacing: 10) {
                 if let systemImage {
                     Image(systemName: systemImage)
                 }
-                
+
                 if let title {
                     Text(title)
                 }
@@ -56,7 +57,13 @@ struct BasicButton: View {
                 width: shape == .circle ? 44 : nil,
                 height: 44
             )
-            .background(.ultraThinMaterial)
+            .background {
+                buttonShape
+                    .fill(.ultraThinMaterial)
+
+                buttonShape
+                    .fill(tint)
+            }
             .clipShape(buttonShape)
             .overlay {
                 buttonShape
@@ -66,7 +73,11 @@ struct BasicButton: View {
                 buttonShape
                     .stroke(
                         LinearGradient(
-                            colors: [.white, .gray, .white],
+                            colors: [
+                                .white.opacity(0.8),
+                                .gray.opacity(0.4),
+                                .white.opacity(0.6)
+                            ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -76,26 +87,14 @@ struct BasicButton: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     private var buttonShape: AnyShape {
         switch shape {
         case .circle:
             AnyShape(Circle())
+
         case .capsule:
             AnyShape(Capsule())
-        }
-    }
-}
-
-#Preview {
-    VStack(spacing: 20) {
-        BasicButton(
-            systemImage: "gearshape.fill",
-            shape: .circle,
-            foregroundStyle: .white,
-            font: .system(size: 24)
-        ) {
-            print("Settings tapped")
         }
     }
 }
