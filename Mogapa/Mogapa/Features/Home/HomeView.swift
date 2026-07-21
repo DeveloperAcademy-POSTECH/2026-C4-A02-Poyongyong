@@ -119,9 +119,7 @@ struct HomeView: View {
                 isPresentationPresented = pose.isLandscape
             }
             .fullScreenCover(isPresented: $isPresentationPresented) {
-                MotionPresentationTestView(
-                    motionManager: motionManager)
-                // 여기 프레젠테이션 뷰 넣으셈!!!
+                PresentationView(text: viewModel.inputText)
             }
              .sheet(isPresented: $isGesturePresented) {
                         MotionGestureTestView()  // 여기 제스처 뷰 넣으셈!!!!

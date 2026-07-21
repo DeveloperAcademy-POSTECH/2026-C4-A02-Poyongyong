@@ -21,7 +21,7 @@ final class PresentationViewModel {
 
     init(
         text: String = """
-        안녕하세요 이게 150자까지만 가능해서 확인용 텍스트를 작성 중입니다. 리스트에 표시된 특정 단어를 누르면 해당 단어부터 음성 재생이 시작됩니다. 현재 읽고 있는 단어는 노란색으로 표시되고 이미 읽은 단어는 흰색으로 표시됩니다.
+        안녕하세요 이게 150자까지만 가능해서 확인용 텍스트를 작성 중입니다. 리스트에 표시된 특정 단어를 누르면 해당 단어부터 음성 재생이 시작됩니다. 현재 읽고 있는 단어는 노란색으로 표시되고 이미 읽은 단어는 흰색으로 표시됩니다.안녕하세요 이게 150자까지만 가능해서 확인용 텍스트를 작성 중입니다. 리스트에 표시된 특정 단어를 누르면 해당 단어부터 음성 재생이 시작됩니다. 현재 읽고 있는 단어는 노란색으로 표시되고 이미 읽은 단어는 흰색으로 표시됩니다.안녕하세요 이게 150자까지만 가능해서 확인용 텍스트를 작성 중입니다. 리스트에 표시된 특정 단어를 누르면 해당 단어부터 음성 재생이 시작됩니다. 현재 읽고 있는 단어는 노란색으로 표시되고 이미 읽은 단어는 흰색으로 표시됩니다.
         """
     ) {
         self.text = text
@@ -52,7 +52,7 @@ final class PresentationViewModel {
             return "play.fill"
 
         case .stopped:
-            return "speaker.wave.2.fill"
+            return "play.fill"
         }
     }
 
@@ -128,6 +128,11 @@ final class PresentationViewModel {
         ).length > 0
     }
 
+    // MARK: - 스크롤 추적
+
+    var currentSpeakingTokenID: Int? {
+        tokens.first { isCurrentlySpeaking($0) }?.id
+    }
     // MARK: - 접근성
 
     func accessibilityText(

@@ -4,10 +4,17 @@
     "%lld/150" : {
 
     },
-    "CoreMotion Test" : {
-
+    "content: %lf, container: %lf" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "content: %1$lf, container: %2$lf"
+          }
+        }
+      }
     },
-    "Settings Test View" : {
+    "CoreMotion Test" : {
 
     },
     "Speech Button Test" : {
@@ -86,10 +93,10 @@
         }
       }
     },
-    "설정" : {
+    "여기에 말한 기록이 남아요!" : {
 
     },
-    "여기에 말한 기록이 남아요!" : {
+    "완료" : {
 
     },
     "입력 내용 지우기" : {
@@ -98,11 +105,19 @@
     "전체 빠른 말하기 목록" : {
 
     },
+    "취소" : {
 
+    },
     "카테고리" : {
 
     },
     "테스트 프레젠테이션뷰" : {
+
+    },
+    "편집" : {
+
+    },
+    "포용용 화이팅" : {
 
     },
     "홈에서 흔들면 제스처 테스트뷰로 이동합니다." : {

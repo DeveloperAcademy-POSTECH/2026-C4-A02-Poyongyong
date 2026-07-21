@@ -13,7 +13,7 @@ struct MogapaApp: App {
     var body: some Scene {
         WindowGroup {
             //ContentView()
-            DragGestureView()
+            HomeView()
         }
         .modelContainer(AppPersistence.shared)
     }
