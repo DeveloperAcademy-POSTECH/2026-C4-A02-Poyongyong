@@ -12,7 +12,7 @@ import SwiftData
 struct MogapaApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
         .modelContainer(AppPersistence.shared)
     }

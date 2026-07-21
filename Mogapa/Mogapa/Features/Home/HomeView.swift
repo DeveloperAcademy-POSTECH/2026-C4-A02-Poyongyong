@@ -24,6 +24,14 @@ struct HomeView: View {
     private var categories:
     [FastSpeechCategory]
     
+    @State
+    private var isSpeechTestPresented = false
+    
+    @State
+    private var isFastSpeechListPresented = false
+    
+    @State
+    private var isSettingsPresented = false
     
     // MARK: - ViewModel
     
@@ -39,7 +47,9 @@ struct HomeView: View {
         GeometryReader { geometry in
             
             ZStack {
+                
                 // MARK: - Background Layers
+                
                 VStack {
                     Rectangle()
                         .fill(Color(.backgroundbgDefault))
@@ -48,6 +58,7 @@ struct HomeView: View {
                     Rectangle()
                         .fill(Color(.backgroundbgCanvas))
                 }
+                
                 
                 // MARK: - Main Home Content
                 
@@ -75,7 +86,7 @@ struct HomeView: View {
                             viewModel.updateText(text)
                         },
                         onSpeak: {
-                            // TTS will be connected here
+                            isSpeechTestPresented = true
                         },
                         onClose: {
                             viewModel.isTextFieldExpanded = false
@@ -83,6 +94,16 @@ struct HomeView: View {
                     )
                 }
             }
+        } .sheet(isPresented: $isSpeechTestPresented) {
+            SpeechTestView(
+                text: viewModel.inputText
+            )
+        }
+        .sheet(isPresented: $isFastSpeechListPresented) {
+            FastSpeechListTestView()
+        }
+        .sheet(isPresented: $isSettingsPresented) {
+            SettingsTestView()
         }
         .ignoresSafeArea(.keyboard)
     }
@@ -108,7 +129,7 @@ private extension HomeView {
                 foregroundStyle: .white,
                 font: .system(size: 24)
             ) {
-                
+                isSettingsPresented = true
             }
         }
         .padding(.top, 10)
@@ -162,7 +183,7 @@ private extension HomeView {
                 viewModel.updateText(text)
             },
             onSpeak: {
-                // TTS
+                isSpeechTestPresented = true
             }
         )
         .frame(width: 362,height: 204)
@@ -199,10 +220,13 @@ private extension HomeView {
                 viewModel.previewText(
                     for: text)
             },
-            
             onPhraseSelected: { phrase in
                 viewModel.selectPhrase(phrase)
-            }
+            },
+            onShowAllFastSpeech: {
+                  isFastSpeechListPresented =
+                      true
+              }
         )
         .frame(maxWidth:.infinity)
         .padding(.bottom, 20)
