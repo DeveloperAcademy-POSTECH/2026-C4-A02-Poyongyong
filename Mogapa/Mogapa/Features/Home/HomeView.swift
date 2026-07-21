@@ -33,9 +33,10 @@ struct HomeView: View {
     @State private var isGesturePresented = false
     
     
-    // MARK: - CoreMotion
+    // MARK: - CoreMotion, 화면방향
     
     @StateObject private var motionManager = CoreMotionManager()
+    @State private var presentationOrientation: UIInterfaceOrientationMask = .landscapeRight
     
     
     // MARK: - ViewModel
@@ -111,15 +112,21 @@ struct HomeView: View {
             }
             .onAppear {
                 motionManager.start()
+                AppDelegate.lock(to: .portrait)
             }
             .onDisappear {
                 motionManager.stop()
             }
             .onChange(of: motionManager.pose) { _, pose in
+                if pose.isLandscape {
+                    let orientation = orientationMask(for: pose)
+                    AppDelegate.orientationLock = orientation      
+                    presentationOrientation = orientation
+                }
                 isPresentationPresented = pose.isLandscape
             }
             .fullScreenCover(isPresented: $isPresentationPresented) {
-                PresentationView(text: viewModel.inputText)
+                PresentationView(text: viewModel.inputText, orientation: presentationOrientation)
             }
              .sheet(isPresented: $isGesturePresented) {
                         MotionGestureTestView()  // 여기 제스처 뷰 넣으셈!!!!
@@ -250,6 +257,21 @@ private extension HomeView {
         )
         .frame(maxWidth:.infinity)
         .padding(.bottom, 20)
+    }
+}
+
+// MARK: - Orientation 매핑
+
+private extension HomeView {
+    func orientationMask(for pose: MotionPose) -> UIInterfaceOrientationMask {
+        switch pose {
+        case .landscapeLeft:
+            return .landscapeRight
+        case .landscapeRight:
+            return .landscapeLeft
+        default:
+            return .landscape
+        }
     }
 }
 

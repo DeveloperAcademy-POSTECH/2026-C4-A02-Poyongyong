@@ -4,16 +4,6 @@
     "%lld/150" : {
 
     },
-    "content: %lf, container: %lf" : {
-      "localizations" : {
-        "ko" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "content: %1$lf, container: %2$lf"
-          }
-        }
-      }
-    },
     "CoreMotion Test" : {
 
     },
