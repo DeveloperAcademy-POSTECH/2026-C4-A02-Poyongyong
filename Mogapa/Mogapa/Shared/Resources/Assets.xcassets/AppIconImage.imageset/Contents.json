@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "appIconImage.svg",
       "idiom" : "universal"
     }
   ],

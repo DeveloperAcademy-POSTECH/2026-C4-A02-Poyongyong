@@ -24,6 +24,11 @@ struct HomeView: View {
     private var categories:
     [FastSpeechCategory]
     
+    @State private var isSpeechTestPresented = false
+    
+    @State private var isFastSpeechListPresented = false
+    
+    @State private var isSettingsPresented = false
     
     // MARK: - ViewModel
     
@@ -36,58 +41,64 @@ struct HomeView: View {
     
     var body: some View {
         
-        GeometryReader { geometry in
-            
-            ZStack {
-                // MARK: - Background Layers
-                VStack {
-                    Rectangle()
-                        .fill(
-                            Color(
-                                red: 0.36,
-                                green: 0.48,
-                                blue: 0.96
-                            )
+        NavigationStack {
+            GeometryReader { geometry in
+                ZStack {
+                    
+                    // MARK: - Background Layers
+                    
+                    VStack {
+                        Rectangle()
+                            .fill(Color(.backgroundbgDefault))
+                            .ignoresSafeArea(edges: .top)
+                            .frame(width: geometry.size.width, height: 320)
+                        Rectangle()
+                            .fill(Color(.backgroundbgCanvas))
+                    }
+                    
+                    
+                    // MARK: - Main Home Content
+                    
+                    VStack{
+                        header
+                        
+                        titleSection
+                        
+                        messageInput
+                        
+                        fastSpeechSection
+                    }
+                    .padding(.horizontal,20)
+                    .frame(
+                        width: geometry.size.width)
+                    
+                    
+                    // MARK: - Expanded Text Input Overlay
+                    
+                    if viewModel.isTextFieldExpanded {
+                        ExpandedTextInputOverlay(
+                            text:$viewModel.inputText,
+                            characterCount:viewModel.characterCount,
+                            onTextChanged: { text in
+                                viewModel.updateText(text)
+                            },
+                            onSpeak: {
+                                isSpeechTestPresented = true
+                            },
+                            onClose: {
+                                viewModel.isTextFieldExpanded = false
+                            }
                         )
-                        .ignoresSafeArea(edges: .top)
-                        .frame(width: geometry.size.width, height: 320)
-                    Rectangle()
-                        .fill(Color.white)
+                    }
                 }
-                
-                
-                // MARK: - Main Home Content
-                
-                VStack{
-                    header
-                    
-                    titleSection
-                    
-                    messageInput
-                    
-                    fastSpeechSection
-                }
-                .frame(
-                    width: geometry.size.width)
-                
-                
-                // MARK: - Expanded Text Input Overlay
-                
-                if viewModel.isTextFieldExpanded {
-                    ExpandedTextInputOverlay(
-                        text:$viewModel.inputText,
-                        characterCount:viewModel.characterCount,
-                        onTextChanged: { text in
-                            viewModel.updateText(text)
-                        },
-                        onSpeak: {
-                            // TTS will be connected here
-                        },
-                        onClose: {
-                            viewModel.isTextFieldExpanded = false
-                        }
-                    )
-                }
+            }.navigationDestination(isPresented: $isSpeechTestPresented) {
+                SpeechTestView(text: viewModel.inputText)
+            }
+            .navigationDestination(isPresented: $isFastSpeechListPresented) {
+                FastSpeechListTestView()
+            }
+            .navigationDestination(isPresented: $isSettingsPresented) {
+                SettingsTestView()
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -102,10 +113,9 @@ private extension HomeView {
     some View {
         
         HStack {
-            Text("모가파")
-                .font(.title2)
-                .bold()
-                .foregroundStyle(.white)
+            Image("AppIconImage")
+                .resizable()
+                .frame(width:50,height:34)
             
             Spacer()
             
@@ -115,11 +125,10 @@ private extension HomeView {
                 foregroundStyle: .white,
                 font: .system(size: 24)
             ) {
-                
+                isSettingsPresented = true
             }
         }
-        .padding(.horizontal,20)
-        .padding(.top,8)
+        .padding(.top, 10)
     }
 }
 
@@ -131,27 +140,26 @@ private extension HomeView {
     var titleSection:
     some View {
         
-        HStack(spacing:12
-        ) { Text("말하기를\n시작해 볼까요?")
-                .typography(.largeTitle1Bold)
-                .foregroundColor(.white)
+        HStack{
+            Text("말하기를\n시작해 볼까요?")
+                .typography(.largeTitleBold)
+                .foregroundColor(.textwhite)
                 .multilineTextAlignment(.leading)
             
+            Spacer()
+            
             VStack(alignment:.trailing, spacing: 4
-            ) {Image(systemName:"rectangle.portrait.rotate")
+            ) {
+                Image(systemName:"rectangle.portrait.rotate")
                     .font(.system(size:28))
+                    .foregroundColor(.iconinverse)
                 Text("가로로 돌려\n표현하기")
                     .typography(.bodyMedium)
                     .multilineTextAlignment(.trailing)
                     .fixedSize(horizontal:false, vertical:true)
+                    .foregroundColor(.textwhite)
             }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity,alignment:.trailing)
         }
-        
-        .padding(.horizontal,20)
-        .padding(.top, 12)
-        .padding(.bottom, 16)
     }
 }
 
@@ -171,7 +179,7 @@ private extension HomeView {
                 viewModel.updateText(text)
             },
             onSpeak: {
-                // TTS
+                isSpeechTestPresented = true
             }
         )
         .frame(width: 362,height: 204)
@@ -196,7 +204,7 @@ private extension HomeView {
                 categories,
             
             recentPhrases:
-                   [],
+                [],
             
             selectedCategoryIndex:
                 $viewModel.selectedCategoryIndex,
@@ -208,19 +216,18 @@ private extension HomeView {
                 viewModel.previewText(
                     for: text)
             },
-            
             onPhraseSelected: { phrase in
                 viewModel.selectPhrase(phrase)
+            },
+            onShowAllFastSpeech: {
+                isFastSpeechListPresented =
+                true
             }
         )
         .frame(maxWidth:.infinity)
-        .padding(.top, 20)
-        .padding(.bottom, 24)
+        .padding(.bottom, 20)
     }
 }
-
-
-// MARK: - Preview
 
 #Preview {
     HomeView()
