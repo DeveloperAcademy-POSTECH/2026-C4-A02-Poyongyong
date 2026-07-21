@@ -12,7 +12,7 @@ import SwiftData
 struct MogapaApp: App {
     var body: some Scene {
         WindowGroup {
-            DragGestureView()
+            ContentView()
         }
         .modelContainer(AppPersistence.shared)
     }

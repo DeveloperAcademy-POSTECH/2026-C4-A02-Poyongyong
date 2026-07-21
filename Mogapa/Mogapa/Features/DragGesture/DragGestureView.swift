@@ -22,21 +22,23 @@ struct DragGestureView: View {
     private let recognitionThreshold = 0.14
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 32) {
             DragHeader {
                 isShowingEditModal = true
             }
+            VStack(alignment: .leading) {
+                DragIndicator(
+                    title: recognizedTitle,
+                    state: dragState
+                )
 
-            DragIndicator(
-                title: recognizedTitle,
-                state: dragState
-            )
-
-            DragCanvas(dragPoints: $currentPoints) { finishedPoints in
-                recognize(finishedPoints)
+                DragCanvas(dragPoints: $currentPoints) { finishedPoints in
+                    recognize(finishedPoints)
+                }
             }
         }
-        .padding()
+        .padding([.bottom, .top], 32)
+        .padding([.leading, .trailing], 20)
         .background(dimBackground)
         .overlay(alignment: .bottomTrailing) { homeButton }
         // TODO: 추후 NavigationView로 연결될 예정 — 그때는 .sheet 대신

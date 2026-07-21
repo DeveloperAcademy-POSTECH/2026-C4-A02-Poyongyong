@@ -74,8 +74,8 @@ struct GestureModalContent: View {
 
             Text(
                 """
-                드래그 제스처는 자막 없이 음성만 재생돼요
-                이해하기 쉬운 간단하고 짧은 문구를 추천해요.
+                드래그 제스처는 자막 없이 음성만 재생돼요.
+                이해하기 쉬운, 간단하고 짧은 문구를 추천해요.
                 """
             )
             .typography(.calloutLight)
