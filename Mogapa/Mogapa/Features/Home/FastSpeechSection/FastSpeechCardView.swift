@@ -55,22 +55,15 @@ private extension FastSpeechCardView {
             .padding(24)
             
             if isSelected {
-                Image(
-                    systemName:
-                        "arrow.trianglehead.clockwise"
-                )
+                Image(systemName: "arrow.trianglehead.clockwise")
                 .font(.system(size: 32, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundColor(.iconinverse)
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(
-            minHeight: 150, maxHeight: 170
-        )
+        .frame(minHeight: 150, maxHeight: 170)
         .animation(
-            .easeInOut(
-                duration: 0.2
-            ),
+            .easeInOut(duration: 0.2),
             value: isSelected
         )
     }
@@ -84,10 +77,7 @@ private extension FastSpeechCardView {
     @ViewBuilder
     var cardBackground: some View {
         
-        let backgroundColor =
-        isSelected
-        ? Color("Backgroundbg-card-selected")
-        : Color("Backgroundbg-card")
+        let backgroundColor = isSelected ? Color.backgroundbgCardSelected : Color.backgroundbgCard
         
         switch position {
             

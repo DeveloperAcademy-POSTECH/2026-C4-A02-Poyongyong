@@ -42,9 +42,7 @@ struct FastSpeechCardsPager: View {
         if sortedPhrases.isEmpty {
             emptyState
         } else {
-            let pages = sortedPhrases.chunked(
-                into: 4
-            )
+            let pages = sortedPhrases.chunked(into: 4)
             
             TabView {
                 ForEach(
@@ -56,9 +54,7 @@ struct FastSpeechCardsPager: View {
                     )
                 }
             }
-            .tabViewStyle(
-                .page(indexDisplayMode: .always)
-            )
+            .tabViewStyle(.page(indexDisplayMode: .always))
         }
     }
 }
@@ -66,12 +62,13 @@ struct FastSpeechCardsPager: View {
 private extension FastSpeechCardsPager {
     
     var emptyState: some View {
-        
-        Text("여기에 말한 기록이 남아요!")
-            .typography(.subTitleMedium)
-            .foregroundStyle(.texttertiary)
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 308)
+        HStack(alignment: .center){
+            Text("여기에 말한 기록이 남아요!")
+                .typography(.subTitleMedium)
+                .foregroundStyle(.texttertiary)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 290)
+        }
     }
 }
 
