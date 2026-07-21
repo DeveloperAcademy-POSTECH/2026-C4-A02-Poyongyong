@@ -103,7 +103,7 @@ struct HomeView: View {
                 SpeechTestView(text: viewModel.inputText)
             }
             .navigationDestination(isPresented: $isFastSpeechListPresented) {
-                FastSpeechListTestView()
+                FastSpeechView()
             }
             .navigationDestination(isPresented: $isSettingsPresented) {
                 SettingView()
