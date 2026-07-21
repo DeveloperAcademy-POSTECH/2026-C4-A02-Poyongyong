@@ -24,11 +24,19 @@ struct HomeView: View {
     private var categories:
     [FastSpeechCategory]
     
+    // MARK: - TestViews
+    
     @State private var isSpeechTestPresented = false
-    
     @State private var isFastSpeechListPresented = false
-    
     @State private var isSettingsPresented = false
+    @State private var isPresentationPresented = false
+    @State private var isGesturePresented = false
+    
+    
+    // MARK: - CoreMotion
+    
+    @StateObject private var motionManager = CoreMotionManager()
+    
     
     // MARK: - ViewModel
     
@@ -100,6 +108,23 @@ struct HomeView: View {
             .navigationDestination(isPresented: $isSettingsPresented) {
                 SettingsTestView()
             }
+            .onAppear {
+                motionManager.start()
+            }
+            .onDisappear {
+                motionManager.stop()
+            }
+            .onChange(of: motionManager.pose) { _, pose in
+                isPresentationPresented = pose.isLandscape
+            }
+            .fullScreenCover(isPresented: $isPresentationPresented) {
+                MotionPresentationTestView(
+                    motionManager: motionManager)
+                // 여기 프레젠테이션 뷰 넣으셈!!!
+            }
+             .sheet(isPresented: $isGesturePresented) {
+                        MotionGestureTestView()  // 여기 제스처 뷰 넣으셈!!!!
+                    }
         }
         .ignoresSafeArea(.keyboard)
     }
