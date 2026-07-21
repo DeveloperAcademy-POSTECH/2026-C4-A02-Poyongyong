@@ -9,7 +9,11 @@ import SwiftUI
 
 struct MogapaNavigationHeader: View {
     let title: String
-    let rightTitle: String
+    let rightTitle: String?
+    let rightSystemImage: String?
+    let isRightDisabled: Bool
+    let rightTint: Color
+    let rightForegroundStyle: AnyShapeStyle
     let leftIcon: String
     let leftAccessibilityLabel: String
     let onLeftTap: () -> Void
@@ -18,7 +22,11 @@ struct MogapaNavigationHeader: View {
 
     init(
         title: String,
-        rightTitle: String,
+        rightTitle: String? = nil,
+        rightSystemImage: String? = nil,
+        isRightDisabled: Bool = false,
+        rightTint: Color = .clear,
+        rightForegroundStyle: some ShapeStyle = .textsecondary,
         leftIcon: String = "chevron.left",
         leftAccessibilityLabel: String = "뒤로 가기",
         onLeftTap: @escaping () -> Void,
@@ -27,6 +35,10 @@ struct MogapaNavigationHeader: View {
     ) {
         self.title = title
         self.rightTitle = rightTitle
+        self.rightSystemImage = rightSystemImage
+        self.isRightDisabled = isRightDisabled
+        self.rightTint = rightTint
+        self.rightForegroundStyle = AnyShapeStyle(rightForegroundStyle)
         self.leftIcon = leftIcon
         self.leftAccessibilityLabel = leftAccessibilityLabel
         self.onLeftTap = onLeftTap
@@ -57,12 +69,16 @@ struct MogapaNavigationHeader: View {
 
                 BasicButton(
                     title: rightTitle,
+                    systemImage: rightSystemImage,
                     shape: .capsule,
-                    foregroundStyle: .textsecondary,
+                    foregroundStyle: rightForegroundStyle,
+                    tint: rightTint,
                     font: .pretendard(.medium, size: 20)
                 ) {
                     onRightTap()
                 }
+                .disabled(isRightDisabled)
+                .opacity(isRightDisabled ? 0.45 : 1)
             }
             .padding(.horizontal, 20)
         }
