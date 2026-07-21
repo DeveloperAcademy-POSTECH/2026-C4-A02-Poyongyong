@@ -1,0 +1,311 @@
+//
+//  QuickSpeechBubbleRow.swift
+//  Mogapa
+//
+//  Created by Purple on 7/21/26.
+//
+
+import SwiftUI
+
+struct QuickSpeechBubbleRow<ID: Hashable>: View {
+    let id: ID
+    let text: String
+    let isPinned: Bool
+    let isSelected: Bool
+    let isEditing: Bool
+    let preservedLineLimit: Int?
+    let onLineLimitMeasured: ((Int) -> Void)?
+    @Binding var openedRowID: ID?
+    let onTap: () -> Void
+    let onSelectionToggle: () -> Void
+    let onPin: () -> Void
+    let onUnpin: () -> Void
+    let onDelete: () -> Void
+
+    @State private var dragOffset: CGFloat = 0
+    @State private var dragStartOffset: CGFloat?
+    @State private var deleteOffset: CGFloat = 0
+    @State private var isDeleting = false
+    @State private var rowWidth: CGFloat = 0
+
+    private let openOffset: CGFloat = 62
+    private let openThreshold: CGFloat = 31
+    private let checkboxSize: CGFloat = 18
+    private let checkboxSpacing: CGFloat = 12
+    private let deleteAnimationDuration: TimeInterval = 0.24
+
+    init(
+        id: ID,
+        text: String,
+        isPinned: Bool = false,
+        isSelected: Bool = false,
+        isEditing: Bool = false,
+        preservedLineLimit: Int? = nil,
+        onLineLimitMeasured: ((Int) -> Void)? = nil,
+        openedRowID: Binding<ID?>,
+        onTap: @escaping () -> Void,
+        onSelectionToggle: @escaping () -> Void,
+        onPin: @escaping () -> Void,
+        onUnpin: @escaping () -> Void,
+        onDelete: @escaping () -> Void
+    ) {
+        self.id = id
+        self.text = text
+        self.isPinned = isPinned
+        self.isSelected = isSelected
+        self.isEditing = isEditing
+        self.preservedLineLimit = preservedLineLimit
+        self.onLineLimitMeasured = onLineLimitMeasured
+        self._openedRowID = openedRowID
+        self.onTap = onTap
+        self.onSelectionToggle = onSelectionToggle
+        self.onPin = onPin
+        self.onUnpin = onUnpin
+        self.onDelete = onDelete
+    }
+
+    var body: some View {
+        ZStack {
+            actionButtons
+
+            rowContent
+                .offset(x: displayedOffset + deleteOffset)
+                .highPriorityGesture(dragGesture)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minHeight: 59)
+        .fixedSize(horizontal: false, vertical: true)
+        .clipped()
+        .background {
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear {
+                        rowWidth = proxy.size.width
+                    }
+                    .onChange(of: proxy.size.width) { _, newValue in
+                        rowWidth = newValue
+                    }
+            }
+        }
+        .onChange(of: openedRowID) { _, newValue in
+            guard newValue != id, dragOffset != 0 else { return }
+            close()
+        }
+        .onChange(of: isEditing) { _, newValue in
+            guard newValue else { return }
+            close()
+        }
+    }
+
+    private var displayedOffset: CGFloat {
+        isEditing ? 0 : dragOffset
+    }
+
+    private var actionButtons: some View {
+        HStack {
+            QuickSpeechSwipeActionButton(isPinned ? .unpin : .pin) {
+                if isPinned {
+                    onUnpin()
+                } else {
+                    onPin()
+                }
+                close()
+            }
+            .opacity(displayedOffset > 0 ? 1 : 0)
+            .allowsHitTesting(displayedOffset > 0)
+
+            Spacer()
+            
+            QuickSpeechSwipeActionButton(.delete) {
+                startDeleteAnimation()
+            }
+            .opacity(displayedOffset < 0 ? 1 : 0)
+            .allowsHitTesting(displayedOffset < 0)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var rowContent: some View {
+        HStack(spacing: checkboxSpacing) {
+            if isEditing {
+                checkbox
+                    .onTapGesture(perform: onSelectionToggle)
+            }
+
+            QuickSpeechBubble(
+                text: text,
+                isPinned: isPinned,
+                isEditing: isEditing,
+                preservedLineLimit: preservedLineLimit,
+                onLineLimitMeasured: onLineLimitMeasured,
+                action: nil
+            )
+        }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isEditing {
+                onSelectionToggle()
+            } else if isInteractiveBubble {
+                onTap()
+            }
+        }
+        .accessibilityAddTraits(isEditing || isInteractiveBubble ? .isButton : [])
+    }
+
+    private var checkbox: some View {
+        ZStack {
+            Circle()
+                .fill(isSelected ? .accentsBlue : .backgroundbgCanvas)
+                .overlay {
+                    Circle()
+                        .stroke(isSelected ? .accentsBlue : .strokedefault, lineWidth: 1)
+                }
+
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.iconinverse)
+            }
+        }
+        .frame(width: checkboxSize, height: checkboxSize)
+        .contentShape(Circle())
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private var isInteractiveBubble: Bool {
+        !isEditing && dragOffset == 0 && openedRowID != id
+    }
+
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 8)
+            .onChanged { value in
+                guard !isEditing, !isDeleting else { return }
+
+                let translation = value.translation.width
+                let startOffset = dragStartOffset ?? dragOffset
+                dragStartOffset = startOffset
+                let proposedOffset = startOffset + translation
+
+                dragOffset = max(-openOffset, min(openOffset, proposedOffset))
+            }
+            .onEnded { _ in
+                guard !isEditing, !isDeleting else { return }
+                dragStartOffset = nil
+
+                withAnimation(.snappy) {
+                    if dragOffset > openThreshold {
+                        openedRowID = id
+                        dragOffset = openOffset
+                    } else if dragOffset < -openThreshold {
+                        openedRowID = id
+                        dragOffset = -openOffset
+                    } else {
+                        close()
+                    }
+                }
+            }
+    }
+
+    private func close() {
+        withAnimation(.snappy) {
+            if openedRowID == id {
+                openedRowID = nil
+            }
+            dragOffset = 0
+            dragStartOffset = nil
+        }
+    }
+
+    private func startDeleteAnimation() {
+        guard !isDeleting else { return }
+
+        isDeleting = true
+        withAnimation(.easeInOut(duration: deleteAnimationDuration)) {
+            deleteOffset = -(rowWidth + openOffset)
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + deleteAnimationDuration) {
+            onDelete()
+            close()
+        }
+    }
+}
+
+private struct QuickSpeechBubbleRowPreviewPhrase: Identifiable {
+    let id = UUID()
+    let text: String
+    var isPinned: Bool
+}
+
+private struct QuickSpeechBubbleRowPreview: View {
+    @State private var openedRowID: UUID?
+    @State private var isEditing = false
+    @State private var selectedIDs: Set<UUID> = []
+    @State private var lineLimits: [UUID: Int] = [:]
+    @State private var phrases = [
+        QuickSpeechBubbleRowPreviewPhrase(text: "텍스트 입력", isPinned: false),
+        QuickSpeechBubbleRowPreviewPhrase(
+            text: "얼마나 길게 써지나 함 봐볼까요. 근데 이거 길게 쓰면 밑으로 내려가네요. 딱 맞춰서 이어지는지!!!",
+            isPinned: true
+        ),
+        QuickSpeechBubbleRowPreviewPhrase(text: "텍스트 입력", isPinned: false)
+    ]
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button(isEditing ? "완료" : "편집") {
+                withAnimation(.snappy) {
+                    isEditing.toggle()
+                }
+            }
+
+            ForEach(phrases) { phrase in
+                QuickSpeechBubbleRow(
+                    id: phrase.id,
+                    text: phrase.text,
+                    isPinned: phrase.isPinned,
+                    isSelected: selectedIDs.contains(phrase.id),
+                    isEditing: isEditing,
+                    preservedLineLimit: lineLimits[phrase.id],
+                    onLineLimitMeasured: { lineLimits[phrase.id] = $0 },
+                    openedRowID: $openedRowID,
+                    onTap: {},
+                    onSelectionToggle: {
+                        toggleSelection(for: phrase.id)
+                    },
+                    onPin: {
+                        updatePinnedState(for: phrase.id, isPinned: true)
+                    },
+                    onUnpin: {
+                        updatePinnedState(for: phrase.id, isPinned: false)
+                    },
+                    onDelete: {
+                        withAnimation(.snappy) {
+                            phrases.removeAll { $0.id == phrase.id }
+                        }
+                    }
+                )
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
+    private func toggleSelection(for id: UUID) {
+        if selectedIDs.contains(id) {
+            selectedIDs.remove(id)
+        } else {
+            selectedIDs.insert(id)
+        }
+    }
+
+    private func updatePinnedState(for id: UUID, isPinned: Bool) {
+        guard let index = phrases.firstIndex(where: { $0.id == id }) else { return }
+        phrases[index].isPinned = isPinned
+    }
+}
+
+#Preview("QuickSpeechBubbleRow") {
+    QuickSpeechBubbleRowPreview()
+        .environment(\.locale, Locale(identifier: "ko"))
+}
