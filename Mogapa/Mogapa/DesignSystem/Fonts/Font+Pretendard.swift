@@ -11,6 +11,8 @@ enum PretendardWeight: String {
     case medium = "Pretendard-Medium"
     case semiBold = "Pretendard-SemiBold"
     case bold = "Pretendard-Bold"
+    case light = "Pretendard-Light"
+    case regular = "Pretendard-regular"
 }
 
 extension Font {

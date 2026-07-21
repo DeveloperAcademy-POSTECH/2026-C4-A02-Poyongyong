@@ -1,0 +1,227 @@
+//
+//  HomeView.swift
+//  Mogapa
+//
+//  Created by Minjae Son on 7/21/26.
+//
+
+import SwiftUI
+import SwiftData
+
+
+struct HomeView: View {
+    
+    // MARK: - SwiftData
+    
+    @Query(
+        sort: [
+            SortDescriptor(
+                \FastSpeechCategory.sortOrder,
+                 order: .forward
+            )
+        ]
+    )
+    private var categories:
+    [FastSpeechCategory]
+    
+    
+    // MARK: - ViewModel
+    
+    @StateObject
+    private var viewModel =
+    HomeViewModel()
+    
+    
+    // MARK: - Body
+    
+    var body: some View {
+        
+        GeometryReader { geometry in
+            
+            ZStack {
+                // MARK: - Background Layers
+                VStack {
+                    Rectangle()
+                        .fill(
+                            Color(
+                                red: 0.36,
+                                green: 0.48,
+                                blue: 0.96
+                            )
+                        )
+                        .ignoresSafeArea(edges: .top)
+                        .frame(width: geometry.size.width, height: 320)
+                    Rectangle()
+                        .fill(Color.white)
+                }
+                
+                
+                // MARK: - Main Home Content
+                
+                VStack{
+                    header
+                    
+                    titleSection
+                    
+                    messageInput
+                    
+                    fastSpeechSection
+                }
+                .frame(
+                    width: geometry.size.width)
+                
+                
+                // MARK: - Expanded Text Input Overlay
+                
+                if viewModel.isTextFieldExpanded {
+                    ExpandedTextInputOverlay(
+                        text:$viewModel.inputText,
+                        characterCount:viewModel.characterCount,
+                        onTextChanged: { text in
+                            viewModel.updateText(text)
+                        },
+                        onSpeak: {
+                            // TTS will be connected here
+                        },
+                        onClose: {
+                            viewModel.isTextFieldExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        .ignoresSafeArea(.keyboard)
+    }
+}
+
+// MARK: - Header
+
+private extension HomeView {
+    
+    var header:
+    some View {
+        
+        HStack {
+            Text("모가파")
+                .font(.title2)
+                .bold()
+                .foregroundStyle(.white)
+            
+            Spacer()
+            
+            BasicButton(
+                systemImage: "gearshape.fill",
+                shape: .circle,
+                foregroundStyle: .white,
+                font: .system(size: 24)
+            ) {
+                
+            }
+        }
+        .padding(.horizontal,20)
+        .padding(.top,8)
+    }
+}
+
+
+// MARK: - Title Section
+
+private extension HomeView {
+    
+    var titleSection:
+    some View {
+        
+        HStack(spacing:12
+        ) { Text("말하기를\n시작해 볼까요?")
+                .typography(.largeTitle1Bold)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+            
+            VStack(alignment:.trailing, spacing: 4
+            ) {Image(systemName:"rectangle.portrait.rotate")
+                    .font(.system(size:28))
+                Text("가로로 돌려\n표현하기")
+                    .typography(.bodyMedium)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize(horizontal:false, vertical:true)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity,alignment:.trailing)
+        }
+        
+        .padding(.horizontal,20)
+        .padding(.top, 12)
+        .padding(.bottom, 16)
+    }
+}
+
+
+// MARK: - Normal Message Input
+
+private extension HomeView {
+    
+    var messageInput:
+    some View {
+        
+        MessageInputView(
+            text: $viewModel.inputText,
+            isExpanded: $viewModel.isTextFieldExpanded,
+            characterCount: viewModel.characterCount,
+            onTextChanged: { text in
+                viewModel.updateText(text)
+            },
+            onSpeak: {
+                // TTS
+            }
+        )
+        .frame(width: 362,height: 204)
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 16)
+        .opacity(
+            viewModel.isTextFieldExpanded ? 0 : 1
+        )
+    }
+}
+
+
+// MARK: - Fast Speech Section
+
+private extension HomeView {
+    
+    var fastSpeechSection:
+    some View {
+        
+        FastSpeechSection(
+            categories:
+                categories,
+            
+            recentPhrases:
+                   [],
+            
+            selectedCategoryIndex:
+                $viewModel.selectedCategoryIndex,
+            
+            selectedPhraseID:
+                viewModel.selectedPhraseID,
+            
+            previewText: { text in
+                viewModel.previewText(
+                    for: text)
+            },
+            
+            onPhraseSelected: { phrase in
+                viewModel.selectPhrase(phrase)
+            }
+        )
+        .frame(maxWidth:.infinity)
+        .padding(.top, 20)
+        .padding(.bottom, 24)
+    }
+}
+
+
+// MARK: - Preview
+
+#Preview {
+    HomeView()
+}

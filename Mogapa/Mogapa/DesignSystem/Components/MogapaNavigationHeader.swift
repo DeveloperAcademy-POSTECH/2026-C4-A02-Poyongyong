@@ -34,7 +34,7 @@ struct MogapaNavigationHeader: View {
     var body: some View {
         ZStack {
             Text(title)
-                .typography(.title2Medium)
+                .typography(.subTitleMedium)
                 .foregroundStyle(.textprimary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity)
