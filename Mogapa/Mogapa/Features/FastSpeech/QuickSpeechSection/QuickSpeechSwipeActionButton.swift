@@ -47,26 +47,22 @@ struct QuickSpeechSwipeActionButton: View {
     }
 
     var body: some View {
-        Button(action: action) {
-            ZStack {
-                Circle()
-                    .fill(actionType.backgroundStyle)
+        ZStack {
+            Circle()
+                .fill(actionType.backgroundStyle)
 
-                Image(actionType.iconResource)
-                    .resizable()
-                    .renderingMode(.template)
-                    .scaledToFit()
-                    .frame(height: 20)
-                    .foregroundStyle(.iconinverse)
-            }
-            .frame(width: 50, height: 50)
-            .clipShape(Circle())
-            .contentShape(Circle())
+            Image(actionType.iconResource)
+                .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .frame(height: 20)
+                .foregroundStyle(.iconinverse)
         }
         .frame(width: 50, height: 50)
-        .buttonStyle(.plain)
         .clipShape(Circle())
         .contentShape(Circle())
+        .onTapGesture(perform: action)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
