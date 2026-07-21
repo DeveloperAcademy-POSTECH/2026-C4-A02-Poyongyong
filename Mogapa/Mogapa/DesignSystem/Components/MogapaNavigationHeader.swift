@@ -14,6 +14,7 @@ struct MogapaNavigationHeader: View {
     let leftAccessibilityLabel: String
     let onLeftTap: () -> Void
     let onRightTap: () -> Void
+    let backgroundColor: Color // 헤더 색상 다른 뷰에서 변경 가능하게 수정
 
     init(
         title: String,
@@ -21,7 +22,8 @@ struct MogapaNavigationHeader: View {
         leftIcon: String = "chevron.left",
         leftAccessibilityLabel: String = "뒤로 가기",
         onLeftTap: @escaping () -> Void,
-        onRightTap: @escaping () -> Void
+        onRightTap: @escaping () -> Void,
+        backgroundColor: Color = .backgroundbgCanvas
     ) {
         self.title = title
         self.rightTitle = rightTitle
@@ -29,6 +31,7 @@ struct MogapaNavigationHeader: View {
         self.leftAccessibilityLabel = leftAccessibilityLabel
         self.onLeftTap = onLeftTap
         self.onRightTap = onRightTap
+        self.backgroundColor = backgroundColor
     }
 
     var body: some View {
@@ -65,7 +68,7 @@ struct MogapaNavigationHeader: View {
         }
         .frame(height: 56)
         .padding(.bottom, 10)
-        .background(.backgroundbgCanvas)
+        .background(backgroundColor)
     }
 }
 
