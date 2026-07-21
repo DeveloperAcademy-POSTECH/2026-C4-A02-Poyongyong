@@ -24,6 +24,11 @@ struct HomeView: View {
     private var categories:
     [FastSpeechCategory]
     
+    @State private var isSpeechTestPresented = false
+    
+    @State private var isFastSpeechListPresented = false
+    
+    @State private var isSettingsPresented = false
     
     // MARK: - ViewModel
     
@@ -36,52 +41,64 @@ struct HomeView: View {
     
     var body: some View {
         
-        GeometryReader { geometry in
-            
-            ZStack {
-                // MARK: - Background Layers
-                VStack {
-                    Rectangle()
-                        .fill(Color(.backgroundbgDefault))
-                        .ignoresSafeArea(edges: .top)
-                        .frame(width: geometry.size.width, height: 320)
-                    Rectangle()
-                        .fill(Color(.backgroundbgCanvas))
-                }
-                
-                // MARK: - Main Home Content
-                
-                VStack{
-                    header
+        NavigationStack {
+            GeometryReader { geometry in
+                ZStack {
                     
-                    titleSection
+                    // MARK: - Background Layers
                     
-                    messageInput
+                    VStack {
+                        Rectangle()
+                            .fill(Color(.backgroundbgDefault))
+                            .ignoresSafeArea(edges: .top)
+                            .frame(width: geometry.size.width, height: 320)
+                        Rectangle()
+                            .fill(Color(.backgroundbgCanvas))
+                    }
                     
-                    fastSpeechSection
+                    
+                    // MARK: - Main Home Content
+                    
+                    VStack{
+                        header
+                        
+                        titleSection
+                        
+                        messageInput
+                        
+                        fastSpeechSection
+                    }
+                    .padding(.horizontal,20)
+                    .frame(
+                        width: geometry.size.width)
+                    
+                    
+                    // MARK: - Expanded Text Input Overlay
+                    
+                    if viewModel.isTextFieldExpanded {
+                        ExpandedTextInputOverlay(
+                            text:$viewModel.inputText,
+                            characterCount:viewModel.characterCount,
+                            onTextChanged: { text in
+                                viewModel.updateText(text)
+                            },
+                            onSpeak: {
+                                isSpeechTestPresented = true
+                            },
+                            onClose: {
+                                viewModel.isTextFieldExpanded = false
+                            }
+                        )
+                    }
                 }
-                .padding(.horizontal,20)
-                .frame(
-                    width: geometry.size.width)
-                
-                
-                // MARK: - Expanded Text Input Overlay
-                
-                if viewModel.isTextFieldExpanded {
-                    ExpandedTextInputOverlay(
-                        text:$viewModel.inputText,
-                        characterCount:viewModel.characterCount,
-                        onTextChanged: { text in
-                            viewModel.updateText(text)
-                        },
-                        onSpeak: {
-                            // TTS will be connected here
-                        },
-                        onClose: {
-                            viewModel.isTextFieldExpanded = false
-                        }
-                    )
-                }
+            }.navigationDestination(isPresented: $isSpeechTestPresented) {
+                SpeechTestView(text: viewModel.inputText)
+            }
+            .navigationDestination(isPresented: $isFastSpeechListPresented) {
+                FastSpeechListTestView()
+            }
+            .navigationDestination(isPresented: $isSettingsPresented) {
+                SettingsTestView()
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -108,7 +125,7 @@ private extension HomeView {
                 foregroundStyle: .white,
                 font: .system(size: 24)
             ) {
-                
+                isSettingsPresented = true
             }
         }
         .padding(.top, 10)
@@ -162,7 +179,7 @@ private extension HomeView {
                 viewModel.updateText(text)
             },
             onSpeak: {
-                // TTS
+                isSpeechTestPresented = true
             }
         )
         .frame(width: 362,height: 204)
@@ -187,7 +204,7 @@ private extension HomeView {
                 categories,
             
             recentPhrases:
-                   [],
+                [],
             
             selectedCategoryIndex:
                 $viewModel.selectedCategoryIndex,
@@ -199,9 +216,12 @@ private extension HomeView {
                 viewModel.previewText(
                     for: text)
             },
-            
             onPhraseSelected: { phrase in
                 viewModel.selectPhrase(phrase)
+            },
+            onShowAllFastSpeech: {
+                isFastSpeechListPresented =
+                true
             }
         )
         .frame(maxWidth:.infinity)

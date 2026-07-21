@@ -18,6 +18,7 @@ struct FastSpeechSection: View {
     let selectedPhraseID: UUID?
     let previewText: (String) -> String
     let onPhraseSelected: (FastSpeechPhrase) -> Void
+    let onShowAllFastSpeech: () -> Void
     
     var body: some View {
         
@@ -51,12 +52,13 @@ private extension FastSpeechSection {
             Spacer()
             
             Button {
-
+                onShowAllFastSpeech()
             } label: {
                 Image(systemName: "chevron.right")
                 .font(.system(size:20))
                 .foregroundColor(.textprimary)
             }
+            
         }
     }
 }
