@@ -14,7 +14,8 @@ struct MogapaNavigationHeader: View {
     let isRightDisabled: Bool
     let rightTint: Color
     let rightForegroundStyle: AnyShapeStyle
-    let leftIcon: String
+    let leftTitle: String?
+    let leftIcon: String?
     let leftAccessibilityLabel: String
     let onLeftTap: () -> Void
     let onRightTap: () -> Void
@@ -27,7 +28,8 @@ struct MogapaNavigationHeader: View {
         isRightDisabled: Bool = false,
         rightTint: Color = .clear,
         rightForegroundStyle: some ShapeStyle = .textsecondary,
-        leftIcon: String = "chevron.left",
+        leftTitle: String? = nil,
+        leftIcon: String? = "chevron.left",
         leftAccessibilityLabel: String = "뒤로 가기",
         onLeftTap: @escaping () -> Void,
         onRightTap: @escaping () -> Void,
@@ -39,6 +41,7 @@ struct MogapaNavigationHeader: View {
         self.isRightDisabled = isRightDisabled
         self.rightTint = rightTint
         self.rightForegroundStyle = AnyShapeStyle(rightForegroundStyle)
+        self.leftTitle = leftTitle
         self.leftIcon = leftIcon
         self.leftAccessibilityLabel = leftAccessibilityLabel
         self.onLeftTap = onLeftTap
@@ -56,10 +59,11 @@ struct MogapaNavigationHeader: View {
 
             HStack {
                 BasicButton(
+                    title: leftTitle,
                     systemImage: leftIcon,
-                    shape: .circle,
-                    foregroundStyle: .textprimary,
-                    font: .system(size: 24, weight: .medium)
+                    shape: leftTitle == nil ? .circle : .capsule,
+                    foregroundStyle: leftTitle == nil ? .textprimary : .textsecondary,
+                    font: leftTitle == nil ? .system(size: 24, weight: .medium) : .pretendard(.medium, size: 20)
                 ) {
                     onLeftTap()
                 }
@@ -101,8 +105,11 @@ struct MogapaNavigationHeader: View {
 #Preview("편집 진입 형태") {
     MogapaNavigationHeader(
         title: "빠른 말하기",
-        rightTitle: "삭제",
-        leftIcon: "xmark",
+        rightSystemImage: "trash.fill",
+        rightTint: .accentsRed,
+        rightForegroundStyle: .iconinverse,
+        leftTitle: "취소",
+        leftIcon: nil,
         leftAccessibilityLabel: "닫기",
         onLeftTap: {},
         onRightTap: {}

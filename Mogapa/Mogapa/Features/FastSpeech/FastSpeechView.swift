@@ -18,39 +18,9 @@ struct FastSpeechView: View {
     @State private var phrases: [FastSpeechViewPhrase]
 
     init() {
-        let workCategory = FastSpeechCategory(name: "직장", sortOrder: 0)
-        let schoolCategory = FastSpeechCategory(name: "학교", sortOrder: 1)
-
-        _categories = State(initialValue: [
-            workCategory,
-            schoolCategory
-        ])
-        _phrases = State(initialValue: [
-            FastSpeechViewPhrase(
-                text: "얼마나 길게 써지나 함 봐볼까요. 근데 이거 길게 쓰면 밑으로 내려가네요. 딱 맞춰서 이어지는지!!!",
-                categoryID: nil
-            ),
-            FastSpeechViewPhrase(
-                text: "텍스트 입력",
-                categoryID: workCategory.id
-            ),
-            FastSpeechViewPhrase(
-                text: "텍스트 입력",
-                categoryID: workCategory.id
-            ),
-            FastSpeechViewPhrase(
-                text: "텍스트 입력",
-                categoryID: schoolCategory.id
-            ),
-            FastSpeechViewPhrase(
-                text: "텍스트 입력",
-                categoryID: schoolCategory.id
-            ),
-            FastSpeechViewPhrase(
-                text: "텍스트 입력",
-                categoryID: nil
-            )
-        ])
+        let dummyData = FastSpeechViewDummyData.make()
+        _categories = State(initialValue: dummyData.categories)
+        _phrases = State(initialValue: dummyData.phrases)
     }
 
     var body: some View {
@@ -115,7 +85,8 @@ private extension FastSpeechView {
             isRightDisabled: isEditing && selectedIDs.isEmpty,
             rightTint: isEditing ? .accentsRed : .clear,
             rightForegroundStyle: isEditing ? .iconinverse : .textsecondary,
-            leftIcon: "chevron.left",
+            leftTitle: isEditing ? "취소" : nil,
+            leftIcon: isEditing ? nil : "chevron.left",
             leftAccessibilityLabel: isEditing ? "편집 종료" : "뒤로 가기",
             onLeftTap: handleLeftTap,
             onRightTap: handleRightTap
@@ -215,25 +186,6 @@ private extension FastSpeechView {
             phrases.removeAll { selectedIDs.contains($0.id) }
             selectedIDs.removeAll()
         }
-    }
-}
-
-private struct FastSpeechViewPhrase: Identifiable {
-    let id: UUID
-    var text: String
-    var categoryID: UUID?
-    var isPinned: Bool
-
-    init(
-        id: UUID = UUID(),
-        text: String,
-        categoryID: UUID? = nil,
-        isPinned: Bool = false
-    ) {
-        self.id = id
-        self.text = text
-        self.categoryID = categoryID
-        self.isPinned = isPinned
     }
 }
 
