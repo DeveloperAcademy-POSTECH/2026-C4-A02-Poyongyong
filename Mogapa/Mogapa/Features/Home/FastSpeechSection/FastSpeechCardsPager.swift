@@ -68,7 +68,7 @@ private extension FastSpeechCardsPager {
     var emptyState: some View {
         
         Text("여기에 말한 기록이 남아요!")
-            .typography(.title2Medium)
+            .typography(.subTitleMedium)
             .foregroundStyle(.texttertiary)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 308)
