@@ -15,19 +15,21 @@ struct DragCanvas: View {
     let onFinished: ([CGPoint]) -> Void
 
     var body: some View {
-        ZStack(alignment: .center) {
-            dragPath
-                .stroke(
-                    Color.blue,
-                    style: StrokeStyle(
-                        lineWidth: 10,
-                        lineCap: .round,
-                        lineJoin: .round
-                    )
+        dragPath
+            .stroke(
+                .backgroundbgSpBubble,
+                style: StrokeStyle(
+                    lineWidth: 10,
+                    lineCap: .round,
+                    lineJoin: .round
                 )
-        }
-        .contentShape(Rectangle())
-        .gesture(dragGesture)
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .contentShape(Rectangle())
+            .padding(.bottom, 66)
+            .gesture(dragGesture)
+            .overlay(canvasOutline)
     }
 }
 
@@ -43,6 +45,12 @@ private extension DragCanvas {
                 path.addLine(to: dragPoint)
             }
         }
+    }
+
+    var canvasOutline: some View {
+        RoundedRectangle(cornerRadius: 24)
+            .stroke(Color("Strokedefault"), lineWidth: 1)
+            .padding(.bottom, 66)
     }
 }
 
@@ -66,24 +74,19 @@ private extension DragCanvas {
     func finishDragGesture() {
         isDragging = false
         onFinished(dragPoints)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            dragPoints.removeAll()
+        }
     }
 }
 
 #Preview {
-    DragCanvasPreview()
-}
+    @Previewable @State var points: [CGPoint] = []
 
-private struct DragCanvasPreview: View {
-    @State private var dragPoints: [CGPoint] = []
-
-    var body: some View {
-        DragCanvas(
-            dragPoints: $dragPoints,
-            onFinished: { points in
-                print(points)
-            }
-        )
-        .frame(width: 300, height: 300)
-        .border(.gray)
+    DragCanvas(dragPoints: $points) { finishedPoints in
+        print("finished points: \(finishedPoints.count)")
     }
+    .frame(height: 300)
+    .background(.black.opacity(0.75))
 }
