@@ -24,14 +24,11 @@ struct HomeView: View {
     private var categories:
     [FastSpeechCategory]
     
-    @State
-    private var isSpeechTestPresented = false
+    @State private var isSpeechTestPresented = false
     
-    @State
-    private var isFastSpeechListPresented = false
+    @State private var isFastSpeechListPresented = false
     
-    @State
-    private var isSettingsPresented = false
+    @State private var isSettingsPresented = false
     
     // MARK: - ViewModel
     
@@ -44,66 +41,65 @@ struct HomeView: View {
     
     var body: some View {
         
-        GeometryReader { geometry in
-            
-            ZStack {
-                
-                // MARK: - Background Layers
-                
-                VStack {
-                    Rectangle()
-                        .fill(Color(.backgroundbgDefault))
-                        .ignoresSafeArea(edges: .top)
-                        .frame(width: geometry.size.width, height: 320)
-                    Rectangle()
-                        .fill(Color(.backgroundbgCanvas))
-                }
-                
-                
-                // MARK: - Main Home Content
-                
-                VStack{
-                    header
+        NavigationStack {
+            GeometryReader { geometry in
+                ZStack {
                     
-                    titleSection
+                    // MARK: - Background Layers
                     
-                    messageInput
+                    VStack {
+                        Rectangle()
+                            .fill(Color(.backgroundbgDefault))
+                            .ignoresSafeArea(edges: .top)
+                            .frame(width: geometry.size.width, height: 320)
+                        Rectangle()
+                            .fill(Color(.backgroundbgCanvas))
+                    }
                     
-                    fastSpeechSection
+                    
+                    // MARK: - Main Home Content
+                    
+                    VStack{
+                        header
+                        
+                        titleSection
+                        
+                        messageInput
+                        
+                        fastSpeechSection
+                    }
+                    .padding(.horizontal,20)
+                    .frame(
+                        width: geometry.size.width)
+                    
+                    
+                    // MARK: - Expanded Text Input Overlay
+                    
+                    if viewModel.isTextFieldExpanded {
+                        ExpandedTextInputOverlay(
+                            text:$viewModel.inputText,
+                            characterCount:viewModel.characterCount,
+                            onTextChanged: { text in
+                                viewModel.updateText(text)
+                            },
+                            onSpeak: {
+                                isSpeechTestPresented = true
+                            },
+                            onClose: {
+                                viewModel.isTextFieldExpanded = false
+                            }
+                        )
+                    }
                 }
-                .padding(.horizontal,20)
-                .frame(
-                    width: geometry.size.width)
-                
-                
-                // MARK: - Expanded Text Input Overlay
-                
-                if viewModel.isTextFieldExpanded {
-                    ExpandedTextInputOverlay(
-                        text:$viewModel.inputText,
-                        characterCount:viewModel.characterCount,
-                        onTextChanged: { text in
-                            viewModel.updateText(text)
-                        },
-                        onSpeak: {
-                            isSpeechTestPresented = true
-                        },
-                        onClose: {
-                            viewModel.isTextFieldExpanded = false
-                        }
-                    )
-                }
+            }.navigationDestination(isPresented: $isSpeechTestPresented) {
+                SpeechTestView(text: viewModel.inputText)
             }
-        } .sheet(isPresented: $isSpeechTestPresented) {
-            SpeechTestView(
-                text: viewModel.inputText
-            )
-        }
-        .sheet(isPresented: $isFastSpeechListPresented) {
-            FastSpeechListTestView()
-        }
-        .sheet(isPresented: $isSettingsPresented) {
-            SettingsTestView()
+            .navigationDestination(isPresented: $isFastSpeechListPresented) {
+                FastSpeechListTestView()
+            }
+            .navigationDestination(isPresented: $isSettingsPresented) {
+                SettingsTestView()
+            }
         }
         .ignoresSafeArea(.keyboard)
     }
@@ -208,7 +204,7 @@ private extension HomeView {
                 categories,
             
             recentPhrases:
-                   [],
+                [],
             
             selectedCategoryIndex:
                 $viewModel.selectedCategoryIndex,
@@ -224,9 +220,9 @@ private extension HomeView {
                 viewModel.selectPhrase(phrase)
             },
             onShowAllFastSpeech: {
-                  isFastSpeechListPresented =
-                      true
-              }
+                isFastSpeechListPresented =
+                true
+            }
         )
         .frame(maxWidth:.infinity)
         .padding(.bottom, 20)
