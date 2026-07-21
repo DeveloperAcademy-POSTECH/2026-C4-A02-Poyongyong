@@ -53,7 +53,16 @@ enum FastSpeechViewDummyData {
                     isPinned: true
                 ),
                 FastSpeechViewPhrase(
+                    text: "말씀하신 내용을 바로 답하기 어려워서 잠깐 정리한 뒤에 다시 말씀드려도 괜찮을까요?",
+                    categoryID: nil,
+                    isPinned: true
+                ),
+                FastSpeechViewPhrase(
                     text: "회의 자료는 메일로 다시 공유해 주세요.",
+                    categoryID: workCategory.id
+                ),
+                FastSpeechViewPhrase(
+                    text: "제가 지금은 소리로 대답하기 어려워서 필요한 내용은 이 화면에 적어서 보여드릴게요.",
                     categoryID: workCategory.id
                 ),
                 FastSpeechViewPhrase(
@@ -78,6 +87,10 @@ enum FastSpeechViewDummyData {
                 ),
                 FastSpeechViewPhrase(
                     text: "복용 방법을 종이에 적어주실 수 있나요?",
+                    categoryID: hospitalCategory.id
+                ),
+                FastSpeechViewPhrase(
+                    text: "증상이 언제부터 시작됐는지 천천히 설명드릴게요. 중간에 확인이 필요하면 말씀해 주세요.",
                     categoryID: hospitalCategory.id
                 ),
                 FastSpeechViewPhrase(
