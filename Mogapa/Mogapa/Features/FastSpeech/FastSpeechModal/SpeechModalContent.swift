@@ -9,19 +9,24 @@ import SwiftUI
 
 struct SpeechModalContent: View {
     @Environment(\.dismiss) private var dismiss
-    let title: String
     
+    
+    @State private var text: String
+    @State private var showCategoryPicker = false
     @State private var selected: String
+    
+    let title: String
     let categories: [String]
     
     // selected 되는 값으로 바뀌게
-    init(title: String, categories: [String]) {
+    init(title: String, categories: [String], existingText: String = "") {
         self.title = title
         self.categories = categories
         _selected = State(initialValue: categories.first ?? "")
+        _text = State(initialValue: existingText)
     }
     
-    @State private var text = ""
+    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -42,6 +47,9 @@ struct SpeechModalContent: View {
         .presentationDetents([.height(725)])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
+        .sheet(isPresented: $showCategoryPicker) {
+                CategoryPicker(selected: $selected, categories: categories)
+            }
     }
     
     private var header: some View {
@@ -61,16 +69,21 @@ struct SpeechModalContent: View {
     
     private var content: some View {
         VStack(spacing: 16) {
-            HStack {
-                Text("카테고리")
-                    .foregroundStyle(.textprimary)
-                Spacer()
-                Text("아카데미")
-                    .foregroundStyle(.texttertiary)
-                Image(systemName: "chevron.right")
-                    .typography(.bodyMedium)
-                    .foregroundStyle(.textmuted)
+            Button {
+                 showCategoryPicker = true
+            } label: {
+                HStack {
+                    Text("카테고리")
+                        .foregroundStyle(.textprimary)
+                    Spacer()
+                    Text(selected)
+                        .foregroundStyle(.texttertiary)
+                    Image(systemName: "chevron.right")
+                        .typography(.bodyMedium)
+                        .foregroundStyle(.textmuted) }
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
             .padding(.horizontal, 24)
             .frame(maxWidth: .infinity, minHeight: 52)
             .background {
@@ -98,6 +111,6 @@ struct SpeechModalContent: View {
 #Preview {
     Color.gray
         .sheet(isPresented: .constant(true)) {
-            SpeechModalContent(title: "제나", categories: ["임시카고"])
+            SpeechModalContent(title: "제나", categories: ["임시카고", "제나", "주니", "이안", "빅토리아", "퍼플", "스우"])
         }
 }
