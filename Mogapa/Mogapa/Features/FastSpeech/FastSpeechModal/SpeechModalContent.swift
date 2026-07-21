@@ -10,7 +10,6 @@ import SwiftUI
 struct SpeechModalContent: View {
     @Environment(\.dismiss) private var dismiss
     
-    
     @State private var text: String
     @State private var showCategoryPicker = false
     @State private var selected: String
@@ -25,8 +24,6 @@ struct SpeechModalContent: View {
         _selected = State(initialValue: categories.first ?? "")
         _text = State(initialValue: existingText)
     }
-    
-    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -96,15 +93,6 @@ struct SpeechModalContent: View {
         }
         .padding(.top, 24)
         .padding(.horizontal, 16)
-    }
-    
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(
-            #selector(UIResponder.resignFirstResponder),
-            to: nil,
-            from: nil,
-            for: nil
-        )
     }
 }
 
