@@ -8,19 +8,22 @@
 import SwiftUI
 
 enum Typography {
+    case presentBodyMedium, presentBodyBold
     case largeTitleMedium, largeTitleBold
-    case largeTitle1Medium, largeTitle1Bold
-    case title1Medium, title1Bold
-    case title2Medium, title2Bold
-    case bodyMedium, bodySemiBold, bodyBold
+    case titleMedium, titleBold
+    case subTitleMedium, subTitleBold
+    case bodyRegular, bodyMedium, bodySemiBold, bodyBold
     case subheadlineMedium, subheadlineBold
-    case calloutMedium, calloutBold
+    case calloutLight, calloutRegular
 
     var weight: PretendardWeight {
             switch self {
-            case .largeTitleMedium, .largeTitle1Medium, .title1Medium, .title2Medium,
-                 .bodyMedium, .subheadlineMedium, .calloutMedium:
+            case .presentBodyMedium, .largeTitleMedium, .titleMedium, .subTitleMedium, .bodyMedium, .subheadlineMedium:
                 return .medium
+            case .bodyRegular, .calloutRegular:
+                return .regular
+            case .calloutLight:
+                return .light
             case .bodySemiBold:
                 return .semiBold
             default:
@@ -30,17 +33,25 @@ enum Typography {
     
     var size: CGFloat {
             switch self {
-            case .largeTitleMedium, .largeTitleBold: return 40
-            case .largeTitle1Medium, .largeTitle1Bold: return 32
-            case .title1Medium, .title1Bold: return 24
-            case .title2Medium, .title2Bold: return 20
-            case .bodyMedium, .bodySemiBold, .bodyBold: return 16
+            case .presentBodyMedium, .presentBodyBold: return 40
+            case .largeTitleMedium, .largeTitleBold: return 32
+            case .titleMedium, .titleBold: return 24
+            case .subTitleMedium, .subTitleBold: return 20
+            case .bodyMedium, .bodySemiBold, .bodyBold, .bodyRegular: return 16
             case .subheadlineMedium, .subheadlineBold: return 14
-            case .calloutMedium, .calloutBold: return 12
+            case .calloutRegular, .calloutLight: return 12
             }
         }
     
     var letterSpacingPercent: CGFloat { -2 }
+    
+    // 행간 설정
+    var lineHeight: CGFloat {
+            switch self {
+            case .presentBodyMedium, .presentBodyBold: return 52
+            default: return size
+            }
+        }
 }
 
 extension View {
@@ -48,5 +59,6 @@ extension View {
         self
             .font(.pretendard(typography.weight, size: typography.size))
             .tracking(typography.size * typography.letterSpacingPercent / 100)
+            .lineSpacing(typography.lineHeight - typography.size)
     }
 }

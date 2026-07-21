@@ -53,7 +53,7 @@ private extension FastSpeechSection {
         
         HStack {
             Text("빠른 말하기")
-                .typography(.title1Bold)
+                .typography(.titleBold)
                 .foregroundColor(.textprimary)
             
             Spacer()

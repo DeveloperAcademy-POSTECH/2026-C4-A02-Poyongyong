@@ -46,7 +46,7 @@ private extension FastSpeechCardView {
             
             VStack {
                 Text(previewText)
-                    .typography(.title2Medium)
+                    .typography(.subTitleMedium)
                     .foregroundColor(.textsecondary)
                     .frame(
                         maxWidth: .infinity, alignment: .leading
