@@ -15,11 +15,9 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Features/FastSpeech/.gitkeep,
-				Features/Presentation/.gitkeep,
 				Features/Setting/.gitkeep,
 				Info.plist,
 				Shared/DesignSystem/.gitkeep,
-				Shared/Services/.gitkeep,
 			);
 			target = A4DD81A5300533FD00C5A95E /* Mogapa */;
 		};
