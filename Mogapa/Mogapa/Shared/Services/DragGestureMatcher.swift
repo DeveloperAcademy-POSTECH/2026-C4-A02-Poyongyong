@@ -31,7 +31,11 @@ enum DragGestureMatcher {
             let score = averageDistance(normalizedDrawn, gesture.points)
             let match = DragGestureMatch(gesture: gesture, score: score)
 
-            if bestMatch == nil || match.score < bestMatch!.score {
+            if let currentBest = bestMatch {
+                if match.score < currentBest.score {
+                    bestMatch = match
+                }
+            } else {
                 bestMatch = match
             }
         }
