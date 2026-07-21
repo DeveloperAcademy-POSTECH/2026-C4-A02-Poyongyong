@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 struct MessageInputView: View {
     
     // MARK: - Input
@@ -18,7 +17,6 @@ struct MessageInputView: View {
     @Binding
     var isExpanded: Bool
     
-    
     // MARK: - Character Count
     
     let characterCount: Int
@@ -26,11 +24,9 @@ struct MessageInputView: View {
     
     // MARK: - Actions
     
-    let onTextChanged:
-    (String) -> Void
+    let onTextChanged: (String) -> Void
     
-    let onSpeak:
-    () -> Void
+    let onSpeak:() -> Void
     
     
     // MARK: - Keyboard Focus
@@ -46,15 +42,17 @@ struct MessageInputView: View {
         ZStack {
             
             // MARK: - Collapsed State
+            
             if !isExpanded {
                 collapsedInput
                     .transition(.scale(scale:0.95)
-                        .combined(with: .opacity))
+                        .combined(with:.opacity))
                     .onTapGesture {expandInput()
                     }
             }
             
             // MARK: - Expanded State
+            
             if isExpanded {
                 expandedOverlay
                     .transition(.opacity)
@@ -71,30 +69,35 @@ private extension MessageInputView {
     var collapsedInput:
     some View {
         
-        VStack( alignment: .leading, spacing:8)
+        VStack(alignment: .leading, spacing:8)
         {
             // MARK: - Placeholder
+            
             if text.isEmpty {
-                Text( "무엇을 이야기하고 싶은가요?")
-                .font(.system(size:20))
-                .foregroundStyle(.gray)}
+                Text("무엇을 이야기하고 싶은가요?")
+                .typography(.subTitleMedium)
+                .foregroundColor(.textplaceholder)}
             
             Spacer()
             
             // MARK: - Bottom Controls
+            
             HStack {
                 Text("\(characterCount)/150")
-                .font(.caption2)
-                .foregroundStyle(.gray)
+                    .typography(.calloutRegular)
+                    .foregroundColor(.texttertiary)
                 
                 Spacer()
                 
                 speakButton
             }
         }
-        .padding(16)
+        .padding(.leading, 32)
+        .padding(.trailing, 18)
+        .padding(.top, 25)
+        .padding(.bottom, 22)
         .frame(width: 362, height:204)
-        .background(Color.white)
+        .background(Color.backgroundbgCanvas)
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius:0,
@@ -171,10 +174,12 @@ private extension MessageInputView {
             
             
             // MARK: - Divider
+            
             Divider()
             
             
             // MARK: - Text Editor
+            
             TextEditor(text: $text)
             .focused($isFocused)
             .scrollContentBackground(.hidden)
@@ -189,8 +194,8 @@ private extension MessageInputView {
             
             HStack {
                 Text("\(characterCount)/150")
-                .font(.caption2)
-                .foregroundStyle(.gray)
+                    .typography(.calloutRegular)
+                    .foregroundColor(.texttertiary)
                 
                 Spacer()
                 
@@ -232,15 +237,11 @@ private extension MessageInputView {
             onSpeak()
         } label: {
             Image(systemName:"waveform")
-            .font(.system(size:18,weight:.semibold))
+            .font(.system(size:20,weight:.semibold))
             .foregroundStyle(.white)
             .frame(width:40,height:40)
             .background(
-                text.isEmpty ? Color.gray : Color(
-                    red:0.36,
-                    green:0.48,
-                    blue: 0.96
-                )
+                text.isEmpty ? Color(.iconmuted) : Color(.labelprimary)
             )
             .clipShape(Circle())
         }

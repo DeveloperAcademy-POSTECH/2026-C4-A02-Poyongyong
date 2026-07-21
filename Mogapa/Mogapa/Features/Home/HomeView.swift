@@ -42,19 +42,12 @@ struct HomeView: View {
                 // MARK: - Background Layers
                 VStack {
                     Rectangle()
-                        .fill(
-                            Color(
-                                red: 0.36,
-                                green: 0.48,
-                                blue: 0.96
-                            )
-                        )
+                        .fill(Color(.backgroundbgDefault))
                         .ignoresSafeArea(edges: .top)
                         .frame(width: geometry.size.width, height: 320)
                     Rectangle()
-                        .fill(Color.white)
+                        .fill(Color(.backgroundbgCanvas))
                 }
-                
                 
                 // MARK: - Main Home Content
                 
@@ -67,6 +60,7 @@ struct HomeView: View {
                     
                     fastSpeechSection
                 }
+                .padding(.horizontal,20)
                 .frame(
                     width: geometry.size.width)
                 
@@ -102,10 +96,9 @@ private extension HomeView {
     some View {
         
         HStack {
-            Text("모가파")
-                .font(.title2)
-                .bold()
-                .foregroundStyle(.white)
+            Image("AppIconImage")
+                .resizable()
+                .frame(width:50,height:34)
             
             Spacer()
             
@@ -118,8 +111,7 @@ private extension HomeView {
                 
             }
         }
-        .padding(.horizontal,20)
-        .padding(.top,8)
+        .padding(.top, 10)
     }
 }
 
@@ -131,27 +123,26 @@ private extension HomeView {
     var titleSection:
     some View {
         
-        HStack(spacing:12
-        ) { Text("말하기를\n시작해 볼까요?")
+        HStack{
+            Text("말하기를\n시작해 볼까요?")
                 .typography(.largeTitleBold)
-                .foregroundColor(.white)
+                .foregroundColor(.textwhite)
                 .multilineTextAlignment(.leading)
             
+            Spacer()
+            
             VStack(alignment:.trailing, spacing: 4
-            ) {Image(systemName:"rectangle.portrait.rotate")
+            ) {
+                Image(systemName:"rectangle.portrait.rotate")
                     .font(.system(size:28))
+                    .foregroundColor(.iconinverse)
                 Text("가로로 돌려\n표현하기")
                     .typography(.bodyMedium)
                     .multilineTextAlignment(.trailing)
                     .fixedSize(horizontal:false, vertical:true)
+                    .foregroundColor(.textwhite)
             }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity,alignment:.trailing)
         }
-        
-        .padding(.horizontal,20)
-        .padding(.top, 12)
-        .padding(.bottom, 16)
     }
 }
 
@@ -214,13 +205,9 @@ private extension HomeView {
             }
         )
         .frame(maxWidth:.infinity)
-        .padding(.top, 20)
-        .padding(.bottom, 24)
+        .padding(.bottom, 20)
     }
 }
-
-
-// MARK: - Preview
 
 #Preview {
     HomeView()
