@@ -8,6 +8,21 @@
 import SwiftUI
 
 struct QuickSpeechBubbleRow<ID: Hashable>: View {
+    private enum SwipeDirection {
+        case leading
+        case trailing
+
+        init?(offset: CGFloat) {
+            if offset > 0 {
+                self = .leading
+            } else if offset < 0 {
+                self = .trailing
+            } else {
+                return nil
+            }
+        }
+    }
+
     let id: ID
     let text: String
     let isPinned: Bool
@@ -24,12 +39,14 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
 
     @State private var dragOffset: CGFloat = 0
     @State private var dragStartOffset: CGFloat?
+    @State private var lockedSwipeDirection: SwipeDirection?
     @State private var deleteOffset: CGFloat = 0
     @State private var isDeleting = false
     @State private var rowWidth: CGFloat = 0
 
     private let openOffset: CGFloat = 62
     private let openThreshold: CGFloat = 31
+    private let directionLockThreshold: CGFloat = 2
     private let checkboxSize: CGFloat = 18
     private let checkboxSpacing: CGFloat = 12
     private let deleteAnimationDuration: TimeInterval = 0.24
@@ -185,19 +202,30 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
                 let translation = value.translation.width
                 let startOffset = dragStartOffset ?? dragOffset
                 dragStartOffset = startOffset
+
+                if lockedSwipeDirection == nil {
+                    let directionSource = startOffset == 0 ? translation : startOffset
+                    if abs(directionSource) > directionLockThreshold {
+                        lockedSwipeDirection = SwipeDirection(offset: directionSource)
+                    }
+                }
+
                 let proposedOffset = startOffset + translation
 
-                dragOffset = max(-openOffset, min(openOffset, proposedOffset))
+                dragOffset = clampedOffset(
+                    proposedOffset,
+                    for: lockedSwipeDirection
+                )
             }
             .onEnded { _ in
                 guard !isEditing, !isDeleting else { return }
                 dragStartOffset = nil
 
                 withAnimation(.snappy) {
-                    if dragOffset > openThreshold {
+                    if lockedSwipeDirection == .leading, dragOffset > openThreshold {
                         openedRowID = id
                         dragOffset = openOffset
-                    } else if dragOffset < -openThreshold {
+                    } else if lockedSwipeDirection == .trailing, dragOffset < -openThreshold {
                         openedRowID = id
                         dragOffset = -openOffset
                     } else {
@@ -214,6 +242,21 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
             }
             dragOffset = 0
             dragStartOffset = nil
+            lockedSwipeDirection = nil
+        }
+    }
+
+    private func clampedOffset(
+        _ offset: CGFloat,
+        for direction: SwipeDirection?
+    ) -> CGFloat {
+        switch direction {
+        case .leading:
+            return max(0, min(openOffset, offset))
+        case .trailing:
+            return min(0, max(-openOffset, offset))
+        case nil:
+            return max(-openOffset, min(openOffset, offset))
         }
     }
 
