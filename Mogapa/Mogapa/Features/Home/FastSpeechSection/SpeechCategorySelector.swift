@@ -20,8 +20,7 @@ struct FastSpeechCategorySelector: View {
             .horizontal,
             showsIndicators: false
         ) {
-            HStack(spacing: 8)
-            {
+            HStack{
                 CategoryLabel(
                     title: "최근순",
                     isSelected:
@@ -31,12 +30,8 @@ struct FastSpeechCategorySelector: View {
                 }
                 
                 ForEach(
-                    Array(
-                        categories.enumerated()
-                    ),
-                    id:
-                        \.element.id
-                    
+                    Array(categories.enumerated()),
+                    id:\.element.id
                 ) { index, category in
                     CategoryLabel(
                         title:
@@ -50,7 +45,6 @@ struct FastSpeechCategorySelector: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
         }
         .frame(maxWidth: .infinity,alignment: .leading)
     }

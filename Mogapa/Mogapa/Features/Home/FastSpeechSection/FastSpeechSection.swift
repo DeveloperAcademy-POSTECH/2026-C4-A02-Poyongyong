@@ -18,13 +18,11 @@ struct FastSpeechSection: View {
     let selectedPhraseID: UUID?
     let previewText: (String) -> String
     let onPhraseSelected: (FastSpeechPhrase) -> Void
+    let onShowAllFastSpeech: () -> Void
     
     var body: some View {
         
-        VStack(
-            alignment: .leading,
-            spacing: 12
-        ) {
+        VStack(spacing: 12){
             header
             
             FastSpeechCategorySelector(
@@ -38,12 +36,7 @@ struct FastSpeechSection: View {
                 previewText: previewText,
                 onPhraseSelected: onPhraseSelected
             )
-            .frame(height: 330)
         }
-        .frame(
-            maxWidth: .infinity,
-            alignment: .leading
-        )
     }
 }
 
@@ -59,14 +52,14 @@ private extension FastSpeechSection {
             Spacer()
             
             Button {
-
+                onShowAllFastSpeech()
             } label: {
                 Image(systemName: "chevron.right")
-                .font(.system(size: 20,weight: .semibold))
+                .font(.system(size:20))
                 .foregroundColor(.textprimary)
             }
+            
         }
-        .padding(.horizontal, 20)
     }
 }
 
