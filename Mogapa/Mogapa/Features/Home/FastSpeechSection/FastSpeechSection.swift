@@ -58,7 +58,6 @@ private extension FastSpeechSection {
                 .foregroundColor(.textprimary)
             }
         }
-        .padding(.horizontal,20)
     }
 }
 

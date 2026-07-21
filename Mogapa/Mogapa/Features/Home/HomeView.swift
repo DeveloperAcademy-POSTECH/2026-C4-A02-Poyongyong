@@ -60,6 +60,7 @@ struct HomeView: View {
                     
                     fastSpeechSection
                 }
+                .padding(.horizontal,20)
                 .frame(
                     width: geometry.size.width)
                 
@@ -110,7 +111,6 @@ private extension HomeView {
                 
             }
         }
-        .padding(.horizontal,20)
         .padding(.top, 10)
     }
 }
@@ -123,8 +123,8 @@ private extension HomeView {
     var titleSection:
     some View {
         
-        HStack(spacing:12
-        ) { Text("말하기를\n시작해 볼까요?")
+        HStack{
+            Text("말하기를\n시작해 볼까요?")
                 .typography(.largeTitleBold)
                 .foregroundColor(.textwhite)
                 .multilineTextAlignment(.leading)
@@ -132,7 +132,8 @@ private extension HomeView {
             Spacer()
             
             VStack(alignment:.trailing, spacing: 4
-            ) {Image(systemName:"rectangle.portrait.rotate")
+            ) {
+                Image(systemName:"rectangle.portrait.rotate")
                     .font(.system(size:28))
                     .foregroundColor(.iconinverse)
                 Text("가로로 돌려\n표현하기")
@@ -142,8 +143,6 @@ private extension HomeView {
                     .foregroundColor(.textwhite)
             }
         }
-        .padding(.horizontal,20)
-        .padding(.vertical, 12)
     }
 }
 

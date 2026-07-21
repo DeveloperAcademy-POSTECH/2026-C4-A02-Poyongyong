@@ -20,8 +20,7 @@ struct FastSpeechCategorySelector: View {
             .horizontal,
             showsIndicators: false
         ) {
-            HStack(spacing: 8)
-            {
+            HStack{
                 CategoryLabel(
                     title: "최근순",
                     isSelected:
@@ -46,7 +45,6 @@ struct FastSpeechCategorySelector: View {
                     }
                 }
             }
-            .padding(.horizontal, 20)
         }
         .frame(maxWidth: .infinity,alignment: .leading)
     }
