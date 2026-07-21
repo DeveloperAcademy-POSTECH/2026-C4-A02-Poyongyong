@@ -13,14 +13,15 @@ struct SettingView: View {
     @State private var isBrightnessOn = true
     @State private var manualBrightness = 50.0
     @State private var isRotateOn = true
-    
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         VStack(spacing: 0){
             // 앱 공용 헤더 컴포넌트 재사용
             MogapaNavigationHeader(
                 title: "설정",
                 rightTitle: "재설정",
-                onLeftTap: {},
+                onLeftTap: {dismiss()},
                 onRightTap: {},
                 backgroundColor: Color("Backgroundbg-disabled")
             )

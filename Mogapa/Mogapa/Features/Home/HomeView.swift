@@ -98,7 +98,8 @@ struct HomeView: View {
                 FastSpeechListTestView()
             }
             .navigationDestination(isPresented: $isSettingsPresented) {
-                SettingsTestView()
+                SettingView()
+                    .toolbar(.hidden, for: .navigationBar)
             }
         }
         .ignoresSafeArea(.keyboard)
