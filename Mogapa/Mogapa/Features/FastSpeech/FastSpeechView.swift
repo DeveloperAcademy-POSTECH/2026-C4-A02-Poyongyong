@@ -33,9 +33,7 @@ struct FastSpeechView: View {
                     selectedIndex: $selectedCategoryIndex,
                     defaultTitle: "최근 말하기",
                     showsAddButton: true,
-                    onAddCategory: {
-                        presentedModal = .add
-                    }
+                    onAddCategory: {}
                 )
                 .padding(.horizontal, 20)
 
@@ -94,7 +92,7 @@ private extension FastSpeechView {
     }
 
     var categoryNames: [String] {
-        ["최근 말하기"] + categories.map(\.name)
+        categories.map(\.name)
     }
 
     var filteredPhrases: [FastSpeechViewPhrase] {
