@@ -18,6 +18,8 @@ struct ContentView: View {
                 .foregroundColor(.backgroundbgDefault)
         }
         .padding()
+        
+//    HomeMotionTestView() // 코어모션 테스트 하려면 주석을 지우세요
     }
 }
 
