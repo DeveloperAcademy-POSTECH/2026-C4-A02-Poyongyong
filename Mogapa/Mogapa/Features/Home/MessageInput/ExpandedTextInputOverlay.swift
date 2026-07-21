@@ -44,6 +44,8 @@ struct ExpandedTextInputOverlay: View {
                     .onTapGesture {
                         closeOverlay()
                     }
+                
+                
                 // MARK: - Expanded Text Field
                 
                 expandedTextField
@@ -64,6 +66,7 @@ struct ExpandedTextInputOverlay: View {
     }
 }
 
+
 // MARK: - Expanded Text Field
 
 private extension ExpandedTextInputOverlay {
@@ -71,22 +74,28 @@ private extension ExpandedTextInputOverlay {
     var expandedTextField:
     some View {
         
-        VStack(alignment: .leading, spacing:8) {
+        VStack(alignment: .leading) {
+            
             
             // MARK: - Landscape Instruction
             
             HStack(spacing: 8) {
                 Image(systemName:"rectangle.portrait.rotate")
                 .font(.system(size:16))
+                .foregroundColor(.iconmuted)
                 
                 Text("가로로 돌려 표현하기")
-                .font(.caption)
-                .foregroundStyle(.gray)
+                    .typography(.calloutRegular)
+                    .foregroundStyle(.textmuted)
+                
                 Spacer()
             }
+            
+            
             // MARK: - Divider
         
             Divider()
+            
             
             // MARK: - Text Editor
             
@@ -95,7 +104,9 @@ private extension ExpandedTextInputOverlay {
             )
             .focused($isTextEditorFocused)
             .scrollContentBackground(.hidden)
-            .font(.system(size:16))
+            .typography(.subTitleMedium)
+            .foregroundColor(.textprimary)
+            .multilineTextAlignment(.leading)
             .frame(
                 maxWidth:.infinity,
                 maxHeight:.infinity
@@ -114,17 +125,20 @@ private extension ExpandedTextInputOverlay {
             
             HStack {
                 Text("\(characterCount)/150")
-                .font(.caption2)
-                .foregroundStyle(.gray)
+                    .typography(.calloutRegular)
+                    .foregroundColor(.texttertiary)
                 
                 Spacer()
                 
                 speakButton
             }
         }
-        .padding(16)
+        .padding(.leading, 32)
+        .padding(.trailing, 18)
+        .padding(.top, 25)
+        .padding(.bottom,22)
         .frame(width:362, height:329)
-        .background(Color.white)
+        .background(Color.backgroundbgCanvas)
         
         .clipShape(
             UnevenRoundedRectangle(
@@ -144,6 +158,7 @@ private extension ExpandedTextInputOverlay {
     }
 }
 
+
 // MARK: - Speak Button
 
 private extension ExpandedTextInputOverlay {
@@ -162,12 +177,7 @@ private extension ExpandedTextInputOverlay {
                 .foregroundStyle(.white)
                 .frame( width: 40, height: 40)
                 .background(
-                    text.isEmpty ? Color.gray : Color(
-                        red:0.36,
-                        green:0.48,
-                        blue:0.96
-                    )
-                )
+                    text.isEmpty ? Color.iconmuted : Color(.labelprimary))
                 .clipShape(
                     Circle()
                 )
