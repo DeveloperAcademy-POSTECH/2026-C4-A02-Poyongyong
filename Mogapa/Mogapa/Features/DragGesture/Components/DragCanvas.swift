@@ -76,6 +76,7 @@ private extension DragCanvas {
         onFinished(dragPoints)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            // TODO: 매칭 여부 확인 이후 remove 소환
             dragPoints.removeAll()
         }
     }
