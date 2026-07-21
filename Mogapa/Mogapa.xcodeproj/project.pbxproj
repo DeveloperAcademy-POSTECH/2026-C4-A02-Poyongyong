@@ -15,7 +15,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Features/DragGesture/.gitkeep,
-				Features/FastSpeech/.gitkeep,
 				Features/Presentation/.gitkeep,
 				Features/Setting/.gitkeep,
 				Info.plist,
