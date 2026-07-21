@@ -11,6 +11,18 @@ struct SpeechModalContent: View {
     @Environment(\.dismiss) private var dismiss
     let title: String
     
+    @State private var selected: String
+    let categories: [String]
+    
+    // selected 되는 값으로 바뀌게
+    init(title: String, categories: [String]) {
+        self.title = title
+        self.categories = categories
+        _selected = State(initialValue: categories.first ?? "")
+    }
+    
+    @State private var text = ""
+    
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -66,7 +78,8 @@ struct SpeechModalContent: View {
                     .fill(Color.backgroundbgCanvas)
             }
             
-            Spacer()
+            RoundedTextField(text: $text)
+                .frame(maxWidth: .infinity)
         }
         .padding(.top, 24)
         .padding(.horizontal, 16)
@@ -85,6 +98,6 @@ struct SpeechModalContent: View {
 #Preview {
     Color.gray
         .sheet(isPresented: .constant(true)) {
-            SpeechModalContent(title: "제나")
+            SpeechModalContent(title: "제나", categories: ["임시카고"])
         }
 }
