@@ -15,7 +15,7 @@ struct SpeechModalContent: View {
         VStack(spacing: 0) {
             header
 
-            //content
+            content
         }
         .frame(
             maxWidth: .infinity,
@@ -45,6 +45,31 @@ struct SpeechModalContent: View {
         )
         .padding(.top, 22)
         .padding(.horizontal, 6)
+    }
+    
+    private var content: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("카테고리")
+                    .foregroundStyle(.textprimary)
+                Spacer()
+                Text("아카데미")
+                    .foregroundStyle(.texttertiary)
+                Image(systemName: "chevron.right")
+                    .typography(.bodyMedium)
+                    .foregroundStyle(.textmuted)
+            }
+            .padding(.horizontal, 24)
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background {
+                RoundedRectangle(cornerRadius: 40)
+                    .fill(Color.backgroundbgCanvas)
+            }
+            
+            Spacer()
+        }
+        .padding(.top, 24)
+        .padding(.horizontal, 16)
     }
     
     private func hideKeyboard() {
