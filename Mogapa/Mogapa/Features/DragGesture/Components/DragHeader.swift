@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct DragHeader: View {
+
+    let onEditTap: () -> Void
+
     var body: some View {
         HStack(alignment: .top, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
@@ -25,15 +28,14 @@ struct DragHeader: View {
             BasicButton(
                 title: "편집",
                 foregroundStyle: .white
-            ){
-                print("Edit tapped")
+            ) {
+                onEditTap()
             }
         }
     }
 }
 
 #Preview {
-    DragHeader()
+    DragHeader(onEditTap: {})
         .background(.black)
 }
-
