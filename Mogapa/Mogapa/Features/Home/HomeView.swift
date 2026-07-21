@@ -133,7 +133,7 @@ private extension HomeView {
         
         HStack(spacing:12
         ) { Text("말하기를\n시작해 볼까요?")
-                .typography(.largeTitle1Bold)
+                .typography(.largeTitleBold)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
             
