@@ -112,7 +112,7 @@ struct HomeView: View {
                 SpeechTestView(text: viewModel.inputText)
             }
             .navigationDestination(isPresented: $isFastSpeechListPresented) {
-                FastSpeechListTestView()
+                FastSpeechView()
             }
             .navigationDestination(isPresented: $isSettingsPresented) {
                 SettingView()
@@ -136,11 +136,15 @@ struct HomeView: View {
                 guard wasPresented, !isPresented else { return }
                 saveToRecentAndReset()
             }
+            .onChange(of: motionManager.latestShakeID) { _, _ in
+                guard !isGesturePresented else { return }
+                isGesturePresented = true
+            }
             .fullScreenCover(isPresented: $isPresentationPresented) {
                 PresentationView(text: viewModel.inputText, orientation: presentationOrientation)
             }
              .sheet(isPresented: $isGesturePresented) {
-                        MotionGestureTestView()  // 여기 제스처 뷰 넣으셈!!!!
+                        DragGestureView()  // 여기 제스처 뷰 넣으셈!!!!
                     }
         }
         .ignoresSafeArea(.keyboard)

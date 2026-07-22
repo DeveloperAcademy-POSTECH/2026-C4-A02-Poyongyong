@@ -9,8 +9,13 @@ import SwiftUI
 
 struct MogapaNavigationHeader: View {
     let title: String
-    let rightTitle: String
-    let leftIcon: String
+    let rightTitle: String?
+    let rightSystemImage: String?
+    let isRightDisabled: Bool
+    let rightTint: Color
+    let rightForegroundStyle: AnyShapeStyle
+    let leftTitle: String?
+    let leftIcon: String?
     let leftAccessibilityLabel: String
     let onLeftTap: () -> Void
     let onRightTap: () -> Void
@@ -18,8 +23,13 @@ struct MogapaNavigationHeader: View {
 
     init(
         title: String,
-        rightTitle: String,
-        leftIcon: String = "chevron.left",
+        rightTitle: String? = nil,
+        rightSystemImage: String? = nil,
+        isRightDisabled: Bool = false,
+        rightTint: Color = .clear,
+        rightForegroundStyle: some ShapeStyle = .textsecondary,
+        leftTitle: String? = nil,
+        leftIcon: String? = "chevron.left",
         leftAccessibilityLabel: String = "뒤로 가기",
         onLeftTap: @escaping () -> Void,
         onRightTap: @escaping () -> Void,
@@ -27,6 +37,11 @@ struct MogapaNavigationHeader: View {
     ) {
         self.title = title
         self.rightTitle = rightTitle
+        self.rightSystemImage = rightSystemImage
+        self.isRightDisabled = isRightDisabled
+        self.rightTint = rightTint
+        self.rightForegroundStyle = AnyShapeStyle(rightForegroundStyle)
+        self.leftTitle = leftTitle
         self.leftIcon = leftIcon
         self.leftAccessibilityLabel = leftAccessibilityLabel
         self.onLeftTap = onLeftTap
@@ -44,10 +59,11 @@ struct MogapaNavigationHeader: View {
 
             HStack {
                 BasicButton(
+                    title: leftTitle,
                     systemImage: leftIcon,
-                    shape: .circle,
-                    foregroundStyle: .textprimary,
-                    font: .system(size: 24, weight: .medium)
+                    shape: leftTitle == nil ? .circle : .capsule,
+                    foregroundStyle: leftTitle == nil ? .textprimary : .textsecondary,
+                    font: leftTitle == nil ? .system(size: 24, weight: .medium) : .pretendard(.medium, size: 20)
                 ) {
                     onLeftTap()
                 }
@@ -57,12 +73,16 @@ struct MogapaNavigationHeader: View {
 
                 BasicButton(
                     title: rightTitle,
+                    systemImage: rightSystemImage,
                     shape: .capsule,
-                    foregroundStyle: .textsecondary,
+                    foregroundStyle: rightForegroundStyle,
+                    tint: rightTint,
                     font: .pretendard(.medium, size: 20)
                 ) {
                     onRightTap()
                 }
+                .disabled(isRightDisabled)
+                .opacity(isRightDisabled ? 0.45 : 1)
             }
             .padding(.horizontal, 20)
         }
@@ -85,8 +105,11 @@ struct MogapaNavigationHeader: View {
 #Preview("편집 진입 형태") {
     MogapaNavigationHeader(
         title: "빠른 말하기",
-        rightTitle: "삭제",
-        leftIcon: "xmark",
+        rightSystemImage: "trash.fill",
+        rightTint: .accentsRed,
+        rightForegroundStyle: .iconinverse,
+        leftTitle: "취소",
+        leftIcon: nil,
         leftAccessibilityLabel: "닫기",
         onLeftTap: {},
         onRightTap: {}

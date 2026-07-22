@@ -11,7 +11,8 @@ struct SpeechModalContent: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var text: String
-    @State private var showCategoryPicker = false
+    // 기존 방식으로 되돌릴 때 사용:
+    // @State private var showCategoryPicker = false
     @State private var selected: String
     
     let title: String
@@ -41,12 +42,13 @@ struct SpeechModalContent: View {
         .onTapGesture {
             hideKeyboard()
         }
-        .presentationDetents([.height(725)])
+        .presentationDetents([.height(625)])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
-        .sheet(isPresented: $showCategoryPicker) {
-                CategoryPicker(selected: $selected, categories: categories)
-            }
+        // 기존 방식으로 되돌릴 때 사용:
+        // .sheet(isPresented: $showCategoryPicker) {
+        //     CategoryPicker(selected: $selected, categories: categories)
+        // }
     }
     
     private var header: some View {
@@ -66,33 +68,63 @@ struct SpeechModalContent: View {
     
     private var content: some View {
         VStack(spacing: 16) {
-            Button {
-                 showCategoryPicker = true
-            } label: {
-                HStack {
-                    Text("카테고리")
-                        .foregroundStyle(.textprimary)
-                    Spacer()
-                    Text(selected)
-                        .foregroundStyle(.texttertiary)
-                    Image(systemName: "chevron.right")
-                        .typography(.bodyMedium)
-                        .foregroundStyle(.textmuted) }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 24)
-            .frame(maxWidth: .infinity, minHeight: 52)
-            .background {
-                RoundedRectangle(cornerRadius: 40)
-                    .fill(Color.backgroundbgCanvas)
-            }
+            categorySelector
             
             RoundedTextField(text: $text)
                 .frame(maxWidth: .infinity)
         }
         .padding(.top, 24)
         .padding(.horizontal, 16)
+    }
+
+    private var categorySelector: some View {
+        // 기존 방식은 row tap 시 CategoryPicker sheet를 한 번 더 띄웠음.
+        // PR 논의 후 기존 방식으로 되돌릴 경우 Menu 대신 아래 action을 가진 Button으로 복구.
+        //
+        // Button {
+        //     showCategoryPicker = true
+        // } label: {
+        //     categorySelectorLabel
+        // }
+        // .buttonStyle(.plain)
+        Menu {
+            ForEach(categories, id: \.self) { category in
+                Button {
+                    selected = category
+                } label: {
+                    Label(
+                        category,
+                        systemImage: category == selected ? "checkmark" : ""
+                    )
+                }
+            }
+        } label: {
+            categorySelectorLabel
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var categorySelectorLabel: some View {
+        HStack {
+            Text("카테고리")
+                .foregroundStyle(.textprimary)
+
+            Spacer()
+
+            Text(selected)
+                .foregroundStyle(.texttertiary)
+
+            Image(systemName: "chevron.down")
+                .typography(.bodyMedium)
+                .foregroundStyle(.textmuted)
+        }
+        .contentShape(Rectangle())
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, minHeight: 52)
+        .background {
+            RoundedRectangle(cornerRadius: 40)
+                .fill(Color.backgroundbgCanvas)
+        }
     }
 }
 
