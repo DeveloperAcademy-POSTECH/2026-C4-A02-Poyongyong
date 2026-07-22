@@ -102,6 +102,7 @@ private extension ExpandedTextInputOverlay {
             TextEditor(
                 text: $text
             )
+            .scrollDisabled(true)
             .focused($isTextEditorFocused)
             .scrollContentBackground(.hidden)
             .typography(.subTitleMedium)
