@@ -10,5 +10,7 @@
 		<string>Pretendard-Light.otf</string>
 		<string>Pretendard-Regular.otf</string>
 	</array>
+    <key>UIUserInterfaceStyle</key>
+    <string>Light</string>
 </dict>
 </plist>
