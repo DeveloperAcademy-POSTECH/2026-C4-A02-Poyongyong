@@ -102,6 +102,7 @@ private extension ExpandedTextInputOverlay {
             TextEditor(
                 text: $text
             )
+            .tint(.labelprimary)
             .scrollDisabled(true)
             .focused($isTextEditorFocused)
             .scrollContentBackground(.hidden)
