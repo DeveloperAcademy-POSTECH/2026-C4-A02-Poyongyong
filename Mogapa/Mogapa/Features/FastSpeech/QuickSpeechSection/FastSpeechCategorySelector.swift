@@ -22,7 +22,7 @@ struct FastSpeechCategorySelector: View {
     init(
         categories: [FastSpeechCategory],
         selectedIndex: Binding<Int>,
-        defaultTitle: String = "최근순",
+        defaultTitle: String = "최근 문구",
         showsAddButton: Bool = false,
         onAddCategory: @escaping (String) -> Void = { _ in }
     ) {
@@ -133,7 +133,7 @@ struct FastSpeechCategorySelector: View {
             FastSpeechCategory(name: "일상", sortOrder: 2)
         ],
         selectedIndex: $selectedIndex,
-        defaultTitle: "최근 말하기",
+        defaultTitle: "최근 문구",
         showsAddButton: true
     )
     .environment(\.locale, Locale(identifier: "ko"))
