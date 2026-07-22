@@ -33,7 +33,7 @@ struct FastSpeechView: View {
                     selectedIndex: $selectedCategoryIndex,
                     defaultTitle: "최근 말하기",
                     showsAddButton: true,
-                    onAddCategory: {}
+                    onAddCategory: addCategory
                 )
                 .padding(.horizontal, 20)
 
@@ -167,6 +167,18 @@ private extension FastSpeechView {
 
         withAnimation(.snappy) {
             phrases[index].isPinned = isPinned
+        }
+    }
+
+    func addCategory(_ name: String) {
+        let category = FastSpeechCategory(
+            name: name,
+            sortOrder: categories.count
+        )
+
+        withAnimation(.snappy) {
+            categories.insert(category, at: 0)
+            selectedCategoryIndex = 1
         }
     }
 
