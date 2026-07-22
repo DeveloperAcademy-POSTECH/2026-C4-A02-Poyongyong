@@ -108,7 +108,6 @@ private extension FastSpeechCardsPager {
                 }
             }
         }
-        .padding(.horizontal, 20)
     }
 }
 
