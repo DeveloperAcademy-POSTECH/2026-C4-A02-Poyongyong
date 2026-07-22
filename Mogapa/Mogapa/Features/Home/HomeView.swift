@@ -12,6 +12,7 @@ import SwiftData
 struct HomeView: View {
     
     // MARK: - SwiftData
+    @Environment(\.modelContext) private var modelContext
     
     @Query(
         sort: [
@@ -24,6 +25,13 @@ struct HomeView: View {
     private var categories:
     [FastSpeechCategory]
     
+    // TODO: fast speech 연결 확인 후 다시 활성화
+//    @Query(
+//        filter: #Predicate<FastSpeechPhrase> { $0.category == nil },
+//        sort: [SortDescriptor(\FastSpeechPhrase.createdAt, order: .reverse)]
+//    )
+//    private var recentPhrases: [FastSpeechPhrase]
+//    
     // MARK: - TestViews
     
     @State private var isSpeechTestPresented = false
@@ -131,6 +139,10 @@ struct HomeView: View {
                 AppDelegate.orientationLock = orientation
                 presentationOrientation = orientation
                 isPresentationPresented = true
+            }
+            .onChange(of: isPresentationPresented) { wasPresented, isPresented in
+                guard wasPresented, !isPresented else { return }
+                saveToRecentAndReset()
             }
             .fullScreenCover(isPresented: $isPresentationPresented) {
                 PresentationView(text: viewModel.inputText, orientation: presentationOrientation)
@@ -242,7 +254,7 @@ private extension HomeView {
                 categories,
             
             recentPhrases:
-                [],
+                [], // TODO: recentPhrases 연결 후 교체
             
             selectedCategoryIndex:
                 $viewModel.selectedCategoryIndex,
@@ -279,6 +291,29 @@ private extension HomeView {
         default:
             return .landscape
         }
+    }
+}
+
+// MARK: - 최근 저장 & 리셋
+
+private extension HomeView {
+    func saveToRecentAndReset() {
+        let text = viewModel.inputText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !text.isEmpty else { return }
+        
+        // TODO: fast speech 연결 확인 후 다시 활성화
+//        let phrase = FastSpeechPhrase(text: text)
+//
+//        do {
+//            try FastSpeechRepository(modelContext: modelContext)
+//                .insertPhrase(phrase)
+//        } catch {
+//            print("최근 문구 저장 실패: \(error)")
+//        }
+
+        viewModel.updateText("")
     }
 }
 
