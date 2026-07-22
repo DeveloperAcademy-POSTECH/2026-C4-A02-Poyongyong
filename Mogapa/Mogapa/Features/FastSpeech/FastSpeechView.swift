@@ -76,40 +76,46 @@ struct FastSpeechView: View {
                 )
                 .padding(.horizontal, 20)
                 
-                QuickSpeechBubbleList(
-                    sections: bubbleSections,
-                    isEditing: isEditing,
-                    selectedIDs: $selectedIDs,
-                    onTap: { id in
-                        guard let phrase = phrases.first(
-                            where: {
-                                $0.id == id
+                ZStack(alignment: .top) {
+                    QuickSpeechBubbleList(
+                        sections: bubbleSections,
+                        isEditing: isEditing,
+                        selectedIDs: $selectedIDs,
+                        onTap: { id in
+                            guard let phrase = phrases.first(
+                                where: {
+                                    $0.id == id
+                                }
+                            ) else {
+                                return
                             }
-                        ) else {
-                            return
+                            
+                            presentedModal = .edit(
+                                phrase.id,
+                                phrase.text
+                            )
+                        },
+                        onPin: {
+                            updatePinnedState(
+                                for: $0,
+                                isPinned: true
+                            )
+                        },
+                        onUnpin: {
+                            updatePinnedState(
+                                for: $0,
+                                isPinned: false
+                            )
+                        },
+                        onDelete: {
+                            deletePhrase($0)
                         }
-                        
-                        presentedModal = .edit(
-                            phrase.id,
-                            phrase.text
-                        )
-                    },
-                    onPin: {
-                        updatePinnedState(
-                            for: $0,
-                            isPinned: true
-                        )
-                    },
-                    onUnpin: {
-                        updatePinnedState(
-                            for: $0,
-                            isPinned: false
-                        )
-                    },
-                    onDelete: {
-                        deletePhrase($0)
+                    )
+
+                    if showsEmptyCategoryMessage {
+                        emptyCategoryMessage
                     }
-                )
+                }
                 .padding(.horizontal, 20)
             }
             .frame(
@@ -203,6 +209,16 @@ private extension FastSpeechView {
                 handleRightTap
         )
     }
+
+    var emptyCategoryMessage: some View {
+        Text("+ 버튼을 눌러 빠른 말하기를 추가해보세요")
+            .typography(.bodyMedium)
+            .foregroundStyle(.textmuted)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 72)
+            .allowsHitTesting(false)
+    }
 }
 
 // MARK: - Categories
@@ -224,6 +240,11 @@ private extension FastSpeechView {
         }
 
         return categories[categoryIndex].name
+    }
+
+    var showsEmptyCategoryMessage: Bool {
+        selectedCategoryIndex > 0 &&
+            filteredPhrases.isEmpty
     }
     
     func adjustSelectedCategoryIndex(
