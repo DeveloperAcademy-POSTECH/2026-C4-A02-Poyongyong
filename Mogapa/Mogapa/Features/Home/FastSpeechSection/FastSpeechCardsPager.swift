@@ -73,37 +73,39 @@ private extension FastSpeechCardsPager {
 }
 
 private extension FastSpeechCardsPager {
-    
+
     func cardPage(
         _ phrases: [FastSpeechPhrase]
     ) -> some View {
-        
-        LazyVGrid(
-            columns: columns,
-            spacing: 8
-        ) {
+
+        LazyVGrid(columns: columns, spacing: 8)
+        {
             ForEach(
-                Array(
-                    phrases.enumerated()
-                ),
-                id: \.element.id
-            ) { index, phrase in
-                
-                FastSpeechCardView(
-                    phrase: phrase,
-                    position: positions[index],
-                    isSelected:
-                        selectedPhraseID == phrase.id,
-                    previewText:
-                        previewText(
-                            phrase.text
-                        ),
-                    onTap: {
-                        onPhraseSelected(
-                            phrase
-                        )
-                    }
-                )
+                0..<4,
+                id: \.self
+            ) { index in
+                if index < phrases.count {
+                    let phrase = phrases[index]
+                    FastSpeechCardView(
+                        phrase: phrase,
+                        position: positions[index],
+                        isSelected:
+                            selectedPhraseID == phrase.id,
+                        previewText:
+                            previewText(
+                                phrase.text
+                            ),
+                        onTap: {
+                            onPhraseSelected(
+                                phrase
+                            )
+                        }
+                    )
+                } else {
+                    Color.clear
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 150, maxHeight: 170)
+                }
             }
         }
         .padding(.horizontal, 20)
