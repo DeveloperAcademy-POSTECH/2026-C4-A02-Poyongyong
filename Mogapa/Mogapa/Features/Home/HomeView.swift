@@ -12,6 +12,7 @@ import SwiftData
 struct HomeView: View {
     
     // MARK: - SwiftData
+    @Environment(\.modelContext) private var modelContext
     
     @Query(
         sort: [
@@ -24,6 +25,13 @@ struct HomeView: View {
     private var categories:
     [FastSpeechCategory]
     
+    // TODO: fast speech 연결 확인 후 다시 활성화
+//    @Query(
+//        filter: #Predicate<FastSpeechPhrase> { $0.category == nil },
+//        sort: [SortDescriptor(\FastSpeechPhrase.createdAt, order: .reverse)]
+//    )
+//    private var recentPhrases: [FastSpeechPhrase]
+//    
     // MARK: - TestViews
     
     @State private var isSpeechTestPresented = false
@@ -33,9 +41,10 @@ struct HomeView: View {
     @State private var isGesturePresented = false
     
     
-    // MARK: - CoreMotion
+    // MARK: - CoreMotion, 화면방향
     
     @StateObject private var motionManager = CoreMotionManager()
+    @State private var presentationOrientation: UIInterfaceOrientationMask = .landscapeRight
     
     
     // MARK: - ViewModel
@@ -91,7 +100,7 @@ struct HomeView: View {
                                 viewModel.updateText(text)
                             },
                             onSpeak: {
-                                isSpeechTestPresented = true
+                                presentIfPossible(orientation: orientationMask(for: motionManager.pose))
                             },
                             onClose: {
                                 viewModel.isTextFieldExpanded = false
@@ -111,21 +120,28 @@ struct HomeView: View {
             }
             .onAppear {
                 motionManager.start()
+                AppDelegate.lock(to: .portrait)
             }
             .onDisappear {
                 motionManager.stop()
             }
             .onChange(of: motionManager.pose) { _, pose in
-                isPresentationPresented = pose.isLandscape
+                guard pose.isLandscape else {
+                    isPresentationPresented = false
+                    return
+                }
+                presentIfPossible(orientation: orientationMask(for: pose))
+            }
+            .onChange(of: isPresentationPresented) { wasPresented, isPresented in
+                guard wasPresented, !isPresented else { return }
+                saveToRecentAndReset()
             }
             .onChange(of: motionManager.latestShakeID) { _, _ in
                 guard !isGesturePresented else { return }
                 isGesturePresented = true
             }
             .fullScreenCover(isPresented: $isPresentationPresented) {
-                MotionPresentationTestView(
-                    motionManager: motionManager)
-                // 여기 프레젠테이션 뷰 넣으셈!!!
+                PresentationView(text: viewModel.inputText, orientation: presentationOrientation)
             }
              .sheet(isPresented: $isGesturePresented) {
                         DragGestureView()  // 여기 제스처 뷰 넣으셈!!!!
@@ -209,8 +225,8 @@ private extension HomeView {
                 viewModel.updateText(text)
             },
             onSpeak: {
-                isSpeechTestPresented = true
-            }
+                presentIfPossible(orientation: orientationMask(for: motionManager.pose))
+            },
         )
         .frame(width: 362,height: 204)
         .frame(maxWidth: .infinity)
@@ -234,7 +250,7 @@ private extension HomeView {
                 categories,
             
             recentPhrases:
-                [],
+                [], // TODO: recentPhrases 연결 후 교체
             
             selectedCategoryIndex:
                 $viewModel.selectedCategoryIndex,
@@ -256,6 +272,62 @@ private extension HomeView {
         )
         .frame(maxWidth:.infinity)
         .padding(.bottom, 20)
+    }
+}
+
+// MARK: - Speech Button or Rotation
+
+private extension HomeView {
+    func presentIfPossible(orientation: UIInterfaceOrientationMask) {
+        let hasContent = !viewModel.inputText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+
+        guard hasContent else { return }
+
+        viewModel.isTextFieldExpanded = false
+
+        AppDelegate.orientationLock = orientation
+        presentationOrientation = orientation
+        isPresentationPresented = true
+    }
+}
+
+// MARK: - Orientation 매핑
+
+private extension HomeView {
+    func orientationMask(for pose: MotionPose) -> UIInterfaceOrientationMask {
+        switch pose {
+        case .landscapeLeft:
+            return .landscapeRight
+        case .landscapeRight:
+            return .landscapeLeft
+        default:
+            return .landscapeRight
+        }
+    }
+}
+
+// MARK: - 최근 저장 & 리셋
+
+private extension HomeView {
+    func saveToRecentAndReset() {
+        let text = viewModel.inputText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !text.isEmpty else { return }
+        
+        // TODO: fast speech 연결 확인 후 다시 활성화
+//        let phrase = FastSpeechPhrase(text: text)
+//
+//        do {
+//            try FastSpeechRepository(modelContext: modelContext)
+//                .insertPhrase(phrase)
+//        } catch {
+//            print("최근 문구 저장 실패: \(error)")
+//        }
+
+        viewModel.updateText("")
     }
 }
 
