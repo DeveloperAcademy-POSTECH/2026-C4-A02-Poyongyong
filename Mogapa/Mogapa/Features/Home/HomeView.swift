@@ -100,7 +100,7 @@ struct HomeView: View {
                                 viewModel.updateText(text)
                             },
                             onSpeak: {
-                                isSpeechTestPresented = true
+                                presentIfPossible(orientation: orientationMask(for: motionManager.pose))
                             },
                             onClose: {
                                 viewModel.isTextFieldExpanded = false
@@ -126,19 +126,11 @@ struct HomeView: View {
                 motionManager.stop()
             }
             .onChange(of: motionManager.pose) { _, pose in
-                let hasContent = !viewModel.inputText
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                    .isEmpty
-
-                guard pose.isLandscape, hasContent else {
+                guard pose.isLandscape else {
                     isPresentationPresented = false
                     return
                 }
-
-                let orientation = orientationMask(for: pose)
-                AppDelegate.orientationLock = orientation
-                presentationOrientation = orientation
-                isPresentationPresented = true
+                presentIfPossible(orientation: orientationMask(for: pose))
             }
             .onChange(of: isPresentationPresented) { wasPresented, isPresented in
                 guard wasPresented, !isPresented else { return }
@@ -229,8 +221,8 @@ private extension HomeView {
                 viewModel.updateText(text)
             },
             onSpeak: {
-                isSpeechTestPresented = true
-            }
+                presentIfPossible(orientation: orientationMask(for: motionManager.pose))
+            },
         )
         .frame(width: 362,height: 204)
         .frame(maxWidth: .infinity)
@@ -279,6 +271,24 @@ private extension HomeView {
     }
 }
 
+// MARK: - Speech Button or Rotation
+
+private extension HomeView {
+    func presentIfPossible(orientation: UIInterfaceOrientationMask) {
+        let hasContent = !viewModel.inputText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .isEmpty
+
+        guard hasContent else { return }
+
+        viewModel.isTextFieldExpanded = false
+
+        AppDelegate.orientationLock = orientation
+        presentationOrientation = orientation
+        isPresentationPresented = true
+    }
+}
+
 // MARK: - Orientation 매핑
 
 private extension HomeView {
@@ -289,7 +299,7 @@ private extension HomeView {
         case .landscapeRight:
             return .landscapeLeft
         default:
-            return .landscape
+            return .landscapeRight
         }
     }
 }
