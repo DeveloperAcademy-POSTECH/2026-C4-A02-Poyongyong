@@ -67,16 +67,12 @@ struct SpeechModalContent: View {
     private var header: some View {
         ModalHeader(
             title: title,
+            isConfirmEnabled:
+                !trimmedText.isEmpty,
             onClose: {
                 dismiss()
             },
             onConfirm: {
-                let trimmedText =
-                    text.trimmingCharacters(
-                        in:
-                            .whitespacesAndNewlines
-                    )
-
                 guard !trimmedText.isEmpty else {
                     return
                 }
@@ -90,6 +86,13 @@ struct SpeechModalContent: View {
         )
         .padding(.top, 22)
         .padding(.horizontal, 6)
+    }
+
+    private var trimmedText: String {
+        text.trimmingCharacters(
+            in:
+                .whitespacesAndNewlines
+        )
     }
     
     private var content: some View {

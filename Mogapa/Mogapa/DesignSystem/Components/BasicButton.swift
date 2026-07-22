@@ -14,6 +14,7 @@ struct BasicButton: View {
     let foregroundStyle: AnyShapeStyle
     let tint: Color
     let font: Font
+    let isProminent: Bool
     let action: () -> Void
     
     enum BasicButtonShape {
@@ -28,6 +29,7 @@ struct BasicButton: View {
         foregroundStyle: some ShapeStyle = .primary,
         tint: Color = .clear,
         font: Font = .system(size: 22),
+        isProminent: Bool = false,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -36,33 +38,45 @@ struct BasicButton: View {
         self.foregroundStyle = AnyShapeStyle(foregroundStyle)
         self.tint = tint
         self.font = font
+        self.isProminent = isProminent
         self.action = action
     }
     
     var body: some View {
-        
-            Button(action: action) {
-                HStack {
-                    if let systemImage {
-                        Image(systemName: systemImage)
-                    }
-                    
-                    if let title {
-                        Text(title)
-                    }
-                }
-                .font(font)
-                .foregroundStyle(foregroundStyle)
-                .padding(.horizontal, shape == .circle ? 0 : 4)
-                .frame(
-                    width: shape == .circle ? 32 : nil,
-                    height: 32
-                )
-            }
-            .buttonStyle(.glass)
-            .applyButtonBorderShape(for: shape)
+        if isProminent {
+            buttonContent
+                .applyButtonBorderShape(for: shape)
+                .tint(tint)
+                .buttonStyle(.glassProminent)
+        } else {
+            buttonContent
+                .applyButtonBorderShape(for: shape)
+                .tint(tint)
+                .buttonStyle(.glass)
         }
     }
+
+    private var buttonContent: some View {
+        Button(action: action) {
+            HStack {
+                if let systemImage {
+                    Image(systemName: systemImage)
+                }
+
+                if let title {
+                    Text(title)
+                }
+            }
+            .font(font)
+            .foregroundStyle(foregroundStyle)
+            .padding(.horizontal, shape == .circle ? 0 : 4)
+            .frame(
+                width: shape == .circle ? 32 : nil,
+                height: 32
+            )
+        }
+    }
+}
 
 private extension View {
     @ViewBuilder

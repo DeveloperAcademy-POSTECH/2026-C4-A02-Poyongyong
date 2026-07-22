@@ -193,6 +193,8 @@ private extension FastSpeechView {
                 isEditing ? "trash.fill" : nil,
             isRightDisabled:
                 isEditing && selectedIDs.isEmpty,
+            isRightProminent:
+                isEditing,
             rightTint:
                 isEditing
                 ? .accentsRed

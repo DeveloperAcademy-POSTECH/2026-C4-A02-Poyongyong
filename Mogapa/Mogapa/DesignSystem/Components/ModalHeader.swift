@@ -9,8 +9,21 @@ import SwiftUI
 
 struct ModalHeader: View {
     let title: String
+    let isConfirmEnabled: Bool
     let onClose: () -> Void
     let onConfirm: () -> Void
+
+    init(
+        title: String,
+        isConfirmEnabled: Bool = true,
+        onClose: @escaping () -> Void,
+        onConfirm: @escaping () -> Void
+    ) {
+        self.title = title
+        self.isConfirmEnabled = isConfirmEnabled
+        self.onClose = onClose
+        self.onConfirm = onConfirm
+    }
 
     var body: some View {
         HStack {
@@ -34,12 +47,20 @@ struct ModalHeader: View {
             BasicButton(
                 systemImage: "checkmark",
                 shape: .circle,
-                foregroundStyle: .white,
-                tint: .blue,
-                font: .system(size: 22, weight: .semibold)
+                foregroundStyle:
+                    isConfirmEnabled
+                    ? .iconinverse
+                    : .textmuted,
+                tint:
+                    isConfirmEnabled
+                    ? .accentsBlue
+                    : .clear,
+                font: .system(size: 22, weight: .semibold),
+                isProminent: isConfirmEnabled
             ) {
                 onConfirm()
             }
+            .disabled(!isConfirmEnabled)
         }
         .padding(.horizontal, 20)
     }

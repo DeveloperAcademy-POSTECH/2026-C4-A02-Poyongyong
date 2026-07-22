@@ -12,6 +12,7 @@ struct MogapaNavigationHeader: View {
     let rightTitle: String?
     let rightSystemImage: String?
     let isRightDisabled: Bool
+    let isRightProminent: Bool
     let rightTint: Color
     let rightForegroundStyle: AnyShapeStyle
     let leftTitle: String?
@@ -26,6 +27,7 @@ struct MogapaNavigationHeader: View {
         rightTitle: String? = nil,
         rightSystemImage: String? = nil,
         isRightDisabled: Bool = false,
+        isRightProminent: Bool = false,
         rightTint: Color = .clear,
         rightForegroundStyle: some ShapeStyle = .textsecondary,
         leftTitle: String? = nil,
@@ -39,6 +41,7 @@ struct MogapaNavigationHeader: View {
         self.rightTitle = rightTitle
         self.rightSystemImage = rightSystemImage
         self.isRightDisabled = isRightDisabled
+        self.isRightProminent = isRightProminent
         self.rightTint = rightTint
         self.rightForegroundStyle = AnyShapeStyle(rightForegroundStyle)
         self.leftTitle = leftTitle
@@ -77,12 +80,13 @@ struct MogapaNavigationHeader: View {
                     shape: .capsule,
                     foregroundStyle: rightForegroundStyle,
                     tint: rightTint,
-                    font: .pretendard(.medium, size: 20)
+                    font: .pretendard(.medium, size: 20),
+                    isProminent: isRightProminent
                 ) {
                     onRightTap()
                 }
-                .disabled(isRightDisabled)
-                .opacity(isRightDisabled ? 0.45 : 1)
+                .allowsHitTesting(!isRightDisabled)
+                .accessibilityRespondsToUserInteraction(!isRightDisabled)
             }
             .padding(.horizontal, 20)
         }
@@ -106,6 +110,7 @@ struct MogapaNavigationHeader: View {
     MogapaNavigationHeader(
         title: "빠른 말하기",
         rightSystemImage: "trash.fill",
+        isRightProminent: true,
         rightTint: .accentsRed,
         rightForegroundStyle: .iconinverse,
         leftTitle: "취소",
