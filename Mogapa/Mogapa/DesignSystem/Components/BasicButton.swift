@@ -53,10 +53,10 @@ struct BasicButton: View {
                 }
                 .font(font)
                 .foregroundStyle(foregroundStyle)
-                .padding(.horizontal, shape == .circle ? 0 : 8)
+                .padding(.horizontal, shape == .circle ? 0 : 4)
                 .frame(
-                    width: shape == .circle ? 44 : nil,
-                    height: 44
+                    width: shape == .circle ? 32 : nil,
+                    height: 32
                 )
             }
             .buttonStyle(.glass)
