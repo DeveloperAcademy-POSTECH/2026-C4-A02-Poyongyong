@@ -44,6 +44,22 @@ final class SpeechManager: NSObject {
     override init() {
         super.init()
         synthesizer.delegate = self
+        configureAudioSession()
+    }
+
+    // MARK: - 오디오 세션 설정
+
+    private func configureAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(
+                .playback,
+                mode: .default,
+                options: []
+            )
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("오디오 세션 설정 실패: \(error)")
+        }
     }
 
     // MARK: - 처음부터 재생
