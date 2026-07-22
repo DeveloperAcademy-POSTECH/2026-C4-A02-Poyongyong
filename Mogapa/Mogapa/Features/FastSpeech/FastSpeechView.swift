@@ -46,6 +46,9 @@ struct FastSpeechView: View {
     
     @State
     private var selectedCategoryIndex = 0
+
+    @State
+    private var isAddingCategory = false
     
     @State
     private var isEditing = false
@@ -72,7 +75,12 @@ struct FastSpeechView: View {
                         $selectedCategoryIndex,
                     defaultTitle: "최근 말하기",
                     showsAddButton: true,
-                    onAddCategory: addCategory
+                    onAddCategory: addCategory,
+                    onAddingStateChange: { isAdding in
+                        withAnimation(.snappy) {
+                            isAddingCategory = isAdding
+                        }
+                    }
                 )
                 .padding(.horizontal, 20)
                 
@@ -243,7 +251,7 @@ private extension FastSpeechView {
     }
 
     var showsEmptyCategoryMessage: Bool {
-        selectedCategoryIndex > 0 &&
+        (selectedCategoryIndex > 0 || isAddingCategory) &&
             filteredPhrases.isEmpty
     }
     

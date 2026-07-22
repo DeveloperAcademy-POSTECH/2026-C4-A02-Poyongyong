@@ -13,16 +13,19 @@ struct FastSpeechCategorySelector: View {
     private let categoryMinWidth: CGFloat = 84
     private let categoryHeight: CGFloat = 36
     private let horizontalPadding: CGFloat = 28
+    private let commitDelay: Duration = .milliseconds(120)
     private let shortCommitAnimationDuration: Duration = .milliseconds(140)
 
     let categories: [FastSpeechCategory]
     let defaultTitle: String
     let showsAddButton: Bool
     let onAddCategory: (String) -> Void
+    let onAddingStateChange: (Bool) -> Void
 
     @Binding var selectedIndex: Int
 
     @State private var isAddingCategory = false
+    @State private var selectedIndexBeforeAdding = 0
     @State private var newCategoryName = ""
     @State private var newCategoryTextWidth: CGFloat = 0
     @State private var committedCategoryFieldWidth: CGFloat?
@@ -34,13 +37,15 @@ struct FastSpeechCategorySelector: View {
         selectedIndex: Binding<Int>,
         defaultTitle: String = "최근 문구",
         showsAddButton: Bool = false,
-        onAddCategory: @escaping (String) -> Void = { _ in }
+        onAddCategory: @escaping (String) -> Void = { _ in },
+        onAddingStateChange: @escaping (Bool) -> Void = { _ in }
     ) {
         self.categories = categories
         self._selectedIndex = selectedIndex
         self.defaultTitle = defaultTitle
         self.showsAddButton = showsAddButton
         self.onAddCategory = onAddCategory
+        self.onAddingStateChange = onAddingStateChange
     }
 
     var body: some View {
@@ -175,9 +180,12 @@ struct FastSpeechCategorySelector: View {
         newCategoryName = ""
         committedCategoryFieldWidth = nil
         isCommittingCategory = false
+        selectedIndexBeforeAdding = selectedIndex
         withAnimation(.snappy) {
+            selectedIndex = -1
             isAddingCategory = true
         }
+        onAddingStateChange(true)
     }
 
     private func commitNewCategory() {
@@ -189,8 +197,10 @@ struct FastSpeechCategorySelector: View {
         guard !trimmedName.isEmpty else {
             withAnimation(.snappy) {
                 isAddingCategory = false
+                selectedIndex = selectedIndexBeforeAdding
             }
             isCommittingCategory = false
+            onAddingStateChange(false)
             return
         }
 
@@ -199,13 +209,18 @@ struct FastSpeechCategorySelector: View {
         isNewCategoryFocused = false
 
         guard targetCategoryFieldWidth < categoryMinWidth else {
-            withAnimation(.snappy) {
-                isAddingCategory = false
-            }
+            Task { @MainActor in
+                try? await Task.sleep(for: commitDelay)
 
-            onAddCategory(trimmedName)
-            newCategoryName = ""
-            isCommittingCategory = false
+                withAnimation(.snappy) {
+                    isAddingCategory = false
+                }
+
+                onAddCategory(trimmedName)
+                newCategoryName = ""
+                isCommittingCategory = false
+                onAddingStateChange(false)
+            }
             return
         }
 
@@ -225,6 +240,7 @@ struct FastSpeechCategorySelector: View {
             newCategoryName = ""
             committedCategoryFieldWidth = nil
             isCommittingCategory = false
+            onAddingStateChange(false)
         }
     }
 }
