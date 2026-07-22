@@ -15,6 +15,7 @@ final class FastSpeechPhrase {
     var id: UUID
 
     var text: String
+    var isPinned: Bool
     var sortOrder: Int
     var createdAt: Date
 
@@ -23,12 +24,14 @@ final class FastSpeechPhrase {
     init(
         id: UUID = UUID(),
         text: String,
+        isPinned: Bool = false,
         sortOrder: Int = 0,
         category: FastSpeechCategory? = nil,
         createdAt: Date = .now
     ) {
         self.id = id
         self.text = text
+        self.isPinned = isPinned
         self.sortOrder = sortOrder
         self.category = category
         self.createdAt = createdAt
