@@ -118,12 +118,19 @@ struct HomeView: View {
                 motionManager.stop()
             }
             .onChange(of: motionManager.pose) { _, pose in
-                if pose.isLandscape {
-                    let orientation = orientationMask(for: pose)
-                    AppDelegate.orientationLock = orientation      
-                    presentationOrientation = orientation
+                let hasContent = !viewModel.inputText
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .isEmpty
+
+                guard pose.isLandscape, hasContent else {
+                    isPresentationPresented = false
+                    return
                 }
-                isPresentationPresented = pose.isLandscape
+
+                let orientation = orientationMask(for: pose)
+                AppDelegate.orientationLock = orientation
+                presentationOrientation = orientation
+                isPresentationPresented = true
             }
             .fullScreenCover(isPresented: $isPresentationPresented) {
                 PresentationView(text: viewModel.inputText, orientation: presentationOrientation)

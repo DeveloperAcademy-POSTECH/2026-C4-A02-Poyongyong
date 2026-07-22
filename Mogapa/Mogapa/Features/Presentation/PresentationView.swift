@@ -57,6 +57,10 @@ struct PresentationView: View {
         }
         .onAppear {
             AppDelegate.lock(to: orientation)
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                viewModel.handleMainPlaybackButton()
+            }
         }
         .onDisappear {
             viewModel.stop()
