@@ -15,12 +15,12 @@ struct BasicButton: View {
     let tint: Color
     let font: Font
     let action: () -> Void
-
+    
     enum BasicButtonShape {
         case circle
         case capsule
     }
-
+    
     init(
         title: String? = nil,
         systemImage: String? = nil,
@@ -38,63 +38,67 @@ struct BasicButton: View {
         self.font = font
         self.action = action
     }
-
+    
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                if let systemImage {
-                    Image(systemName: systemImage)
+        
+            Button(action: action) {
+                HStack {
+                    if let systemImage {
+                        Image(systemName: systemImage)
+                    }
+                    
+                    if let title {
+                        Text(title)
+                    }
                 }
-
-                if let title {
-                    Text(title)
-                }
+                .font(font)
+                .foregroundStyle(foregroundStyle)
+                .padding(.horizontal, shape == .circle ? 0 : 8)
+                .frame(
+                    width: shape == .circle ? 44 : nil,
+                    height: 44
+                )
             }
-            .font(font)
-            .foregroundStyle(foregroundStyle)
-            .padding(.horizontal, shape == .circle ? 0 : 16)
-            .frame(
-                width: shape == .circle ? 44 : nil,
-                height: 44
-            )
-            .background {
-                buttonShape
-                    .fill(.ultraThinMaterial)
-
-                buttonShape
-                    .fill(tint)
-            }
-            .clipShape(buttonShape)
-            .overlay {
-                buttonShape
-                    .fill(.white.opacity(0.1))
-            }
-            .overlay {
-                buttonShape
-                    .stroke(
-                        LinearGradient(
-                            colors: [
-                                .white.opacity(0.8),
-                                .gray.opacity(0.4),
-                                .white.opacity(0.6)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
-            }
+            .buttonStyle(.glass)
+            .applyButtonBorderShape(for: shape)
         }
-        .buttonStyle(.plain)
     }
 
-    private var buttonShape: AnyShape {
+private extension View {
+    @ViewBuilder
+    func applyButtonBorderShape(
+        for shape: BasicButton.BasicButtonShape
+    ) -> some View {
         switch shape {
         case .circle:
-            AnyShape(Circle())
-
+            self.buttonBorderShape(.circle)
+            
         case .capsule:
-            AnyShape(Capsule())
+            self
         }
     }
+}
+
+#Preview {
+    VStack(spacing: 20) {
+        BasicButton(
+            systemImage: "gearshape.fill",
+            shape: .circle,
+            foregroundStyle: .white,
+            font: .system(size: 24)
+        ) {
+            print("Settings tapped")
+        }
+
+        BasicButton(
+            title: "Continue",
+            systemImage: "arrow.right",
+            shape: .capsule,
+            foregroundStyle: .white,
+            font: .system(size: 18)
+        ) {
+            print("Continue tapped")
+        }
+    }
+    .padding()
 }
