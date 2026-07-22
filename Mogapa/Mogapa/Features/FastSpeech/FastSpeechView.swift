@@ -147,7 +147,20 @@ struct FastSpeechView: View {
             SpeechModalContent(
                 title: modal.title,
                 categories: categoryNames,
-                existingText: modal.existingText
+                existingText: modal.existingText,
+                initialCategory: modal.initialCategory(
+                    currentCategoryName:
+                        currentCategoryName,
+                    fallbackCategoryName:
+                        categoryNames.first
+                ),
+                onConfirm: { text, categoryName in
+                    handleModalConfirm(
+                        modal,
+                        text: text,
+                        categoryName: categoryName
+                    )
+                }
             )
         }
     }
@@ -198,6 +211,19 @@ private extension FastSpeechView {
     
     var categoryNames: [String] {
         categories.map(\.name)
+    }
+
+    var currentCategoryName: String? {
+        let categoryIndex =
+            selectedCategoryIndex - 1
+
+        guard categories.indices.contains(
+            categoryIndex
+        ) else {
+            return nil
+        }
+
+        return categories[categoryIndex].name
     }
     
     func adjustSelectedCategoryIndex(
@@ -418,6 +444,77 @@ private extension FastSpeechView {
         }
     }
 
+    func addPhrase(
+        text: String,
+        categoryName: String
+    ) {
+        guard let category = categories.first(
+            where: {
+                $0.name == categoryName
+            }
+        ) else {
+            return
+        }
+
+        let phrase = FastSpeechPhrase(
+            text: text,
+            sortOrder: nextPhraseSortOrder(
+                for: category
+            ),
+            category: category
+        )
+
+        withAnimation(.snappy) {
+            modelContext.insert(phrase)
+        }
+
+        saveModelContext()
+    }
+
+    func updatePhrase(
+        id: UUID,
+        text: String,
+        categoryName: String
+    ) {
+        guard
+            let phrase = phrases.first(
+                where: {
+                    $0.id == id
+                }
+            ),
+            let category = categories.first(
+                where: {
+                    $0.name == categoryName
+                }
+            )
+        else {
+            return
+        }
+
+        withAnimation(.snappy) {
+            phrase.text = text
+            phrase.category = category
+        }
+
+        saveModelContext()
+    }
+
+    func nextPhraseSortOrder(
+        for category: FastSpeechCategory
+    ) -> Int {
+        let categoryID = category.id
+
+        return (
+            phrases
+                .filter {
+                    $0.category?.id == categoryID
+                }
+                .map(\.sortOrder)
+                .max()
+            ?? -1
+        ) + 1
+    }
+
     func deletePhrase(
         _ id: UUID
     ) {
@@ -472,6 +569,32 @@ private extension FastSpeechView {
     }
 }
 
+// MARK: - Modal Actions
+
+private extension FastSpeechView {
+
+    func handleModalConfirm(
+        _ modal: FastSpeechModal,
+        text: String,
+        categoryName: String
+    ) {
+        switch modal {
+        case .add:
+            addPhrase(
+                text: text,
+                categoryName: categoryName
+            )
+
+        case let .edit(id, _):
+            updatePhrase(
+                id: id,
+                text: text,
+                categoryName: categoryName
+            )
+        }
+    }
+}
+
 // MARK: - Modal
 
 private enum FastSpeechModal: Identifiable {
@@ -506,6 +629,21 @@ private enum FastSpeechModal: Identifiable {
             
         case let .edit(_, text):
             return text
+        }
+    }
+
+    func initialCategory(
+        currentCategoryName: String?,
+        fallbackCategoryName: String?
+    ) -> String? {
+        switch self {
+        case .add:
+            return currentCategoryName
+                ?? fallbackCategoryName
+
+        case .edit:
+            return currentCategoryName
+                ?? fallbackCategoryName
         }
     }
 }

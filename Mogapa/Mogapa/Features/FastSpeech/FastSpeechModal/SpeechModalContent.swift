@@ -17,12 +17,25 @@ struct SpeechModalContent: View {
     
     let title: String
     let categories: [String]
+    let onConfirm: (String, String) -> Void
     
     // selected 되는 값으로 바뀌게
-    init(title: String, categories: [String], existingText: String = "") {
+    init(
+        title: String,
+        categories: [String],
+        existingText: String = "",
+        initialCategory: String? = nil,
+        onConfirm: @escaping (String, String) -> Void = { _, _ in }
+    ) {
         self.title = title
         self.categories = categories
-        _selected = State(initialValue: categories.first ?? "")
+        self.onConfirm = onConfirm
+        _selected = State(
+            initialValue:
+                initialCategory
+                ?? categories.first
+                ?? ""
+        )
         _text = State(initialValue: existingText)
     }
     
@@ -58,7 +71,20 @@ struct SpeechModalContent: View {
                 dismiss()
             },
             onConfirm: {
-                print("저장")
+                let trimmedText =
+                    text.trimmingCharacters(
+                        in:
+                            .whitespacesAndNewlines
+                    )
+
+                guard !trimmedText.isEmpty else {
+                    return
+                }
+
+                onConfirm(
+                    trimmedText,
+                    selected
+                )
                 dismiss()
             }
         )
