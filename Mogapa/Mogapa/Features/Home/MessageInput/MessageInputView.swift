@@ -211,7 +211,7 @@ private extension MessageInputView {
             }
         }
         .padding(16)
-        .frame(width:362,height:329)
+        .frame(width:362,height:500)
         .background(Color.backgroundbgCanvas)
         .clipShape(
             UnevenRoundedRectangle(
