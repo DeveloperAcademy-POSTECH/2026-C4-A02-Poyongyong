@@ -46,6 +46,9 @@ struct FastSpeechView: View {
     
     @State
     private var selectedCategoryIndex = 0
+
+    @State
+    private var isAddingCategory = false
     
     @State
     private var isEditing = false
@@ -72,46 +75,55 @@ struct FastSpeechView: View {
                         $selectedCategoryIndex,
                     defaultTitle: "최근 말하기",
                     showsAddButton: true,
-                    onAddCategory: {
-                        // 카테고리 추가 모달 연결 위치
+                    onAddCategory: addCategory,
+                    onAddingStateChange: { isAdding in
+                        withAnimation(.snappy) {
+                            isAddingCategory = isAdding
+                        }
                     }
                 )
                 .padding(.horizontal, 20)
                 
-                QuickSpeechBubbleList(
-                    sections: bubbleSections,
-                    isEditing: isEditing,
-                    selectedIDs: $selectedIDs,
-                    onTap: { id in
-                        guard let phrase = phrases.first(
-                            where: {
-                                $0.id == id
+                ZStack(alignment: .top) {
+                    QuickSpeechBubbleList(
+                        sections: bubbleSections,
+                        isEditing: isEditing,
+                        selectedIDs: $selectedIDs,
+                        onTap: { id in
+                            guard let phrase = phrases.first(
+                                where: {
+                                    $0.id == id
+                                }
+                            ) else {
+                                return
                             }
-                        ) else {
-                            return
+                            
+                            presentedModal = .edit(
+                                phrase.id,
+                                phrase.text
+                            )
+                        },
+                        onPin: {
+                            updatePinnedState(
+                                for: $0,
+                                isPinned: true
+                            )
+                        },
+                        onUnpin: {
+                            updatePinnedState(
+                                for: $0,
+                                isPinned: false
+                            )
+                        },
+                        onDelete: {
+                            deletePhrase($0)
                         }
-                        
-                        presentedModal = .edit(
-                            phrase.id,
-                            phrase.text
-                        )
-                    },
-                    onPin: {
-                        updatePinnedState(
-                            for: $0,
-                            isPinned: true
-                        )
-                    },
-                    onUnpin: {
-                        updatePinnedState(
-                            for: $0,
-                            isPinned: false
-                        )
-                    },
-                    onDelete: {
-                        deletePhrase($0)
+                    )
+
+                    if showsEmptyCategoryMessage {
+                        emptyCategoryMessage
                     }
-                )
+                }
                 .padding(.horizontal, 20)
             }
             .frame(
@@ -149,7 +161,20 @@ struct FastSpeechView: View {
             SpeechModalContent(
                 title: modal.title,
                 categories: categoryNames,
-                existingText: modal.existingText
+                existingText: modal.existingText,
+                initialCategory: modal.initialCategory(
+                    currentCategoryName:
+                        currentCategoryName,
+                    fallbackCategoryName:
+                        categoryNames.first
+                ),
+                onConfirm: { text, categoryName in
+                    handleModalConfirm(
+                        modal,
+                        text: text,
+                        categoryName: categoryName
+                    )
+                }
             )
         }
         .onChange(
@@ -173,6 +198,8 @@ private extension FastSpeechView {
                 isEditing ? "trash.fill" : nil,
             isRightDisabled:
                 isEditing && selectedIDs.isEmpty,
+            isRightProminent:
+                isEditing,
             rightTint:
                 isEditing
                 ? .accentsRed
@@ -197,6 +224,16 @@ private extension FastSpeechView {
                 handleRightTap
         )
     }
+
+    var emptyCategoryMessage: some View {
+        Text("+ 버튼을 눌러 빠른 말하기를 추가해보세요")
+            .typography(.bodyMedium)
+            .foregroundStyle(.textmuted)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 72)
+            .allowsHitTesting(false)
+    }
 }
 
 // MARK: - Categories
@@ -205,6 +242,24 @@ private extension FastSpeechView {
     
     var categoryNames: [String] {
         categories.map(\.name)
+    }
+
+    var currentCategoryName: String? {
+        let categoryIndex =
+            selectedCategoryIndex - 1
+
+        guard categories.indices.contains(
+            categoryIndex
+        ) else {
+            return nil
+        }
+
+        return categories[categoryIndex].name
+    }
+
+    var showsEmptyCategoryMessage: Bool {
+        (selectedCategoryIndex > 0 || isAddingCategory) &&
+            filteredPhrases.isEmpty
     }
     
     func adjustSelectedCategoryIndex(
@@ -393,7 +448,109 @@ private extension FastSpeechView {
         
         saveModelContext()
     }
-    
+
+    func addCategory(_ name: String) {
+        let firstSortOrder =
+            categories
+                .map(\.sortOrder)
+                .min()
+            ?? 0
+
+        let category = FastSpeechCategory(
+            name: name,
+            sortOrder:
+                categories.isEmpty
+                ? 0
+                : firstSortOrder - 1
+        )
+
+        do {
+            try FastSpeechRepository(
+                modelContext: modelContext
+            )
+            .insertCategory(category)
+
+            withAnimation(.snappy) {
+                selectedCategoryIndex = 1
+            }
+        } catch {
+            print(
+                "빠른 말하기 카테고리 추가 실패: \(error)"
+            )
+        }
+    }
+
+    func addPhrase(
+        text: String,
+        categoryName: String
+    ) {
+        guard let category = categories.first(
+            where: {
+                $0.name == categoryName
+            }
+        ) else {
+            return
+        }
+
+        let phrase = FastSpeechPhrase(
+            text: text,
+            sortOrder: nextPhraseSortOrder(
+                for: category
+            ),
+            category: category
+        )
+
+        withAnimation(.snappy) {
+            modelContext.insert(phrase)
+        }
+
+        saveModelContext()
+    }
+
+    func updatePhrase(
+        id: UUID,
+        text: String,
+        categoryName: String
+    ) {
+        guard
+            let phrase = phrases.first(
+                where: {
+                    $0.id == id
+                }
+            ),
+            let category = categories.first(
+                where: {
+                    $0.name == categoryName
+                }
+            )
+        else {
+            return
+        }
+
+        withAnimation(.snappy) {
+            phrase.text = text
+            phrase.category = category
+        }
+
+        saveModelContext()
+    }
+
+    func nextPhraseSortOrder(
+        for category: FastSpeechCategory
+    ) -> Int {
+        let categoryID = category.id
+
+        return (
+            phrases
+                .filter {
+                    $0.category?.id == categoryID
+                }
+                .map(\.sortOrder)
+                .max()
+            ?? -1
+        ) + 1
+    }
+
     func deletePhrase(
         _ id: UUID
     ) {
@@ -448,6 +605,32 @@ private extension FastSpeechView {
     }
 }
 
+// MARK: - Modal Actions
+
+private extension FastSpeechView {
+
+    func handleModalConfirm(
+        _ modal: FastSpeechModal,
+        text: String,
+        categoryName: String
+    ) {
+        switch modal {
+        case .add:
+            addPhrase(
+                text: text,
+                categoryName: categoryName
+            )
+
+        case let .edit(id, _):
+            updatePhrase(
+                id: id,
+                text: text,
+                categoryName: categoryName
+            )
+        }
+    }
+}
+
 // MARK: - Modal
 
 private enum FastSpeechModal: Identifiable {
@@ -482,6 +665,21 @@ private enum FastSpeechModal: Identifiable {
             
         case let .edit(_, text):
             return text
+        }
+    }
+
+    func initialCategory(
+        currentCategoryName: String?,
+        fallbackCategoryName: String?
+    ) -> String? {
+        switch self {
+        case .add:
+            return currentCategoryName
+                ?? fallbackCategoryName
+
+        case .edit:
+            return currentCategoryName
+                ?? fallbackCategoryName
         }
     }
 }
