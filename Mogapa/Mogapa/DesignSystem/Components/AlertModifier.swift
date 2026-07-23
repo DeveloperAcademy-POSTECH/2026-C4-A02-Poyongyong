@@ -42,7 +42,6 @@ struct AlertModifier: ViewModifier {
                 }
             }
         }
-        .ignoresSafeArea()
     }
 }
 

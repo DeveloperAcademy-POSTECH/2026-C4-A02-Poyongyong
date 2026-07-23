@@ -58,6 +58,12 @@ struct FastSpeechView: View {
     
     @State
     private var presentedModal: FastSpeechModal?
+
+    @State
+    private var categoryToDelete: FastSpeechCategory?
+
+    @State
+    private var isCategoryDeleteAlertPresented = false
     
     
     // MARK: - Body
@@ -75,12 +81,14 @@ struct FastSpeechView: View {
                         $selectedCategoryIndex,
                     defaultTitle: "최근 말하기",
                     showsAddButton: true,
+                    isEditing: isEditing,
                     onAddCategory: addCategory,
                     onAddingStateChange: { isAdding in
                         withAnimation(.snappy) {
                             isAddingCategory = isAdding
                         }
-                    }
+                    },
+                    onDeleteCategory: presentDeleteCategoryAlert
                 )
                 .padding(.horizontal, 20)
                 
@@ -177,6 +185,14 @@ struct FastSpeechView: View {
                 }
             )
         }
+        .customAlert(
+            isPresented: $isCategoryDeleteAlertPresented,
+            title: "카테고리를 삭제할까요?",
+            message: "카테고리에 포함된 빠른 말하기도 함께 삭제됩니다.",
+            onConfirm: {
+                confirmDeleteCategory()
+            }
+        )
         .onChange(
             of: selectedCategoryIndex
         ) { _, _ in
@@ -199,15 +215,13 @@ private extension FastSpeechView {
             isRightDisabled:
                 isEditing && selectedIDs.isEmpty,
             isRightProminent:
-                isEditing,
+                isEditing && !selectedIDs.isEmpty,
             rightTint:
-                isEditing
+                isEditing && !selectedIDs.isEmpty
                 ? .accentsRed
                 : .clear,
             rightForegroundStyle:
-                isEditing
-                ? .iconinverse
-                : .textsecondary,
+                rightForegroundStyle,
             leftTitle:
                 isEditing ? "취소" : nil,
             leftIcon:
@@ -223,6 +237,16 @@ private extension FastSpeechView {
             onRightTap:
                 handleRightTap
         )
+    }
+
+    var rightForegroundStyle: AnyShapeStyle {
+        if !isEditing {
+            return AnyShapeStyle(.textsecondary)
+        }
+
+        return selectedIDs.isEmpty
+            ? AnyShapeStyle(.textmuted)
+            : AnyShapeStyle(.iconinverse)
     }
 
     var emptyCategoryMessage: some View {
@@ -476,6 +500,40 @@ private extension FastSpeechView {
         } catch {
             print(
                 "빠른 말하기 카테고리 추가 실패: \(error)"
+            )
+        }
+    }
+
+    func presentDeleteCategoryAlert(
+        _ category: FastSpeechCategory
+    ) {
+        categoryToDelete = category
+        isCategoryDeleteAlertPresented = true
+    }
+
+    func confirmDeleteCategory() {
+        guard let category = categoryToDelete else {
+            return
+        }
+
+        deleteCategory(category)
+        categoryToDelete = nil
+    }
+
+    func deleteCategory(
+        _ category: FastSpeechCategory
+    ) {
+        do {
+            withAnimation(.snappy) {
+                selectedCategoryIndex = 0
+                selectedIDs.removeAll()
+                modelContext.delete(category)
+            }
+
+            try modelContext.save()
+        } catch {
+            print(
+                "빠른 말하기 카테고리 삭제 실패: \(error)"
             )
         }
     }

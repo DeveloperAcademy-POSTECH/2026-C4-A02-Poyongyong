@@ -19,8 +19,10 @@ struct FastSpeechCategorySelector: View {
     let categories: [FastSpeechCategory]
     let defaultTitle: String
     let showsAddButton: Bool
+    let isEditing: Bool
     let onAddCategory: (String) -> Void
     let onAddingStateChange: (Bool) -> Void
+    let onDeleteCategory: (FastSpeechCategory) -> Void
 
     @Binding var selectedIndex: Int
 
@@ -37,15 +39,19 @@ struct FastSpeechCategorySelector: View {
         selectedIndex: Binding<Int>,
         defaultTitle: String = "최근 문구",
         showsAddButton: Bool = false,
+        isEditing: Bool = false,
         onAddCategory: @escaping (String) -> Void = { _ in },
-        onAddingStateChange: @escaping (Bool) -> Void = { _ in }
+        onAddingStateChange: @escaping (Bool) -> Void = { _ in },
+        onDeleteCategory: @escaping (FastSpeechCategory) -> Void = { _ in }
     ) {
         self.categories = categories
         self._selectedIndex = selectedIndex
         self.defaultTitle = defaultTitle
         self.showsAddButton = showsAddButton
+        self.isEditing = isEditing
         self.onAddCategory = onAddCategory
         self.onAddingStateChange = onAddingStateChange
+        self.onDeleteCategory = onDeleteCategory
     }
 
     var body: some View {
@@ -65,15 +71,13 @@ struct FastSpeechCategorySelector: View {
                     }
 
                     ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
-                        CategoryLabel(
-                            title: category.name,
-                            isSelected: selectedIndex == index + 1
-                        ) {
-                            selectedIndex = index + 1
-                        }
+                        categoryButton(
+                            category,
+                            index: index
+                        )
                     }
 
-                    if showsAddButton {
+                    if showsAddButton && !isEditing {
                         CategoryLabel(
                             title: "+",
                             isSelected: false
@@ -93,6 +97,48 @@ struct FastSpeechCategorySelector: View {
             .frame(minHeight: categoryHeight + 4)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    private func categoryButton(
+        _ category: FastSpeechCategory,
+        index: Int
+    ) -> some View {
+        CategoryLabel(
+            title: category.name,
+            isSelected: selectedIndex == index + 1
+        ) {
+            selectedIndex = index + 1
+        }
+        .overlay(alignment: .topLeading) {
+            if isEditing {
+                Button {
+                    onDeleteCategory(category)
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(.accentsRed)
+                            .frame(width: 14, height: 14)
+
+                        Capsule()
+                            .fill(.iconinverse)
+                            .frame(width: 8, height: 2)
+                    }
+                    .frame(width: 22, height: 22)
+                    .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .offset(x: -3, y: -4)
+                .transition(
+                    .scale.combined(
+                        with: .opacity
+                    )
+                )
+            }
+        }
+        .animation(
+            .snappy,
+            value: isEditing
+        )
     }
 
     private var newCategoryField: some View {
