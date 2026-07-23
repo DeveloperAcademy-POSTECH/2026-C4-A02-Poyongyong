@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct CreateButton: View {
+    var systemImage: String? = nil
+    var showsTint: Bool = true
+    var iconSize: CGFloat? = 20
     let action: () -> Void
 
     var body: some View {
@@ -15,31 +18,47 @@ struct CreateButton: View {
             ZStack {
                 Circle()
                     .fill(
-                        LinearGradient(
-                            colors: [
-                                .labelprimary.opacity(0.88),
-                                .labelprimary
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
+                        showsTint
+                            ? AnyShapeStyle(
+                                LinearGradient(
+                                    colors: [
+                                        .labelprimary.opacity(0.88),
+                                        .labelprimary
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            : AnyShapeStyle(.clear)
                     )
                     .overlay {
                         Circle()
                             .stroke(.white.opacity(0.25), lineWidth: 1)
                     }
                     .glassEffect(.regular, in: Circle())
-
-                Image("CreateButton")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
+                
+                iconView
+                    .frame(width: iconSize, height: iconSize)
             }
-            .frame(width: 44, height: 44)
+            .frame(width: 56, height: 56)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .shadow(color: .black.opacity(0.22), radius: 2, x: 0, y: 2)
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        if let systemImage {
+            Image(systemName: systemImage)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(.white)
+        } else {
+            Image("CreateButton")
+                .resizable()
+                .scaledToFit()
+        }
     }
 }
 
