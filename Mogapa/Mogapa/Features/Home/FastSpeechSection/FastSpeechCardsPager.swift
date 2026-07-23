@@ -21,10 +21,15 @@ struct FastSpeechCardsPager: View {
     let previewText: (String) -> String
     let onPhraseSelected: (FastSpeechPhrase) -> Void
     
+    @State
+    private var currentPage = 0
+    
     private let cardHeight: CGFloat = 130
     private let spacing: CGFloat = 8
     
-    private let positions: [FastSpeechCardPosition] = [
+    private let positions: [
+        FastSpeechCardPosition
+    ] = [
         .topLeading,
         .topTrailing,
         .bottomLeading,
@@ -43,30 +48,40 @@ struct FastSpeechCardsPager: View {
                 into: 4
             )
             
-            TabView {
-                ForEach(
-                    pages.indices,
-                    id: \.self
-                ) { index in
-                    
-                    cardPage(
-                        pages[index]
+            VStack(
+                spacing: 8
+            ) {
+                TabView(
+                    selection: $currentPage
+                ) {
+                    ForEach(
+                        pages.indices,
+                        id: \.self
+                    ) { index in
+                        
+                        cardPage(
+                            pages[index]
+                        )
+                        .tag(index)
+                    }
+                }
+                .tabViewStyle(
+                    .page(
+                        indexDisplayMode: .never
+                    )
+                )
+                .frame(
+                    height:
+                        cardHeight * 2
+                        + spacing
+                )
+                
+                if pages.count > 1 {
+                    pageIndicator(
+                        pageCount: pages.count
                     )
                 }
             }
-            .tabViewStyle(
-                .page(
-                    indexDisplayMode:
-                        pages.count > 1
-                        ? .always
-                        : .never
-                )
-            )
-            .frame(
-                height:
-                    cardHeight * 2
-                    + spacing
-            )
         }
     }
 }
@@ -90,7 +105,9 @@ private extension FastSpeechCardsPager {
                 maxWidth: .infinity
             )
             .frame(
-                minHeight: 290
+                height:
+                    cardHeight * 2
+                    + spacing
             )
         }
     }
@@ -101,7 +118,9 @@ private extension FastSpeechCardsPager {
 private extension FastSpeechCardsPager {
     
     func cardPage(
-        _ phrases: [FastSpeechPhrase]
+        _ phrases: [
+            FastSpeechPhrase
+        ]
     ) -> some View {
         
         let cards = Array(
@@ -111,9 +130,11 @@ private extension FastSpeechCardsPager {
         return VStack(
             spacing: spacing
         ) {
+            
             HStack(
                 spacing: spacing
             ) {
+                
                 cardSlot(
                     at: 0,
                     cards: cards
@@ -128,6 +149,7 @@ private extension FastSpeechCardsPager {
             HStack(
                 spacing: spacing
             ) {
+                
                 cardSlot(
                     at: 2,
                     cards: cards
@@ -149,7 +171,9 @@ private extension FastSpeechCardsPager {
     @ViewBuilder
     func cardSlot(
         at index: Int,
-        cards: [FastSpeechPhrase]
+        cards: [
+            FastSpeechPhrase
+        ]
     ) -> some View {
         
         if index < cards.count {
@@ -187,13 +211,50 @@ private extension FastSpeechCardsPager {
         }
     }
 }
+
+// MARK: - Page Indicator
+
+private extension FastSpeechCardsPager {
+    
+    func pageIndicator(
+        pageCount: Int
+    ) -> some View {
+        
+        HStack(
+            spacing: 8
+        ) {
+            ForEach(
+                0..<pageCount,
+                id: \.self
+            ) { index in
+                
+                Circle()
+                    .fill(
+                        index == currentPage
+                        ? .labelprimary
+                        : Color.secondary
+                            .opacity(0.3)
+                    )
+                    .frame(
+                        width: 6,
+                        height: 6
+                    )
+            }
+        }
+    }
+}
+
 // MARK: - Array Chunk
 
 private extension Array {
     
     func chunked(
         into size: Int
-    ) -> [[Element]] {
+    ) -> [
+        [
+            Element
+        ]
+    ] {
         
         guard size > 0 else {
             return []
@@ -205,9 +266,11 @@ private extension Array {
             by: size
         )
         .map { startIndex in
+            
             Array(
                 self[
-                    startIndex ..< Swift.min(
+                    startIndex ..<
+                    Swift.min(
                         startIndex + size,
                         count
                     )
@@ -259,6 +322,13 @@ private struct FastSpeechCardsPagerPreview: View {
                     "지금 말씀을 이해하기 어려워요.",
                 sortOrder: 3,
                 category: category
+            ),
+            
+            FastSpeechPhrase(
+                text:
+                    "다시 한 번 말씀해 주세요.",
+                sortOrder: 4,
+                category: category
             )
         ]
         
@@ -275,5 +345,6 @@ private struct FastSpeechCardsPagerPreview: View {
                 )
             }
         )
+        .padding()
     }
 }
