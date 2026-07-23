@@ -64,15 +64,17 @@ final class SpeechManager: NSObject {
 
     // MARK: - 처음부터 재생
 
-    func play(_ text: String) {
-        play(text, fromUTF16Offset: 0)
+    func play(_ text: String, rate: Float = 0.48, pitchMultiplier: Float = 1.0) {
+        play(text, fromUTF16Offset: 0, rate: rate, pitchMultiplier: pitchMultiplier)
     }
 
     // MARK: - 특정 위치부터 재생
 
     func play(
         _ text: String,
-        fromUTF16Offset offset: Int
+        fromUTF16Offset offset: Int,
+        rate: Float = 0.48,
+        pitchMultiplier: Float = 1.0
     ) {
         let nsText = text as NSString
 
@@ -97,8 +99,8 @@ final class SpeechManager: NSObject {
 
         let utterance = AVSpeechUtterance(string: remainingText)
         utterance.voice = AVSpeechSynthesisVoice(language: "ko-KR")
-        utterance.rate = 0.48
-        utterance.pitchMultiplier = 1.0
+        utterance.rate = rate
+        utterance.pitchMultiplier = pitchMultiplier
         utterance.volume = 1.0
 
         activeText = text
@@ -113,9 +115,9 @@ final class SpeechManager: NSObject {
 
     // MARK: - 재생 / 일시정지 토글
 
-    func toggle(_ text: String) {
+    func toggle(_ text: String, rate: Float = 0.48, pitchMultiplier: Float = 1.0) {
         guard activeText == text else {
-            play(text)
+            play(text, rate: rate, pitchMultiplier: pitchMultiplier)
             return
         }
 
@@ -127,7 +129,7 @@ final class SpeechManager: NSObject {
             resume()
 
         case .stopped:
-            play(text)
+            play(text, rate: rate, pitchMultiplier: pitchMultiplier)
         }
     }
 
