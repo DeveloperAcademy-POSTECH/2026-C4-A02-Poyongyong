@@ -402,8 +402,8 @@ private extension HomeView {
             selectedCategoryIndex:
                 $viewModel.selectedCategoryIndex,
             
-            selectedPhraseID:
-                viewModel.selectedPhraseID,
+            selectedPhraseIDs:
+                viewModel.selectedPhrases.map(\.id),
             
             previewText: { text in
                 viewModel.previewText(
