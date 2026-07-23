@@ -39,7 +39,7 @@ struct CreateButton: View {
                 iconView
                     .frame(width: 20, height: 20)
             }
-            .frame(width: 48, height: 48)
+            .frame(width: 56, height: 56)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
