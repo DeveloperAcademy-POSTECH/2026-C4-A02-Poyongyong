@@ -73,15 +73,15 @@ private extension MessageInputView {
             // MARK: - Placeholder
             
             if text.isEmpty {
-                   Text("무엇을 이야기하고 싶은가요?")
-                       .typography(.subTitleMedium)
-                       .foregroundColor(.textplaceholder)
-               } else {
-                   Text(text)
-                       .typography(.subTitleMedium)
-                       .foregroundColor(.textprimary)
-                       .multilineTextAlignment(.leading)
-               }
+                  Text("무엇을 이야기하고 싶은가요?")
+                      .typography(.subTitleMedium)
+                      .foregroundColor(.textplaceholder)
+              } else {
+                  Text(text)
+                      .typography(.subTitleMedium)
+                      .foregroundColor(.textprimary)
+                      .multilineTextAlignment(.leading)
+              }
             
             Spacer()
             
@@ -211,7 +211,7 @@ private extension MessageInputView {
             }
         }
         .padding(16)
-        .frame(width:362,height:500)
+        .frame(width:362,height:329)
         .background(Color.backgroundbgCanvas)
         .clipShape(
             UnevenRoundedRectangle(
