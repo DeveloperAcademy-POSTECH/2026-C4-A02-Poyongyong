@@ -19,7 +19,7 @@ struct HomeView: View {
         sort: [
             SortDescriptor(
                 \FastSpeechCategory.sortOrder,
-                order: .forward
+                 order: .forward
             )
         ]
     )
@@ -33,7 +33,7 @@ struct HomeView: View {
         sort: [
             SortDescriptor(
                 \FastSpeechPhrase.createdAt,
-                order: .reverse
+                 order: .reverse
             )
         ]
     )
@@ -110,21 +110,25 @@ struct HomeView: View {
                     // MARK: Main Content
                     
                     VStack {
-                        header
+                        VStack {
+                            header
+                            
+                            titleSection
+                            
+                            messageInput
+                        }
+                        .padding(
+                            .horizontal,
+                            20
+                        )
                         
-                        titleSection
-                        
-                        messageInput
-                        
+                        .frame(
+                            width: geometry.size.width
+                        )
                         fastSpeechSection
+                            .padding(.horizontal, 10)
                     }
-                    .padding(
-                        .horizontal,
-                        20
-                    )
-                    .frame(
-                        width: geometry.size.width
-                    )
+                    
                     
                     
                     // MARK: Expanded Input
@@ -161,6 +165,7 @@ struct HomeView: View {
                     $isFastSpeechListPresented
             ) {
                 FastSpeechView()
+                    .swipeBackEnabled(true)
             }
             .navigationDestination(
                 isPresented:
@@ -171,6 +176,7 @@ struct HomeView: View {
                         .hidden,
                         for: .navigationBar
                     )
+                    .swipeBackEnabled(true)
             }
             .onAppear {
                 motionManager.start()
@@ -239,10 +245,8 @@ struct HomeView: View {
                 isPresented: $isGesturePresented
             ) {
                 DragGestureView()
-                    .toolbar(
-                        .hidden,
-                        for: .navigationBar
-                    )
+                    .toolbar(.hidden, for: .navigationBar)
+                    .swipeBackEnabled(true)
             }
         }
         .ignoresSafeArea(
@@ -278,10 +282,7 @@ private extension HomeView {
                 isSettingsPresented = true
             }
         }
-        .padding(
-            .top,
-            10
-        )
+        .padding(.top, 10)
     }
 }
 
@@ -460,11 +461,11 @@ private extension HomeView {
         UIInterfaceOrientationMask
     ) {
         let trimmedText =
-            viewModel.inputText
-                .trimmingCharacters(
-                    in:
+        viewModel.inputText
+            .trimmingCharacters(
+                in:
                         .whitespacesAndNewlines
-                )
+            )
         
         guard !trimmedText.isEmpty else {
             return
@@ -473,10 +474,10 @@ private extension HomeView {
         viewModel.isTextFieldExpanded = false
         
         AppDelegate.orientationLock =
-            orientation
+        orientation
         
         presentationOrientation =
-            orientation
+        orientation
         
         isPresentationPresented = true
     }
@@ -508,11 +509,11 @@ private extension HomeView {
     
     func saveToRecentAndReset() {
         let text =
-            viewModel.inputText
-                .trimmingCharacters(
-                    in:
+        viewModel.inputText
+            .trimmingCharacters(
+                in:
                         .whitespacesAndNewlines
-                )
+            )
         
         guard !text.isEmpty else {
             return
@@ -613,6 +614,12 @@ private struct HomeViewPreview: View {
                 text:
                     "지금 말씀을 이해하기 어려워요.",
                 sortOrder: 3,
+                category: category
+            ),
+            FastSpeechPhrase(
+                text:
+                    "지금 말씀을 이해하기 어려워요.",
+                sortOrder: 4,
                 category: category
             )
         ]

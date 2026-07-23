@@ -48,9 +48,7 @@ struct FastSpeechCardsPager: View {
                 into: 4
             )
             
-            VStack(
-                spacing: 8
-            ) {
+            VStack{
                 TabView(
                     selection: $currentPage
                 ) {
@@ -62,6 +60,7 @@ struct FastSpeechCardsPager: View {
                         cardPage(
                             pages[index]
                         )
+                        .padding(.horizontal, 10)
                         .tag(index)
                     }
                 }
@@ -73,7 +72,7 @@ struct FastSpeechCardsPager: View {
                 .frame(
                     height:
                         cardHeight * 2
-                        + spacing
+                    + spacing
                 )
                 
                 if pages.count > 1 {
@@ -107,7 +106,7 @@ private extension FastSpeechCardsPager {
             .frame(
                 height:
                     cardHeight * 2
-                    + spacing
+                + spacing
             )
         }
     }
@@ -130,7 +129,6 @@ private extension FastSpeechCardsPager {
         return VStack(
             spacing: spacing
         ) {
-            
             HStack(
                 spacing: spacing
             ) {

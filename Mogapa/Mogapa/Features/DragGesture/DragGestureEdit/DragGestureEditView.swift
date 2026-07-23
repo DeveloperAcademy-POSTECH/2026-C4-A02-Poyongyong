@@ -275,7 +275,12 @@ private extension DragGestureEditView {
         _ modal: DragGestureEditModal
     ) -> some View {
         GestureModalContent(
-            title: modal.title
+            title: modal.title,
+            onSaved: {
+                viewModel.load(
+                    modelContext: modelContext
+                )
+            }
         )
     }
 }
