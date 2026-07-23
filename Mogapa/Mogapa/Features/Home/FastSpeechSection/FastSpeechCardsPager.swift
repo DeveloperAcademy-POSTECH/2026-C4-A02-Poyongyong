@@ -55,6 +55,7 @@ struct FastSpeechCardsPager: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
+            .frame(height: 360)
         }
     }
 }
