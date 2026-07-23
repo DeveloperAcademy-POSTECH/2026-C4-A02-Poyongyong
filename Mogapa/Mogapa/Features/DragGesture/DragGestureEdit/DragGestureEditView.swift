@@ -112,14 +112,16 @@ private extension DragGestureEditView {
             isRightDisabled:
                 viewModel.isEditing &&
                 viewModel.selectedIDs.isEmpty,
+            isRightProminent:
+                viewModel.isEditing &&
+                !viewModel.selectedIDs.isEmpty,
             rightTint:
-                viewModel.isEditing
+                viewModel.isEditing &&
+                !viewModel.selectedIDs.isEmpty
                 ? .accentsRed
                 : .clear,
             rightForegroundStyle:
-                viewModel.isEditing
-                ? .iconinverse
-                : .textsecondary,
+                rightForegroundStyle,
             leftTitle:
                 viewModel.isEditing
                 ? "취소"
@@ -136,8 +138,17 @@ private extension DragGestureEditView {
             onRightTap: handleRightTap
         )
     }
-}
 
+    var rightForegroundStyle: AnyShapeStyle {
+        if !viewModel.isEditing {
+            return AnyShapeStyle(.textsecondary)
+        }
+
+        return viewModel.selectedIDs.isEmpty
+            ? AnyShapeStyle(.textmuted)
+            : AnyShapeStyle(.iconinverse)
+    }
+}
 
 // MARK: - List
 
@@ -177,7 +188,6 @@ private extension DragGestureEditView {
         QuickSpeechBubbleRow(
             id: gesture.id,
             text: gesture.phrase,
-            isPinned: false,
             isSelected: viewModel.isSelected(
                 gesture.id
             ),
@@ -200,12 +210,6 @@ private extension DragGestureEditView {
                         gesture.id
                     )
                 }
-            },
-            onPin: {
-                openedRowID = nil
-            },
-            onUnpin: {
-                openedRowID = nil
             },
             onDelete: {
                 withAnimation(

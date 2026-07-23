@@ -9,28 +9,10 @@ import SwiftUI
 
 struct QuickSpeechBubbleRow<ID: Hashable>: View {
 
-    // MARK: - Types
-
-    private enum SwipeDirection {
-        case leading
-        case trailing
-
-        init?(offset: CGFloat) {
-            if offset > 0 {
-                self = .leading
-            } else if offset < 0 {
-                self = .trailing
-            } else {
-                return nil
-            }
-        }
-    }
-
     // MARK: - Properties
 
     let id: ID
     let text: String
-    let isPinned: Bool
     let isSelected: Bool
     let isEditing: Bool
     let preservedLineLimit: Int?
@@ -40,13 +22,10 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
 
     let onTap: () -> Void
     let onSelectionToggle: () -> Void
-    let onPin: () -> Void
-    let onUnpin: () -> Void
     let onDelete: () -> Void
 
     @State private var dragOffset: CGFloat = 0
     @State private var dragStartOffset: CGFloat?
-    @State private var lockedSwipeDirection: SwipeDirection?
 
     @State private var deleteOffset: CGFloat = 0
     @State private var isDeleting = false
@@ -54,7 +33,6 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
 
     private let openOffset: CGFloat = 62
     private let openThreshold: CGFloat = 31
-    private let directionLockThreshold: CGFloat = 2
 
     private let checkboxSize: CGFloat = 18
     private let checkboxSpacing: CGFloat = 12
@@ -66,7 +44,6 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
     init(
         id: ID,
         text: String,
-        isPinned: Bool = false,
         isSelected: Bool = false,
         isEditing: Bool = false,
         preservedLineLimit: Int? = nil,
@@ -74,13 +51,10 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
         openedRowID: Binding<ID?>,
         onTap: @escaping () -> Void,
         onSelectionToggle: @escaping () -> Void,
-        onPin: @escaping () -> Void,
-        onUnpin: @escaping () -> Void,
         onDelete: @escaping () -> Void
     ) {
         self.id = id
         self.text = text
-        self.isPinned = isPinned
         self.isSelected = isSelected
         self.isEditing = isEditing
         self.preservedLineLimit = preservedLineLimit
@@ -88,8 +62,6 @@ struct QuickSpeechBubbleRow<ID: Hashable>: View {
         self._openedRowID = openedRowID
         self.onTap = onTap
         self.onSelectionToggle = onSelectionToggle
-        self.onPin = onPin
-        self.onUnpin = onUnpin
         self.onDelete = onDelete
     }
 
@@ -156,20 +128,6 @@ private extension QuickSpeechBubbleRow {
 
     var actionButtons: some View {
         HStack {
-            QuickSpeechSwipeActionButton(
-                isPinned ? .unpin : .pin
-            ) {
-                if isPinned {
-                    onUnpin()
-                } else {
-                    onPin()
-                }
-
-                close()
-            }
-            .opacity(displayedOffset > 0 ? 1 : 0)
-            .allowsHitTesting(displayedOffset > 0)
-
             Spacer()
 
             QuickSpeechSwipeActionButton(.delete) {
@@ -192,7 +150,6 @@ private extension QuickSpeechBubbleRow {
 
             QuickSpeechBubble(
                 text: text,
-                isPinned: isPinned,
                 isEditing: isEditing,
                 preservedLineLimit: preservedLineLimit,
                 onLineLimitMeasured: onLineLimitMeasured,
@@ -278,27 +235,10 @@ private extension QuickSpeechBubbleRow {
             self.dragStartOffset = dragOffset
         }
 
-        if lockedSwipeDirection == nil {
-            let directionSource =
-                startOffset == 0
-                ? translation
-                : startOffset
-
-            if abs(directionSource) >
-                directionLockThreshold {
-                lockedSwipeDirection = SwipeDirection(
-                    offset: directionSource
-                )
-            }
-        }
-
         let proposedOffset =
             startOffset + translation
 
-        dragOffset = clampedOffset(
-            proposedOffset,
-            for: lockedSwipeDirection
-        )
+        dragOffset = clampedOffset(proposedOffset)
     }
 
     func handleHorizontalSwipeEnded(
@@ -316,27 +256,13 @@ private extension QuickSpeechBubbleRow {
         let predictedOffset =
             startOffset + predictedTranslation
 
-        let resolvedDirection =
-            lockedSwipeDirection ??
-            SwipeDirection(offset: predictedOffset)
-
         dragStartOffset = nil
 
         withAnimation(.snappy) {
-            switch resolvedDirection {
-            case .leading
-                where predictedOffset > openThreshold:
-
-                openedRowID = id
-                dragOffset = openOffset
-
-            case .trailing
-                where predictedOffset < -openThreshold:
-
+            if predictedOffset < -openThreshold {
                 openedRowID = id
                 dragOffset = -openOffset
-
-            default:
+            } else {
                 if openedRowID == id {
                     openedRowID = nil
                 }
@@ -344,8 +270,6 @@ private extension QuickSpeechBubbleRow {
                 dragOffset = 0
             }
         }
-
-        lockedSwipeDirection = nil
     }
 
     func handleHorizontalSwipeCancelled() {
@@ -354,14 +278,10 @@ private extension QuickSpeechBubbleRow {
         }
 
         dragStartOffset = nil
-        lockedSwipeDirection = nil
 
         withAnimation(.snappy) {
             if openedRowID == id {
-                dragOffset =
-                    dragOffset >= 0
-                    ? openOffset
-                    : -openOffset
+                dragOffset = -openOffset
             } else {
                 dragOffset = 0
             }
@@ -369,33 +289,16 @@ private extension QuickSpeechBubbleRow {
     }
 
     private func clampedOffset(
-        _ offset: CGFloat,
-        for direction: SwipeDirection?
+        _ offset: CGFloat
     ) -> CGFloat {
-        switch direction {
-        case .leading:
-            return max(
-                0,
-                min(openOffset, offset)
-            )
-
-        case .trailing:
-            return min(
-                0,
-                max(-openOffset, offset)
-            )
-
-        case nil:
-            return max(
-                -openOffset,
-                min(openOffset, offset)
-            )
-        }
+        min(
+            0,
+            max(-openOffset, offset)
+        )
     }
 
     func resetDragState() {
         dragStartOffset = nil
-        lockedSwipeDirection = nil
     }
 }
 
@@ -410,7 +313,6 @@ private extension QuickSpeechBubbleRow {
 
             dragOffset = 0
             dragStartOffset = nil
-            lockedSwipeDirection = nil
         }
     }
 
@@ -632,7 +534,6 @@ private struct QuickSpeechBubbleRowPreviewPhrase:
 {
     let id = UUID()
     let text: String
-    var isPinned: Bool
 }
 
 private struct QuickSpeechBubbleRowPreview: View {
@@ -643,18 +544,15 @@ private struct QuickSpeechBubbleRowPreview: View {
 
     @State private var phrases = [
         QuickSpeechBubbleRowPreviewPhrase(
-            text: "텍스트 입력",
-            isPinned: false
+            text: "텍스트 입력"
         ),
         QuickSpeechBubbleRowPreviewPhrase(
             text: """
             얼마나 길게 써지나 함 봐볼까요. 근데 이거 길게 쓰면 밑으로 내려가네요. 딱 맞춰서 이어지는지!!!
-            """,
-            isPinned: true
+            """
         ),
         QuickSpeechBubbleRowPreviewPhrase(
-            text: "텍스트 입력",
-            isPinned: false
+            text: "텍스트 입력"
         )
     ]
 
@@ -672,7 +570,6 @@ private struct QuickSpeechBubbleRowPreview: View {
                 QuickSpeechBubbleRow(
                     id: phrase.id,
                     text: phrase.text,
-                    isPinned: phrase.isPinned,
                     isSelected:
                         selectedIDs.contains(
                             phrase.id
@@ -688,18 +585,6 @@ private struct QuickSpeechBubbleRowPreview: View {
                     onSelectionToggle: {
                         toggleSelection(
                             for: phrase.id
-                        )
-                    },
-                    onPin: {
-                        updatePinnedState(
-                            for: phrase.id,
-                            isPinned: true
-                        )
-                    },
-                    onUnpin: {
-                        updatePinnedState(
-                            for: phrase.id,
-                            isPinned: false
                         )
                     },
                     onDelete: {
@@ -725,23 +610,6 @@ private struct QuickSpeechBubbleRowPreview: View {
         }
     }
 
-    private func updatePinnedState(
-        for id: UUID,
-        isPinned: Bool
-    ) {
-        guard let index =
-                phrases.firstIndex(
-                    where: {
-                        $0.id == id
-                    }
-                )
-        else {
-            return
-        }
-
-        phrases[index].isPinned =
-            isPinned
-    }
 }
 
 #Preview("QuickSpeechBubbleRow") {

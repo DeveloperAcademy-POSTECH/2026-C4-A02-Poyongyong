@@ -94,7 +94,7 @@ struct FastSpeechView: View {
                 
                 ZStack(alignment: .top) {
                     QuickSpeechBubbleList(
-                        sections: bubbleSections,
+                        items: bubbleItems,
                         isEditing: isEditing,
                         selectedIDs: $selectedIDs,
                         onTap: { id in
@@ -109,18 +109,6 @@ struct FastSpeechView: View {
                             presentedModal = .edit(
                                 phrase.id,
                                 phrase.text
-                            )
-                        },
-                        onPin: {
-                            updatePinnedState(
-                                for: $0,
-                                isPinned: true
-                            )
-                        },
-                        onUnpin: {
-                            updatePinnedState(
-                                for: $0,
-                                isPinned: false
                             )
                         },
                         onDelete: {
@@ -346,77 +334,21 @@ private extension FastSpeechView {
                     selectedCategoryID
             }
             .sorted {
-                if $0.isPinned != $1.isPinned {
-                    return $0.isPinned &&
-                        !$1.isPinned
-                }
-                
                 return $0.sortOrder <
                     $1.sortOrder
             }
     }
 }
 
-// MARK: - Bubble Sections
+// MARK: - Bubble Items
 
 private extension FastSpeechView {
     
-    var bubbleSections:
-    [QuickSpeechBubbleListSection<UUID>] {
-        
-        let pinnedItems =
-            filteredPhrases
-                .filter(\.isPinned)
-                .map(
-                    quickSpeechBubbleItem
-                )
-        
-        let normalItems =
-            filteredPhrases
-                .filter {
-                    !$0.isPinned
-                }
-                .map(
-                    quickSpeechBubbleItem
-                )
-        
-        if selectedCategoryIndex == 0 {
-            guard !pinnedItems.isEmpty else {
-                return [
-                    QuickSpeechBubbleListSection(
-                        items: normalItems
-                    )
-                ]
-            }
-            
-            return [
-                QuickSpeechBubbleListSection(
-                    title: "고정됨",
-                    items: pinnedItems
-                ),
-                QuickSpeechBubbleListSection(
-                    items: normalItems
-                )
-            ]
-        }
-        
-        guard !pinnedItems.isEmpty else {
-            return [
-                QuickSpeechBubbleListSection(
-                    items: normalItems
-                )
-            ]
-        }
-        
-        return [
-            QuickSpeechBubbleListSection(
-                title: "고정됨",
-                items: pinnedItems
-            ),
-            QuickSpeechBubbleListSection(
-                items: normalItems
-            )
-        ]
+    var bubbleItems:
+    [QuickSpeechBubbleListItem<UUID>] {
+        filteredPhrases.map(
+            quickSpeechBubbleItem
+        )
     }
     
     func quickSpeechBubbleItem(
@@ -424,8 +356,7 @@ private extension FastSpeechView {
     ) -> QuickSpeechBubbleListItem<UUID> {
         QuickSpeechBubbleListItem(
             id: phrase.id,
-            text: phrase.text,
-            isPinned: phrase.isPinned
+            text: phrase.text
         )
     }
 }
@@ -460,25 +391,6 @@ private extension FastSpeechView {
 
 private extension FastSpeechView {
     
-    func updatePinnedState(
-        for id: UUID,
-        isPinned: Bool
-    ) {
-        guard let phrase = phrases.first(
-            where: {
-                $0.id == id
-            }
-        ) else {
-            return
-        }
-        
-        withAnimation(.snappy) {
-            phrase.isPinned = isPinned
-        }
-        
-        saveModelContext()
-    }
-
     func addCategory(_ name: String) {
         let firstSortOrder =
             categories

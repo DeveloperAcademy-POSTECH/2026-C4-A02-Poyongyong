@@ -9,16 +9,10 @@ import SwiftUI
 import DeveloperToolsSupport
 
 enum QuickSpeechSwipeAction {
-    case pin
-    case unpin
     case delete
 
     var iconResource: ImageResource {
         switch self {
-        case .pin:
-            .quickSpeechPin
-        case .unpin:
-            .quickSpeechPinSlash
         case .delete:
             .quickSpeechTrash
         }
@@ -26,8 +20,6 @@ enum QuickSpeechSwipeAction {
 
     var backgroundStyle: Color {
         switch self {
-        case .pin, .unpin:
-            .accentsOrange
         case .delete:
             .accentsRed
         }
@@ -68,8 +60,6 @@ struct QuickSpeechSwipeActionButton: View {
 
 #Preview("QuickSpeechSwipeActionButton") {
     HStack(spacing: 16) {
-        QuickSpeechSwipeActionButton(.pin) {}
-        QuickSpeechSwipeActionButton(.unpin) {}
         QuickSpeechSwipeActionButton(.delete) {}
     }
     .padding()

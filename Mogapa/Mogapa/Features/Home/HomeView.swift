@@ -165,6 +165,7 @@ struct HomeView: View {
                     $isFastSpeechListPresented
             ) {
                 FastSpeechView()
+                    .swipeBackEnabled(true)
             }
             .navigationDestination(
                 isPresented:
@@ -175,6 +176,7 @@ struct HomeView: View {
                         .hidden,
                         for: .navigationBar
                     )
+                    .swipeBackEnabled(true)
             }
             .onAppear {
                 motionManager.start()
@@ -243,10 +245,8 @@ struct HomeView: View {
                 isPresented: $isGesturePresented
             ) {
                 DragGestureView()
-                    .toolbar(
-                        .hidden,
-                        for: .navigationBar
-                    )
+                    .toolbar(.hidden, for: .navigationBar)
+                    .swipeBackEnabled(true)
             }
         }
         .ignoresSafeArea(

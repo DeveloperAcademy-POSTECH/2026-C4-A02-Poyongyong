@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CreateButton: View {
+    var systemImage: String? = nil
+    var showsTint: Bool = true   // 추가: false면 그라디언트 없이 표시
     let action: () -> Void
 
     var body: some View {
@@ -15,14 +17,18 @@ struct CreateButton: View {
             ZStack {
                 Circle()
                     .fill(
-                        LinearGradient(
-                            colors: [
-                                .labelprimary.opacity(0.88),
-                                .labelprimary
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
+                        showsTint
+                            ? AnyShapeStyle(
+                                LinearGradient(
+                                    colors: [
+                                        .labelprimary.opacity(0.88),
+                                        .labelprimary
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            : AnyShapeStyle(.clear)
                     )
                     .overlay {
                         Circle()
@@ -30,16 +36,28 @@ struct CreateButton: View {
                     }
                     .glassEffect(.regular, in: Circle())
 
-                Image("CreateButton")
-                    .resizable()
-                    .scaledToFit()
+                iconView
                     .frame(width: 20, height: 20)
             }
-            .frame(width: 44, height: 44)
+            .frame(width: 48, height: 48)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .shadow(color: .black.opacity(0.22), radius: 2, x: 0, y: 2)
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        if let systemImage {
+            Image(systemName: systemImage)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(.white)
+        } else {
+            Image("CreateButton")
+                .resizable()
+                .scaledToFit()
+        }
     }
 }
 
