@@ -110,21 +110,25 @@ struct HomeView: View {
                     // MARK: Main Content
                     
                     VStack {
-                        header
+                        VStack {
+                            header
+                            
+                            titleSection
+                            
+                            messageInput
+                        }
+                        .padding(
+                            .horizontal,
+                            20
+                        )
                         
-                        titleSection
-                        
-                        messageInput
-                        
+                        .frame(
+                            width: geometry.size.width
+                        )
                         fastSpeechSection
+                            .padding(.horizontal, 10)
                     }
-                    .padding(
-                        .horizontal,
-                        20
-                    )
-                    .frame(
-                        width: geometry.size.width
-                    )
+                    
                     
                     
                     // MARK: Expanded Input
@@ -610,6 +614,12 @@ private struct HomeViewPreview: View {
                 text:
                     "지금 말씀을 이해하기 어려워요.",
                 sortOrder: 3,
+                category: category
+            ),
+            FastSpeechPhrase(
+                text:
+                    "지금 말씀을 이해하기 어려워요.",
+                sortOrder: 4,
                 category: category
             )
         ]

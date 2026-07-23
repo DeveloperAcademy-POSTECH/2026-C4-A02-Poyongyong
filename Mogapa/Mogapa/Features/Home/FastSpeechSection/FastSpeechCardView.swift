@@ -163,8 +163,7 @@ private extension FastSpeechCardView {
         columns: [
             GridItem(.flexible()),
             GridItem(.flexible())
-        ],
-        spacing: 8
+        ]
     ) {
         
         FastSpeechCardView(
