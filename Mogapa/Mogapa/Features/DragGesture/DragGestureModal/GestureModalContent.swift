@@ -164,7 +164,6 @@ private extension GestureModalContent {
         }
 
         let gesture = RegisteredDragGesture(
-            name: trimmedText,
             phrase: trimmedText,
             points: normalizedPoints
         )
