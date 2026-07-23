@@ -158,14 +158,6 @@ struct HomeView: View {
             }
             .navigationDestination(
                 isPresented:
-                    $isSpeechTestPresented
-            ) {
-                SpeechTestView(
-                    text: viewModel.inputText
-                )
-            }
-            .navigationDestination(
-                isPresented:
                     $isFastSpeechListPresented
             ) {
                 FastSpeechView()
@@ -243,11 +235,14 @@ struct HomeView: View {
                         presentationOrientation
                 )
             }
-            .sheet(
-                isPresented:
-                    $isGesturePresented
+            .navigationDestination(
+                isPresented: $isGesturePresented
             ) {
                 DragGestureView()
+                    .toolbar(
+                        .hidden,
+                        for: .navigationBar
+                    )
             }
         }
         .ignoresSafeArea(
@@ -440,13 +435,6 @@ private extension HomeView {
 private extension HomeView {
     
     func adjustSelectedCategoryIndex() {
-        /*
-         FastSpeechSection 기준:
-         
-         0번 = 최근 문구
-         1번 = categories[0]
-         2번 = categories[1]
-         */
         
         let maximumIndex = categories.count
         
@@ -532,7 +520,6 @@ private extension HomeView {
             return
         }
         
-        // category를 지정하지 않으면 최근 문구가 됩니다.
         let phrase = FastSpeechPhrase(
             text: text,
             sortOrder: 0,

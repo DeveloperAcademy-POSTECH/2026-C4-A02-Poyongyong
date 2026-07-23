@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct DragGestureView: View {
+    
+    @Environment(\.dismiss) private var dismiss
 
     @Query(sort: \RegisteredDragGesture.createdAt)
     private var registeredGestures: [RegisteredDragGesture]
@@ -16,38 +18,64 @@ struct DragGestureView: View {
     @State private var currentPoints: [CGPoint] = []
     @State private var dragState: DragState = .none
     @State private var recognizedTitle = "시작해 볼까요?"
-    @State private var isShowingEditModal = false
+    @State private var isShowingEditView = false
     @State private var isDimmed = false
 
     private let recognitionThreshold = 0.14
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 32) {
+        VStack(
+            alignment: .leading,
+            spacing: 32
+        ) {
             DragHeader {
-                isShowingEditModal = true
+                isShowingEditView = true
             }
-            VStack(alignment: .leading) {
+
+            VStack(
+                alignment: .leading
+            ) {
                 DragIndicator(
                     title: recognizedTitle,
                     state: dragState
                 )
 
-                DragCanvas(dragPoints: $currentPoints) { finishedPoints in
-                    recognize(finishedPoints)
+                DragCanvas(
+                    dragPoints: $currentPoints
+                ) { finishedPoints in
+                    recognize(
+                        finishedPoints
+                    )
                 }
             }
         }
-        .padding([.bottom, .top], 32)
-        .padding([.leading, .trailing], 20)
-        .background(dimBackground)
-        .overlay(alignment: .bottomTrailing) { homeButton }
-        // TODO: 추후 NavigationView로 연결될 예정 — 그때는 .sheet 대신
-        // .navigationDestination(isPresented:) 방식으로 교체 필요
-        .sheet(isPresented: $isShowingEditModal) {
-            GestureModalContent(title: "제스처 편집")
+        .padding(
+            [.bottom, .top],
+            32
+        )
+        .padding(
+            [.leading, .trailing],
+            20
+        )
+        .background(
+            dimBackground
+        )
+        .overlay(
+            alignment: .bottomTrailing
+        ) {
+            homeButton
+        }
+        .navigationDestination(
+            isPresented: $isShowingEditView
+        ) {
+            DragGestureEditView()
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 0.25)) {
+            withAnimation(
+                .easeInOut(
+                    duration: 0.25
+                )
+            ) {
                 isDimmed = true
             }
         }
@@ -58,72 +86,114 @@ private extension DragGestureView {
 
     var dimBackground: some View {
         Color.black
-            .opacity(isDimmed ? 0.6 : 0)
+            .opacity(
+                isDimmed ? 0.6 : 0
+            )
             .ignoresSafeArea()
     }
 
     var homeButton: some View {
         BasicButton(
-            systemImage: "arrow.down.right.and.arrow.up.left",
+            systemImage:
+                "arrow.down.right.and.arrow.up.left",
             shape: .circle,
             foregroundStyle: .white
         ) {
-            // TODO: 홈 화면 복귀 액션 연결
+            dismiss()
         }
-        .padding(20)
+        .padding(
+            20
+        )
     }
 }
 
 private extension DragGestureView {
 
-    func recognize(_ points: [CGPoint]) {
+    func recognize(
+        _ points: [CGPoint]
+    ) {
         guard points.count >= 8 else {
-            presentResult(state: .failed, title: "조금 더 길게 그려주세요")
+            presentResult(
+                state: .failed,
+                title: "조금 더 길게 그려주세요"
+            )
             return
         }
 
         guard !registeredGestures.isEmpty else {
-            presentResult(state: .failed, title: "먼저 패턴을 등록해 주세요")
+            presentResult(
+                state: .failed,
+                title: "먼저 패턴을 등록해 주세요"
+            )
             return
         }
 
         guard
-            let match = DragGestureMatcher.findBestMatch(
-                drawnPoints: points,
-                gestures: registeredGestures
-            ),
-            match.score <= recognitionThreshold
+            let match =
+                DragGestureMatcher
+                    .findBestMatch(
+                        drawnPoints: points,
+                        gestures:
+                            registeredGestures
+                    ),
+            match.score <=
+                recognitionThreshold
         else {
-            presentResult(state: .failed, title: "인식하지 못했어요")
+            presentResult(
+                state: .failed,
+                title: "인식하지 못했어요"
+            )
             return
         }
 
-        presentResult(state: .succeeded, title: match.gesture.phrase)
-
-        // TODO: 주니 SpeechManager 나오면 여기서 speak(match.gesture.phrase) 호출하고,
-        // 아래 estimatedDisplayDuration 대신 실제 재생 완료 시점에 맞춰 리셋하도록 교체
+        presentResult(
+            state: .succeeded,
+            title:
+                match.gesture.phrase
+        )
     }
 
-    func presentResult(state: DragState, title: String) {
+    func presentResult(
+        state: DragState,
+        title: String
+    ) {
         dragState = state
         recognizedTitle = title
 
-        let resetDelay = estimatedDisplayDuration(for: title)
+        let resetDelay =
+            estimatedDisplayDuration(
+                for: title
+            )
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + resetDelay) {
+        DispatchQueue.main.asyncAfter(
+            deadline:
+                .now() + resetDelay
+        ) {
             dragState = .none
-            recognizedTitle = "시작해 볼까요?"
+            recognizedTitle =
+                "시작해 볼까요?"
         }
     }
 
-    func estimatedDisplayDuration(for text: String) -> TimeInterval {
-        let charactersPerSecond = 12.0
-        let minimumDuration: TimeInterval = 1.0
+    func estimatedDisplayDuration(
+        for text: String
+    ) -> TimeInterval {
+        let charactersPerSecond =
+            12.0
 
-        return max(Double(text.count) / charactersPerSecond, minimumDuration)
+        let minimumDuration:
+            TimeInterval = 1.0
+
+        return max(
+            Double(text.count) /
+                charactersPerSecond,
+            minimumDuration
+        )
     }
 }
 
 #Preview {
-    DragGestureView()
+    NavigationStack {
+        DragGestureView()
+    }
 }
