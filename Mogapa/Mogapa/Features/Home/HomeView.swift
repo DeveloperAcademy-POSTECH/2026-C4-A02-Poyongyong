@@ -425,9 +425,7 @@ private extension HomeView {
                 isFastSpeechListPresented = true
             }
         )
-        .frame(
-            maxWidth: .infinity
-        )
+        .frame(maxWidth: .infinity)
         .padding(
             .bottom,
             20
