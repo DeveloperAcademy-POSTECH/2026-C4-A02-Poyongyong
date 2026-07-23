@@ -19,7 +19,7 @@ struct HomeView: View {
         sort: [
             SortDescriptor(
                 \FastSpeechCategory.sortOrder,
-                order: .forward
+                 order: .forward
             )
         ]
     )
@@ -33,7 +33,7 @@ struct HomeView: View {
         sort: [
             SortDescriptor(
                 \FastSpeechPhrase.createdAt,
-                order: .reverse
+                 order: .reverse
             )
         ]
     )
@@ -469,11 +469,11 @@ private extension HomeView {
         UIInterfaceOrientationMask
     ) {
         let trimmedText =
-            viewModel.inputText
-                .trimmingCharacters(
-                    in:
+        viewModel.inputText
+            .trimmingCharacters(
+                in:
                         .whitespacesAndNewlines
-                )
+            )
         
         guard !trimmedText.isEmpty else {
             return
@@ -482,10 +482,10 @@ private extension HomeView {
         viewModel.isTextFieldExpanded = false
         
         AppDelegate.orientationLock =
-            orientation
+        orientation
         
         presentationOrientation =
-            orientation
+        orientation
         
         isPresentationPresented = true
     }
@@ -517,11 +517,11 @@ private extension HomeView {
     
     func saveToRecentAndReset() {
         let text =
-            viewModel.inputText
-                .trimmingCharacters(
-                    in:
+        viewModel.inputText
+            .trimmingCharacters(
+                in:
                         .whitespacesAndNewlines
-                )
+            )
         
         guard !text.isEmpty else {
             return

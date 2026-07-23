@@ -60,7 +60,11 @@ struct ExpandedTextInputOverlay: View {
                 .keyboard, edges: .bottom
             )
             .onAppear {
-                focusTextEditor()
+                DispatchQueue.main.asyncAfter(
+                    deadline: .now() + 0.3
+                ) {
+                    isTextEditorFocused = true
+                }
             }
         }
     }

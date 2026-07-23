@@ -73,10 +73,15 @@ private extension MessageInputView {
             // MARK: - Placeholder
             
             if text.isEmpty {
-                Text("무엇을 이야기하고 싶은가요?")
-                    .typography(.subTitleMedium)
-                    .foregroundColor(.textplaceholder)
-            }
+                   Text("무엇을 이야기하고 싶은가요?")
+                       .typography(.subTitleMedium)
+                       .foregroundColor(.textplaceholder)
+               } else {
+                   Text(text)
+                       .typography(.subTitleMedium)
+                       .foregroundColor(.textprimary)
+                       .multilineTextAlignment(.leading)
+               }
             
             Spacer()
             
