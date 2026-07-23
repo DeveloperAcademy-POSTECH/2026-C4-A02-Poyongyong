@@ -44,12 +44,15 @@ private extension FastSpeechCardView {
             
             cardBackground
             
-            VStack {
+            VStack{
                 Text(previewText)
                     .typography(.subTitleMedium)
                     .foregroundColor(.textsecondary)
                     .frame(
-                        maxWidth: .infinity, alignment: .leading
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .topLeading
+
                     )
             }
             .padding(24)

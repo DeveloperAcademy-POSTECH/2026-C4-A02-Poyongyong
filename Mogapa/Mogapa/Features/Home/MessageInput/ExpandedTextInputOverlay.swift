@@ -50,9 +50,9 @@ struct ExpandedTextInputOverlay: View {
                 
                 expandedTextField
                     .padding(
-                            .top,
-                            geometry.size.height * 0.08
-                        )
+                        .top,
+                        geometry.size.height * 0.08
+                    )
             }
             .frame(
                 maxWidth: .infinity,

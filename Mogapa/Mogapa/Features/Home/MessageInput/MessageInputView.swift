@@ -87,7 +87,7 @@ private extension MessageInputView {
             
             // MARK: - Bottom Controls
             
-            HStack(alignment: .bottom) {
+            HStack(alignment: .center) {
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)
                     .foregroundColor(.texttertiary)
@@ -168,7 +168,6 @@ private extension MessageInputView {
         
         VStack(alignment:.leading, spacing:8)
         {
-            
             // MARK: - Landscape Instruction
             HStack(spacing:8) {
                 Image(systemName:"rectangle.portrait.rotate")
