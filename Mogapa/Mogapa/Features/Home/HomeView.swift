@@ -160,7 +160,10 @@ struct HomeView: View {
                     }
                     
                     // MARK: Floating Edit Button
-                    CreateButton(systemImage: "pencil.and.scribble") {
+                    CreateButton(
+                        systemImage: "pencil.and.scribble",
+                        iconSize: 30
+                    ) {
                         isGesturePresented = true
                     }
                     .frame(
