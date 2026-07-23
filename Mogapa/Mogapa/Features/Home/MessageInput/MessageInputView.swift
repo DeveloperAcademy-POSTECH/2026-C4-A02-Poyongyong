@@ -87,7 +87,7 @@ private extension MessageInputView {
             
             // MARK: - Bottom Controls
             
-            HStack(alignment: .center) {
+            HStack(alignment: .bottom) {
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)
                     .foregroundColor(.texttertiary)

@@ -116,7 +116,7 @@ private extension ExpandedTextInputOverlay {
                 onTextChanged(newValue)
             }
             
-            HStack {
+            HStack(alignment: .bottom) {
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)
                     .foregroundColor(.texttertiary)
