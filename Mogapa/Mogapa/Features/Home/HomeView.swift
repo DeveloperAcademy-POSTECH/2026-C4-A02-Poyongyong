@@ -420,9 +420,7 @@ private extension HomeView {
                 isFastSpeechListPresented = true
             }
         )
-        .frame(
-            maxWidth: .infinity
-        )
+        .frame(maxWidth: .infinity)
         .padding(
             .bottom,
             20
@@ -544,6 +542,93 @@ private extension HomeView {
 
 // MARK: - Preview
 
-#Preview {
-    HomeView()
+#Preview("Home View - Mock Fast Speech") {
+    HomeViewPreview()
+        .modelContainer(
+            for: [
+                FastSpeechCategory.self,
+                FastSpeechPhrase.self
+            ],
+            inMemory: true
+        )
+}
+
+private struct HomeViewPreview: View {
+    
+    @Environment(
+        \.modelContext
+    )
+    private var modelContext
+    
+    @State
+    private var hasInsertedMockData = false
+    
+    var body: some View {
+        HomeView()
+            .task {
+                guard !hasInsertedMockData else {
+                    return
+                }
+                
+                insertMockData()
+                
+                hasInsertedMockData = true
+            }
+    }
+    
+    private func insertMockData() {
+        
+        let category = FastSpeechCategory(
+            name: "일상",
+            sortOrder: 0
+        )
+        
+        modelContext.insert(
+            category
+        )
+        
+        let phrases = [
+            FastSpeechPhrase(
+                text:
+                    "잠시만 기다려 주세요.",
+                sortOrder: 0,
+                category: category
+            ),
+            
+            FastSpeechPhrase(
+                text:
+                    "천천히 말씀해 주세요.",
+                sortOrder: 1,
+                category: category
+            ),
+            
+            FastSpeechPhrase(
+                text:
+                    "제가 글로 적어서 보여드릴게요.",
+                sortOrder: 2,
+                category: category
+            ),
+            
+            FastSpeechPhrase(
+                text:
+                    "지금 말씀을 이해하기 어려워요.",
+                sortOrder: 3,
+                category: category
+            )
+        ]
+        
+        for phrase in phrases {
+            modelContext.insert(
+                phrase
+            )
+        }
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print(
+                "Mock data save failed: \(error)"
+            )
+        }
+    }
 }
