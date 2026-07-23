@@ -177,7 +177,6 @@ private extension DragGestureEditView {
         QuickSpeechBubbleRow(
             id: gesture.id,
             text: gesture.phrase,
-            isPinned: false,
             isSelected: viewModel.isSelected(
                 gesture.id
             ),
@@ -200,12 +199,6 @@ private extension DragGestureEditView {
                         gesture.id
                     )
                 }
-            },
-            onPin: {
-                openedRowID = nil
-            },
-            onUnpin: {
-                openedRowID = nil
             },
             onDelete: {
                 withAnimation(
