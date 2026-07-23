@@ -9,7 +9,6 @@ import SwiftUI
 
 struct QuickSpeechBubble: View {
     let text: String
-    let isPinned: Bool
     let isEditing: Bool
     let preservedLineLimit: Int?
     let onLineLimitMeasured: ((Int) -> Void)?
@@ -27,14 +26,12 @@ struct QuickSpeechBubble: View {
 
     init(
         text: String,
-        isPinned: Bool = false,
         isEditing: Bool = false,
         preservedLineLimit: Int? = nil,
         onLineLimitMeasured: ((Int) -> Void)? = nil,
         action: (() -> Void)? = nil
     ) {
         self.text = text
-        self.isPinned = isPinned
         self.isEditing = isEditing
         self.preservedLineLimit = preservedLineLimit
         self.onLineLimitMeasured = onLineLimitMeasured
@@ -69,7 +66,7 @@ struct QuickSpeechBubble: View {
         .frame(maxWidth: .infinity, minHeight: minHeight, alignment: .topLeading)
         .background {
             bubbleShape
-                .fill(isPinned ? .backgroundbgSpBubbleSelected : .backgroundbgSpBubble)
+                .fill(.backgroundbgSpBubble)
         }
         .overlay {
             bubbleShape
@@ -123,8 +120,7 @@ private struct QuickSpeechBubbleHeightPreferenceKey: PreferenceKey {
         QuickSpeechBubble(text: "텍스트 입력")
 
         QuickSpeechBubble(
-            text: "얼마나 길게 써지나 함 봐볼까요. 근데 이거 길게 쓰면 밑으로 내려가네요.",
-            isPinned: true
+            text: "얼마나 길게 써지나 함 봐볼까요. 근데 이거 길게 쓰면 밑으로 내려가네요."
         )
     }
     .padding(.horizontal, 20)
@@ -153,9 +149,6 @@ private struct QuickSpeechBubbleHeightPreferenceKey: PreferenceKey {
             
             QuickSpeechBubble(
                 text: "텍스트 입력",
-                isPinned: true,
-                
-                
             )
         }
         .padding(.leading, 30)
