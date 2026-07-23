@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import UniformTypeIdentifiers
 
 @MainActor
 struct DragGestureEditView: View {
@@ -15,7 +14,6 @@ struct DragGestureEditView: View {
     // MARK: - Environment
 
     @Environment(\.dismiss) private var dismiss
-
     @Environment(\.modelContext) private var modelContext
 
 
@@ -23,16 +21,10 @@ struct DragGestureEditView: View {
 
     @State private var viewModel: DragGestureEditViewModel
     @State private var openedRowID: UUID?
+    @State private var draggingID: UUID?
 
 
     // MARK: - Initializer
-
-    init() {
-        _viewModel = State(
-            initialValue:
-                DragGestureEditViewModel()
-        )
-    }
 
     init(
         viewModel: DragGestureEditViewModel
@@ -49,7 +41,9 @@ struct DragGestureEditView: View {
         ZStack(
             alignment: .bottomTrailing
         ) {
-            VStack(spacing: 18) {
+            VStack(
+                spacing: 18
+            ) {
                 header
 
                 gestureList
@@ -64,8 +58,14 @@ struct DragGestureEditView: View {
                 CreateButton {
                     viewModel.presentAddModal()
                 }
-                .padding(.trailing, 31)
-                .padding(.bottom, 8)
+                .padding(
+                    .trailing,
+                    31
+                )
+                .padding(
+                    .bottom,
+                    8
+                )
             }
         }
         .background(
@@ -132,10 +132,8 @@ private extension DragGestureEditView {
                 viewModel.isEditing
                 ? "편집 종료"
                 : "뒤로 가기",
-            onLeftTap:
-                handleLeftTap,
-            onRightTap:
-                handleRightTap
+            onLeftTap: handleLeftTap,
+            onRightTap: handleRightTap
         )
     }
 }
@@ -159,8 +157,14 @@ private extension DragGestureEditView {
                     )
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 100)
+            .padding(
+                .horizontal,
+                20
+            )
+            .padding(
+                .bottom,
+                100
+            )
         }
         .scrollIndicators(
             .hidden
@@ -174,12 +178,11 @@ private extension DragGestureEditView {
             id: gesture.id,
             text: gesture.phrase,
             isPinned: false,
-            isSelected:
-                viewModel.isSelected(
-                    gesture.id
-                ), isEditing: viewModel.isEditing,
-            openedRowID:
-                $openedRowID,
+            isSelected: viewModel.isSelected(
+                gesture.id
+            ),
+            isEditing: viewModel.isEditing,
+            openedRowID: $openedRowID,
             onTap: {
                 withAnimation(
                     .snappy
@@ -199,7 +202,6 @@ private extension DragGestureEditView {
                 }
             },
             onPin: {
-                // 드래그 제스처에서는 고정 기능 사용안해서 nil 입니닷
                 openedRowID = nil
             },
             onUnpin: {
@@ -218,42 +220,22 @@ private extension DragGestureEditView {
             }
         )
         .opacity(
-            viewModel.draggingID ==
-                gesture.id
+            draggingID == gesture.id
             ? 0.55
             : 1
         )
-        .contentShape(
-            Rectangle()
-        )
-        .onDrag {
-            guard !viewModel.isEditing else {
-                return NSItemProvider()
-            }
+        .dragDrop(
+            isEditing: !viewModel.isEditing,
+            itemID: gesture.id,
+            draggedItemID: $draggingID,
+            onMove: { sourceID, destinationID in
+                openedRowID = nil
 
-            openedRowID = nil
-
-            viewModel.beginDragging(
-                gesture.id
-            )
-
-            return NSItemProvider(
-                object:
-                    gesture.id.uuidString
-                    as NSString
-            )
-        }
-        .onDrop(
-            of: [
-                UTType.text.identifier
-            ],
-            delegate:
-                DragGestureReorderDropDelegate(
-                    destinationID:
-                        gesture.id,
-                    viewModel:
-                        viewModel
+                viewModel.moveGesture(
+                    sourceID: sourceID,
+                    destinationID: destinationID
                 )
+            }
         )
     }
 }
@@ -282,8 +264,7 @@ private extension DragGestureEditView {
             .snappy
         ) {
             if viewModel.isEditing {
-                viewModel
-                    .deleteSelectedGestures()
+                viewModel.deleteSelectedGestures()
             } else {
                 viewModel.beginEditing()
             }
@@ -304,102 +285,4 @@ private extension DragGestureEditView {
             title: modal.title
         )
     }
-}
-
-// MARK: - Drop Delegate
-
-@MainActor
-private struct DragGestureReorderDropDelegate:
-    DropDelegate {
-
-    let destinationID: UUID
-
-    let viewModel:
-        DragGestureEditViewModel
-
-    func dropEntered(
-        info: DropInfo
-    ) {
-        guard !viewModel.isEditing else {
-            return
-        }
-
-        withAnimation(
-            .snappy
-        ) {
-            viewModel
-                .moveDraggingGesture(
-                    before: destinationID
-                )
-        }
-    }
-
-    func performDrop(
-        info: DropInfo
-    ) -> Bool {
-        viewModel.finishDragging()
-
-        return true
-    }
-
-    func dropUpdated(
-        info: DropInfo
-    ) -> DropProposal? {
-        DropProposal(
-            operation: .move
-        )
-    }
-
-    func dropExited(
-        info: DropInfo
-    ) {
-        // 다른 Row로 이동하는 중에도
-        // draggingID를 유지해야 하므로 비워둡니다.
-    }
-}
-
-
-// MARK: - Preview
-
-@MainActor
-private struct DragGestureEditPreview:
-    View {
-
-    @State
-    private var viewModel:
-        DragGestureEditViewModel
-
-    init() {
-        _viewModel = State(
-            initialValue:
-                DragGestureEditViewModel(
-                    gestures:
-                        DragGestureEditDummyData
-                            .make()
-                )
-        )
-    }
-
-    var body: some View {
-        NavigationStack {
-            DragGestureEditView(
-                viewModel: viewModel
-            )
-        }
-    }
-}
-
-#Preview {
-    DragGestureEditPreview()
-        .modelContainer(
-            for:
-                RegisteredDragGesture.self,
-            inMemory: true
-        )
-        .environment(
-            \.locale,
-            Locale(
-                identifier: "ko"
-            )
-        )
 }

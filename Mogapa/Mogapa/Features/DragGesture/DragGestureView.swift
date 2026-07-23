@@ -68,7 +68,7 @@ struct DragGestureView: View {
         .navigationDestination(
             isPresented: $isShowingEditView
         ) {
-            DragGestureEditView()
+            DragGestureEditView(viewModel: DragGestureEditViewModel())
         }
         .onAppear {
             withAnimation(

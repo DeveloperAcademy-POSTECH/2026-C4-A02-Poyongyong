@@ -312,6 +312,37 @@ extension DragGestureEditViewModel {
 
         normalizeSortOrder()
     }
+    
+    func moveGesture(
+        sourceID: UUID,
+        destinationID: UUID
+    ) {
+        guard
+            let sourceIndex = gestures.firstIndex(
+                where: { $0.id == sourceID }
+            ),
+            let destinationIndex = gestures.firstIndex(
+                where: { $0.id == destinationID }
+            ),
+            sourceIndex != destinationIndex
+        else {
+            return
+        }
+
+        let gesture = gestures.remove(
+            at: sourceIndex
+        )
+
+        let adjustedDestinationIndex =
+            sourceIndex < destinationIndex
+            ? destinationIndex - 1
+            : destinationIndex
+
+        gestures.insert(
+            gesture,
+            at: adjustedDestinationIndex
+        )
+    }
 }
 
 
