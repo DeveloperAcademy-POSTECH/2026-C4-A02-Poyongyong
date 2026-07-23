@@ -18,6 +18,7 @@ struct GestureModalContent: View {
     @State private var text = ""
     @State private var points: [CGPoint] = []
     @State private var isCanvasFocused = false
+    @State private var isTextFieldFocused = false
     @State private var errorMessage: String?
 
     init(
@@ -29,22 +30,25 @@ struct GestureModalContent: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
+        GeometryReader { _ in
+            VStack(spacing: 0) {
+                header
 
-            content
+                content
+            }
+            .frame(
+                maxWidth: .infinity,
+                maxHeight: .infinity,
+                alignment: .top
+            )
+            .background(Color(.backgroundbgDisabled))
+            .contentShape(Rectangle())
+            .onTapGesture {
+                hideKeyboard()
+                isCanvasFocused = false
+            }
         }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity,
-            alignment: .top
-        )
-        .background(Color(.backgroundbgDisabled))
-        .contentShape(Rectangle())
-        .onTapGesture {
-            hideKeyboard()
-            isCanvasFocused = false
-        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .presentationDetents([.height(725)])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(38)
@@ -85,8 +89,9 @@ struct GestureModalContent: View {
     private var gesturePhraseSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             sectionTitle("제스처 문구")
+                .padding(.leading, 6)
 
-            RoundedTextField(text: $text)
+            RoundedTextField(text: $text, isEditing: $isTextFieldFocused)
                 .frame(maxWidth: .infinity)
 
             Text(
@@ -97,6 +102,7 @@ struct GestureModalContent: View {
             )
             .typography(.calloutLight)
             .foregroundStyle(.texttertiary)
+            .padding(.leading, 6)
         }
     }
 
@@ -104,6 +110,7 @@ struct GestureModalContent: View {
         VStack(alignment: .leading, spacing: 14) {
             sectionTitle("드래그 제스처")
                 .padding(.top, 16)
+                .padding(.leading, 6)
 
             DrawingCanvas(
                 points: $points,
@@ -113,6 +120,7 @@ struct GestureModalContent: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 318)
+            .allowsHitTesting(!isTextFieldFocused)
 
             redrawButton
         }
@@ -152,6 +160,7 @@ struct GestureModalContent: View {
             .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
+        .allowsHitTesting(!isTextFieldFocused) 
     }
 }
 
