@@ -176,6 +176,7 @@
       }
     },
     "전체 빠른 말하기 목록" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
