@@ -81,8 +81,8 @@ private extension ExpandedTextInputOverlay {
             
             HStack(spacing: 8) {
                 Image(systemName:"rectangle.portrait.rotate")
-                .font(.system(size:16))
-                .foregroundColor(.iconmuted)
+                    .font(.system(size:16))
+                    .foregroundColor(.iconmuted)
                 
                 Text("가로로 돌려 표현하기")
                     .typography(.calloutRegular)
@@ -93,7 +93,7 @@ private extension ExpandedTextInputOverlay {
             
             
             // MARK: - Divider
-        
+            
             Divider()
             
             
@@ -125,7 +125,7 @@ private extension ExpandedTextInputOverlay {
             
             // MARK: - Bottom Controls
             
-            HStack {
+            HStack(alignment:.bottom) {
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)
                     .foregroundColor(.texttertiary)
@@ -165,8 +165,7 @@ private extension ExpandedTextInputOverlay {
 
 private extension ExpandedTextInputOverlay {
     
-    var speakButton:
-    some View {
+    var speakButton: some View {
         
         Button {
             guard !text.isEmpty else {
@@ -174,15 +173,14 @@ private extension ExpandedTextInputOverlay {
             }
             onSpeak()
         } label: {
-            Image(systemName: "waveform")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame( width: 40, height: 40)
+            Image(systemName:"waveform")
+                .font(.system(size:20,weight:.semibold))
+                .foregroundColor(text.isEmpty ? Color(.iconmuted) : Color(.textwhite))
+                .frame(width:40,height:40)
                 .background(
-                    text.isEmpty ? Color.iconmuted : Color(.labelprimary))
-                .clipShape(
-                    Circle()
+                    text.isEmpty ? Color(.backgroundbgDisabled) : Color(.labelprimary)
                 )
+                .clipShape(Circle())
         }
         .disabled(text.isEmpty)
     }

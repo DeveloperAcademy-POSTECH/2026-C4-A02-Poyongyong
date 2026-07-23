@@ -283,10 +283,7 @@ private extension HomeView {
                 isSettingsPresented = true
             }
         }
-        .padding(
-            .top,
-            10
-        )
+        .padding(.top, 10)
     }
 }
 

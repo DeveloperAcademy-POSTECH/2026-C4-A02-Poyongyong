@@ -68,21 +68,21 @@ private extension MessageInputView {
     
     var collapsedInput:
     some View {
-        
-        VStack(alignment: .leading, spacing:8)
-        {
+        VStack(alignment: .leading) {
+            
             // MARK: - Placeholder
             
             if text.isEmpty {
                 Text("무엇을 이야기하고 싶은가요?")
-                .typography(.subTitleMedium)
-                .foregroundColor(.textplaceholder)}
+                    .typography(.subTitleMedium)
+                    .foregroundColor(.textplaceholder)
+            }
             
             Spacer()
             
             // MARK: - Bottom Controls
             
-            HStack {
+            HStack(alignment: .bottom) {
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)
                     .foregroundColor(.texttertiary)
@@ -96,22 +96,25 @@ private extension MessageInputView {
         .padding(.trailing, 18)
         .padding(.top, 25)
         .padding(.bottom, 22)
-        .frame(width: 362, height:204)
+        .frame(
+            width: 362,
+            height: 204
+        )
         .background(Color.backgroundbgCanvas)
         .clipShape(
             UnevenRoundedRectangle(
-                topLeadingRadius:0,
-                bottomLeadingRadius:40,
-                bottomTrailingRadius:40,
-                topTrailingRadius:40,
-                style:.continuous
+                topLeadingRadius: 0,
+                bottomLeadingRadius: 40,
+                bottomTrailingRadius: 40,
+                topTrailingRadius: 40,
+                style: .continuous
             )
         )
         .shadow(
-            color:.black.opacity(0.08),
-            radius:8,
-            x:0,
-            y:4
+            color: .black.opacity(0.08),
+            radius: 8,
+            x: 0,
+            y: 4
         )
     }
 }
@@ -138,7 +141,7 @@ private extension MessageInputView {
                 .padding(.top,116)
         }
         .frame(maxWidth:.infinity,
-            maxHeight:.infinity
+               maxHeight:.infinity
         )
         .ignoresSafeArea(
             .keyboard,
@@ -166,8 +169,8 @@ private extension MessageInputView {
                 Image(systemName:"rectangle.portrait.rotate")
                     .font(.system(size:16))
                 Text("가로로 돌려 표현하기")
-                .font(.caption)
-                .foregroundStyle(.gray)
+                    .font(.caption)
+                    .foregroundStyle(.gray)
                 
                 Spacer()
             }
@@ -181,18 +184,18 @@ private extension MessageInputView {
             // MARK: - Text Editor
             
             TextEditor(text: $text)
-            .focused($isFocused)
-            .scrollContentBackground(.hidden)
-            .font(.system(size:16))
-            .onChange(
-                of:text
-            ) { _, newValue in
-                onTextChanged(newValue)
-            }
+                .focused($isFocused)
+                .scrollContentBackground(.hidden)
+                .font(.system(size:16))
+                .onChange(
+                    of:text
+                ) { _, newValue in
+                    onTextChanged(newValue)
+                }
             
             // MARK: - Bottom Controls
             
-            HStack {
+            HStack(alignment:.bottom){
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)
                     .foregroundColor(.texttertiary)
@@ -204,7 +207,7 @@ private extension MessageInputView {
         }
         .padding(16)
         .frame(width:362,height:329)
-        .background(Color.white)
+        .background(Color.backgroundbgCanvas)
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius:0,
@@ -215,9 +218,9 @@ private extension MessageInputView {
             )
         )
         .shadow(color:.black.opacity(0.15),
-            radius:12,
-            x:0,
-            y:6
+                radius:12,
+                x:0,
+                y:6
         )
     }
 }
@@ -237,13 +240,13 @@ private extension MessageInputView {
             onSpeak()
         } label: {
             Image(systemName:"waveform")
-            .font(.system(size:20,weight:.semibold))
-            .foregroundStyle(.white)
-            .frame(width:40,height:40)
-            .background(
-                text.isEmpty ? Color(.iconmuted) : Color(.labelprimary)
-            )
-            .clipShape(Circle())
+                .font(.system(size:20,weight:.semibold))
+                .foregroundColor(text.isEmpty ? Color(.iconmuted) : Color(.textwhite))
+                .frame(width:40,height:40)
+                .background(
+                    text.isEmpty ? Color(.backgroundbgDisabled) : Color(.labelprimary)
+                )
+                .clipShape(Circle())
         }
         .disabled(text.isEmpty)
     }
