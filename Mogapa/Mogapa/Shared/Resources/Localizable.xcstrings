@@ -16,7 +16,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap the + button to add a quick phrase"
+            "value" : "Tap + to add a Quick Speech phrase."
           }
         }
       }
@@ -46,7 +46,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Draw Again"
+            "value" : "Start Over"
           }
         }
       }
@@ -56,7 +56,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dragging plays sound only — no captions."
+            "value" : "Drag Gesture plays audio only — no captions. Short and simple messages work best."
           }
         }
       }
@@ -76,7 +76,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Displays the message when the gesture ends"
+            "value" : "Shows the message on release, then closes automatically."
           }
         }
       }
@@ -86,7 +86,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ready to start speaking?"
+            "value" : "Ready to communicate?"
           }
         }
       }
@@ -150,7 +150,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Everything you say is saved here!"
+            "value" : "Everything you type is saved here!"
           }
         }
       }
