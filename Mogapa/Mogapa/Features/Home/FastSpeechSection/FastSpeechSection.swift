@@ -59,8 +59,6 @@ private extension FastSpeechSection {
                 onShowAllFastSpeech()
             } label: {
                 HStack(spacing: 4) {
-                    Text("전체 보기")
-                        .typography(.bodyMedium)
                     
                     Image(
                         systemName: "chevron.right"

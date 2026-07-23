@@ -61,7 +61,7 @@ private extension FastSpeechCardView {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(minHeight: 150, maxHeight: 170)
+        .frame(height: 130)
         .animation(
             .easeInOut(duration: 0.2),
             value: isSelected

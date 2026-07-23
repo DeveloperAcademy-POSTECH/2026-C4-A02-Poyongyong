@@ -158,14 +158,6 @@ struct HomeView: View {
             }
             .navigationDestination(
                 isPresented:
-                    $isSpeechTestPresented
-            ) {
-                SpeechTestView(
-                    text: viewModel.inputText
-                )
-            }
-            .navigationDestination(
-                isPresented:
                     $isFastSpeechListPresented
             ) {
                 FastSpeechView()
@@ -243,11 +235,14 @@ struct HomeView: View {
                         presentationOrientation
                 )
             }
-            .sheet(
-                isPresented:
-                    $isGesturePresented
+            .navigationDestination(
+                isPresented: $isGesturePresented
             ) {
                 DragGestureView()
+                    .toolbar(
+                        .hidden,
+                        for: .navigationBar
+                    )
             }
         }
         .ignoresSafeArea(
@@ -425,9 +420,7 @@ private extension HomeView {
                 isFastSpeechListPresented = true
             }
         )
-        .frame(
-            maxWidth: .infinity
-        )
+        .frame(maxWidth: .infinity)
         .padding(
             .bottom,
             20
@@ -440,13 +433,6 @@ private extension HomeView {
 private extension HomeView {
     
     func adjustSelectedCategoryIndex() {
-        /*
-         FastSpeechSection 기준:
-         
-         0번 = 최근 문구
-         1번 = categories[0]
-         2번 = categories[1]
-         */
         
         let maximumIndex = categories.count
         
@@ -532,7 +518,6 @@ private extension HomeView {
             return
         }
         
-        // category를 지정하지 않으면 최근 문구가 됩니다.
         let phrase = FastSpeechPhrase(
             text: text,
             sortOrder: 0,
@@ -557,6 +542,93 @@ private extension HomeView {
 
 // MARK: - Preview
 
-#Preview {
-    HomeView()
+#Preview("Home View - Mock Fast Speech") {
+    HomeViewPreview()
+        .modelContainer(
+            for: [
+                FastSpeechCategory.self,
+                FastSpeechPhrase.self
+            ],
+            inMemory: true
+        )
+}
+
+private struct HomeViewPreview: View {
+    
+    @Environment(
+        \.modelContext
+    )
+    private var modelContext
+    
+    @State
+    private var hasInsertedMockData = false
+    
+    var body: some View {
+        HomeView()
+            .task {
+                guard !hasInsertedMockData else {
+                    return
+                }
+                
+                insertMockData()
+                
+                hasInsertedMockData = true
+            }
+    }
+    
+    private func insertMockData() {
+        
+        let category = FastSpeechCategory(
+            name: "일상",
+            sortOrder: 0
+        )
+        
+        modelContext.insert(
+            category
+        )
+        
+        let phrases = [
+            FastSpeechPhrase(
+                text:
+                    "잠시만 기다려 주세요.",
+                sortOrder: 0,
+                category: category
+            ),
+            
+            FastSpeechPhrase(
+                text:
+                    "천천히 말씀해 주세요.",
+                sortOrder: 1,
+                category: category
+            ),
+            
+            FastSpeechPhrase(
+                text:
+                    "제가 글로 적어서 보여드릴게요.",
+                sortOrder: 2,
+                category: category
+            ),
+            
+            FastSpeechPhrase(
+                text:
+                    "지금 말씀을 이해하기 어려워요.",
+                sortOrder: 3,
+                category: category
+            )
+        ]
+        
+        for phrase in phrases {
+            modelContext.insert(
+                phrase
+            )
+        }
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print(
+                "Mock data save failed: \(error)"
+            )
+        }
+    }
 }
