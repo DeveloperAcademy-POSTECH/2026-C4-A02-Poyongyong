@@ -5,6 +5,13 @@
 //  Created by Minjae Son on 7/20/26.
 //
 
+//
+//  FastSpeechCardsPager.swift
+//  Mogapa
+//
+//  Created by Minjae Son on 7/20/26.
+//
+
 import SwiftUI
 
 struct FastSpeechCardsPager: View {
@@ -14,16 +21,8 @@ struct FastSpeechCardsPager: View {
     let previewText: (String) -> String
     let onPhraseSelected: (FastSpeechPhrase) -> Void
     
-    private let columns = [
-        GridItem(
-            .flexible(),
-            spacing: 8
-        ),
-        GridItem(
-            .flexible(),
-            spacing: 8
-        )
-    ]
+    private let cardHeight: CGFloat = 130
+    private let spacing: CGFloat = 8
     
     private let positions: [FastSpeechCardPosition] = [
         .topLeading,
@@ -40,13 +39,16 @@ struct FastSpeechCardsPager: View {
         if sortedPhrases.isEmpty {
             emptyState
         } else {
-            let pages = sortedPhrases.chunked(into: 4)
+            let pages = sortedPhrases.chunked(
+                into: 4
+            )
             
             TabView {
                 ForEach(
                     pages.indices,
                     id: \.self
                 ) { index in
+                    
                     cardPage(
                         pages[index]
                     )
@@ -54,10 +56,16 @@ struct FastSpeechCardsPager: View {
             }
             .tabViewStyle(
                 .page(
-                    indexDisplayMode: pages.count > 1
-                    ? .always
-                    : .never
+                    indexDisplayMode:
+                        pages.count > 1
+                        ? .always
+                        : .never
                 )
+            )
+            .frame(
+                height:
+                    cardHeight * 2
+                    + spacing
             )
         }
     }
@@ -69,11 +77,21 @@ private extension FastSpeechCardsPager {
     
     var emptyState: some View {
         HStack {
-            Text("여기에 말한 기록이 남아요!")
-                .typography(.subTitleMedium)
-                .foregroundStyle(.texttertiary)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 290)
+            Text(
+                "여기에 말한 기록이 남아요!"
+            )
+            .typography(
+                .subTitleMedium
+            )
+            .foregroundStyle(
+                .texttertiary
+            )
+            .frame(
+                maxWidth: .infinity
+            )
+            .frame(
+                minHeight: 290
+            )
         }
     }
 }
@@ -86,49 +104,89 @@ private extension FastSpeechCardsPager {
         _ phrases: [FastSpeechPhrase]
     ) -> some View {
         
-        LazyVGrid(
-            columns: columns,
-            spacing: 8
+        let cards = Array(
+            phrases.prefix(4)
+        )
+        
+        return VStack(
+            spacing: spacing
         ) {
-            ForEach(
-                0..<4,
-                id: \.self
-            ) { index in
+            HStack(
+                spacing: spacing
+            ) {
+                cardSlot(
+                    at: 0,
+                    cards: cards
+                )
                 
-                if index < phrases.count {
-                    
-                    let phrase = phrases[index]
-                    
-                    FastSpeechCardView(
-                        phrase: phrase,
-                        position: positions[index],
-                        isSelected: selectedPhraseID == phrase.id,
-                        previewText: previewText(
-                            phrase.text
-                        ),
-                        onTap: {
-                            onPhraseSelected(
-                                phrase
-                            )
-                        }
-                    )
-                    
-                } else {
-                    
-                    Color.clear
-                        .frame(
-                            maxWidth: .infinity
-                        )
-                        .aspectRatio(
-                            1,
-                            contentMode: .fit
-                        )
-                }
+                cardSlot(
+                    at: 1,
+                    cards: cards
+                )
+            }
+            
+            HStack(
+                spacing: spacing
+            ) {
+                cardSlot(
+                    at: 2,
+                    cards: cards
+                )
+                
+                cardSlot(
+                    at: 3,
+                    cards: cards
+                )
             }
         }
     }
 }
 
+// MARK: - Card Slot
+
+private extension FastSpeechCardsPager {
+    
+    @ViewBuilder
+    func cardSlot(
+        at index: Int,
+        cards: [FastSpeechPhrase]
+    ) -> some View {
+        
+        if index < cards.count {
+            
+            let phrase = cards[index]
+            
+            FastSpeechCardView(
+                phrase: phrase,
+                position: positions[index],
+                isSelected:
+                    selectedPhraseID == phrase.id,
+                previewText:
+                    previewText(
+                        phrase.text
+                    ),
+                onTap: {
+                    onPhraseSelected(
+                        phrase
+                    )
+                }
+            )
+            .frame(
+                maxWidth: .infinity
+            )
+            
+        } else {
+            
+            Color.clear
+                .frame(
+                    maxWidth: .infinity
+                )
+                .frame(
+                    height: cardHeight
+                )
+        }
+    }
+}
 // MARK: - Array Chunk
 
 private extension Array {
@@ -176,22 +234,29 @@ private struct FastSpeechCardsPagerPreview: View {
         
         let phrases = [
             FastSpeechPhrase(
-                text: "잠시만 기다려 주세요.",
+                text:
+                    "잠시만 기다려 주세요.",
                 sortOrder: 0,
                 category: category
             ),
+            
             FastSpeechPhrase(
-                text: "천천히 말씀해 주세요.",
+                text:
+                    "천천히 말씀해 주세요.",
                 sortOrder: 1,
                 category: category
             ),
+            
             FastSpeechPhrase(
-                text: "제가 글로 적어서 보여드릴게요.",
+                text:
+                    "제가 글로 적어서 보여드릴게요.",
                 sortOrder: 2,
                 category: category
             ),
+            
             FastSpeechPhrase(
-                text: "지금 말씀을 이해하기 어려워요.",
+                text:
+                    "지금 말씀을 이해하기 어려워요.",
                 sortOrder: 3,
                 category: category
             )
@@ -199,12 +264,15 @@ private struct FastSpeechCardsPagerPreview: View {
         
         FastSpeechCardsPager(
             phrases: phrases,
-            selectedPhraseID: phrases.first?.id,
+            selectedPhraseID:
+                phrases.first?.id,
             previewText: { text in
                 text
             },
             onPhraseSelected: { phrase in
-                print(phrase.text)
+                print(
+                    phrase.text
+                )
             }
         )
     }
