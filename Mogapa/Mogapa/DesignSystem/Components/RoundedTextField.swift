@@ -12,6 +12,7 @@ struct RoundedTextField: View {
     @FocusState private var isFocused: Bool
 
     var placeholder: String = "입력해주세요"
+    var isEditing: Binding<Bool>? = nil
 
     var body: some View {
         HStack(spacing: 12) {
@@ -60,5 +61,8 @@ struct RoundedTextField: View {
         }
         .animation(.easeInOut(duration: 0.15), value: isFocused)
         .animation(.easeInOut(duration: 0.15), value: text.isEmpty)
+        .onChange(of: isFocused) { _, newValue in
+            isEditing?.wrappedValue = newValue
+        }
     }
 }

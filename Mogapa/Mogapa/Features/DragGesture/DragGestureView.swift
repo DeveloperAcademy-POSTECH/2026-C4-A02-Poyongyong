@@ -36,7 +36,8 @@ struct DragGestureView: View {
             }
 
             VStack(
-                alignment: .leading
+                alignment: .leading,
+                spacing: 24
             ) {
                 DragIndicator(
                     title: recognizedTitle,
@@ -105,18 +106,14 @@ private extension DragGestureView {
     }
 
     var homeButton: some View {
-        BasicButton(
-            systemImage:
-                "arrow.down.right.and.arrow.up.left",
-            shape: .circle,
-            foregroundStyle: .white
+        CreateButton(
+            systemImage: "arrow.down.right.and.arrow.up.left",
+            showsTint: false
         ) {
             speechManager.stop()
             dismiss()
         }
-        .padding(
-            20
-        )
+        .padding(20)
     }
 }
 
