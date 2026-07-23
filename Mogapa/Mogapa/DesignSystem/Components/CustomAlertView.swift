@@ -33,7 +33,7 @@ struct CustomAlertView: View {
             VStack {
                 VStack {
                     Button {
-                        onCancel()
+                        onConfirm()
                     } label: {
                         Text("삭제")
                             .frame(maxWidth: .infinity, minHeight: 36
@@ -45,7 +45,7 @@ struct CustomAlertView: View {
                     .padding(.bottom, 2)
                     
                     Button {
-                        onConfirm()
+                        onCancel()
                     } label: {
                         Text("취소")
                             .frame(maxWidth: .infinity, minHeight: 36
@@ -59,7 +59,7 @@ struct CustomAlertView: View {
         }
         .padding(14)
         .padding(.top, 8)
-        .background(Color.white.opacity(0.7))
+        .background(Color.white.opacity(0.95))
         .clipShape(
             RoundedRectangle(
                 cornerRadius: 28)

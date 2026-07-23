@@ -58,6 +58,12 @@ struct FastSpeechView: View {
     
     @State
     private var presentedModal: FastSpeechModal?
+
+    @State
+    private var categoryToDelete: FastSpeechCategory?
+
+    @State
+    private var isCategoryDeleteAlertPresented = false
     
     
     // MARK: - Body
@@ -73,14 +79,16 @@ struct FastSpeechView: View {
                     categories: categories,
                     selectedIndex:
                         $selectedCategoryIndex,
-                    defaultTitle: "최근 말하기",
+                    defaultTitle: "최근 문구",
                     showsAddButton: true,
+                    isEditing: isEditing,
                     onAddCategory: addCategory,
                     onAddingStateChange: { isAdding in
                         withAnimation(.snappy) {
                             isAddingCategory = isAdding
                         }
-                    }
+                    },
+                    onDeleteCategory: presentDeleteCategoryAlert
                 )
                 .padding(.horizontal, 20)
                 
@@ -177,6 +185,14 @@ struct FastSpeechView: View {
                 }
             )
         }
+        .customAlert(
+            isPresented: $isCategoryDeleteAlertPresented,
+            title: categoryDeleteAlertTitle,
+            message: "카테고리 내 문구들도 한번에 지워집니다.",
+            onConfirm: {
+                confirmDeleteCategory()
+            }
+        )
         .onChange(
             of: selectedCategoryIndex
         ) { _, _ in
@@ -199,15 +215,13 @@ private extension FastSpeechView {
             isRightDisabled:
                 isEditing && selectedIDs.isEmpty,
             isRightProminent:
-                isEditing,
+                isEditing && !selectedIDs.isEmpty,
             rightTint:
-                isEditing
+                isEditing && !selectedIDs.isEmpty
                 ? .accentsRed
                 : .clear,
             rightForegroundStyle:
-                isEditing
-                ? .iconinverse
-                : .textsecondary,
+                rightForegroundStyle,
             leftTitle:
                 isEditing ? "취소" : nil,
             leftIcon:
@@ -225,6 +239,16 @@ private extension FastSpeechView {
         )
     }
 
+    var rightForegroundStyle: AnyShapeStyle {
+        if !isEditing {
+            return AnyShapeStyle(.textsecondary)
+        }
+
+        return selectedIDs.isEmpty
+            ? AnyShapeStyle(.textmuted)
+            : AnyShapeStyle(.iconinverse)
+    }
+
     var emptyCategoryMessage: some View {
         Text("+ 버튼을 눌러 빠른 말하기를 추가해보세요")
             .typography(.bodyMedium)
@@ -233,6 +257,14 @@ private extension FastSpeechView {
             .frame(maxWidth: .infinity)
             .padding(.top, 72)
             .allowsHitTesting(false)
+    }
+
+    var categoryDeleteAlertTitle: String {
+        guard let categoryName = categoryToDelete?.name else {
+            return "카테고리를 삭제할까요?"
+        }
+
+        return "\(categoryName) 카테고리를 삭제할까요?"
     }
 }
 
@@ -266,7 +298,7 @@ private extension FastSpeechView {
         categoryCount: Int
     ) {
         /*
-         0 = 최근 말하기
+         0 = 최근 문구
          1 = categories[0]
          2 = categories[1]
          */
@@ -352,7 +384,6 @@ private extension FastSpeechView {
             guard !pinnedItems.isEmpty else {
                 return [
                     QuickSpeechBubbleListSection(
-                        title: "최신순",
                         items: normalItems
                     )
                 ]
@@ -364,7 +395,6 @@ private extension FastSpeechView {
                     items: pinnedItems
                 ),
                 QuickSpeechBubbleListSection(
-                    title: "최신순",
                     items: normalItems
                 )
             ]
@@ -478,6 +508,63 @@ private extension FastSpeechView {
                 "빠른 말하기 카테고리 추가 실패: \(error)"
             )
         }
+    }
+
+    func presentDeleteCategoryAlert(
+        _ category: FastSpeechCategory
+    ) {
+        categoryToDelete = category
+        isCategoryDeleteAlertPresented = true
+    }
+
+    func confirmDeleteCategory() {
+        guard let category = categoryToDelete else {
+            return
+        }
+
+        deleteCategory(category)
+        categoryToDelete = nil
+    }
+
+    func deleteCategory(
+        _ category: FastSpeechCategory
+    ) {
+        let nextSelectedIndex =
+            nextSelectedCategoryIndexAfterDeleting(
+                category
+            )
+
+        do {
+            withAnimation(.snappy) {
+                selectedCategoryIndex = nextSelectedIndex
+                selectedIDs.removeAll()
+                modelContext.delete(category)
+            }
+
+            try modelContext.save()
+        } catch {
+            print(
+                "빠른 말하기 카테고리 삭제 실패: \(error)"
+            )
+        }
+    }
+
+    func nextSelectedCategoryIndexAfterDeleting(
+        _ category: FastSpeechCategory
+    ) -> Int {
+        guard let deletingIndex = categories.firstIndex(
+            where: {
+                $0.id == category.id
+            }
+        ) else {
+            return selectedCategoryIndex
+        }
+
+        if deletingIndex < categories.count - 1 {
+            return deletingIndex + 1
+        }
+
+        return max(0, deletingIndex)
     }
 
     func addPhrase(

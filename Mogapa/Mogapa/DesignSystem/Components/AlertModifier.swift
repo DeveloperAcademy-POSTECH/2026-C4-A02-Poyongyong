@@ -21,28 +21,38 @@ struct AlertModifier: ViewModifier {
             content
             if isPresented {
                 ZStack {
-                    Color.gray.opacity(0.2)
+                    Color.black.opacity(0.35)
                         .ignoresSafeArea()
                         .onTapGesture {
-                            isPresented = false
+                            withAnimation(.snappy(duration: 0.22)) {
+                                isPresented = false
+                            }
                         }
                     CustomAlertView(
                         title: title,
                         message: message,
                         onConfirm: {
                             onConfirm()
-                            isPresented = false
+                            withAnimation(.snappy(duration: 0.22)) {
+                                isPresented = false
+                            }
                         },
                         onCancel: {
-                            isPresented = false
+                            withAnimation(.snappy(duration: 0.22)) {
+                                isPresented = false
+                            }
                         }
                     )
                     .transition(.scale.combined(with: .opacity))
                     .zIndex(1)
                 }
+                .transition(.opacity)
             }
         }
-        .ignoresSafeArea()
+        .animation(
+            .snappy(duration: 0.22),
+            value: isPresented
+        )
     }
 }
 

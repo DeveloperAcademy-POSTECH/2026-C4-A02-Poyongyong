@@ -22,10 +22,14 @@ enum AppPersistence {
         )
 
         do {
-            return try ModelContainer(
+            let container = try ModelContainer(
                 for: schema,
                 configurations: [configuration]
             )
+            FastSpeechDefaultTemplate.seedIfNeeded(
+                in: container
+            )
+            return container
         } catch {
             fatalError("ModelContainer 생성 실패: \(error)")
         }
