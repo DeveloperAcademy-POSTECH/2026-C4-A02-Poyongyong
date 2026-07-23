@@ -177,6 +177,11 @@ struct FastSpeechView: View {
                 }
             )
         }
+        .onChange(
+            of: selectedCategoryIndex
+        ) { _, _ in
+            selectedIDs.removeAll()
+        }
     }
 }
 
