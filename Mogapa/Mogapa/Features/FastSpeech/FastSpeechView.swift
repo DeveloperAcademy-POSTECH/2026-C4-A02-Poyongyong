@@ -152,6 +152,11 @@ struct FastSpeechView: View {
                 existingText: modal.existingText
             )
         }
+        .onChange(
+            of: selectedCategoryIndex
+        ) { _, _ in
+            selectedIDs.removeAll()
+        }
     }
 }
 
