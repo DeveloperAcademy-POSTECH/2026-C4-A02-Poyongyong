@@ -2,28 +2,84 @@
   "sourceLanguage" : "ko",
   "strings" : {
     "%lld/150" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/150"
+          }
+        }
+      }
     },
     "+ 버튼을 눌러 빠른 말하기를 추가해보세요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the + button to add a quick phrase"
+          }
+        }
+      }
     },
     "가로로 돌려\n표현하기" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate the device \nto display the message"
+          }
+        }
+      }
     },
     "가로로 돌려 표현하기" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotate the device to display the message"
+          }
+        }
+      }
     },
     "다시 그리기" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Draw Again"
+          }
+        }
+      }
     },
     "드래그 제스처는 자막 없이 음성만 재생돼요.\n이해하기 쉬운, 간단하고 짧은 문구를 추천해요." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dragging plays sound only — no captions."
+          }
+        }
+      }
     },
     "드래그 제스처로\n빠른 말하기" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Speech with Drag Gesture"
+          }
+        }
+      }
     },
     "드래그 후 손을 떼면 출력 후 자동 종료" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Displays the message when the gesture ends"
+          }
+        }
+      }
     },
     "말하기를\n시작해 볼까요?" : {
       "localizations" : {
