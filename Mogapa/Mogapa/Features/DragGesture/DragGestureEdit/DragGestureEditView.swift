@@ -58,14 +58,13 @@ struct DragGestureEditView: View {
                 CreateButton {
                     viewModel.presentAddModal()
                 }
-                .padding(
-                    .trailing,
-                    31
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity,
+                    alignment: .bottomTrailing
                 )
-                .padding(
-                    .bottom,
-                    8
-                )
+                .padding(.trailing, 20)
+                .padding(.bottom, 15)
             }
         }
         .background(

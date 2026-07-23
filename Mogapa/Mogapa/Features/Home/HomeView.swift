@@ -158,7 +158,23 @@ struct HomeView: View {
                             }
                         )
                     }
+                    
+                    // MARK: Floating Edit Button
+                    CreateButton(
+                        systemImage: "pencil.and.scribble",
+                        iconSize: 30
+                    ) {
+                        isGesturePresented = true
+                    }
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .bottomTrailing
+                    )
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 35)
                 }
+                
             }
             .navigationDestination(
                 isPresented:
@@ -254,6 +270,7 @@ struct HomeView: View {
         )
     }
 }
+
 
 // MARK: - Header
 

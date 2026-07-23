@@ -132,8 +132,13 @@ struct FastSpeechView: View {
                 CreateButton {
                     presentedModal = .add
                 }
-                .padding(.trailing, 31)
-                .padding(.bottom, 8)
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity,
+                    alignment: .bottomTrailing
+                )
+                .padding(.trailing, 20)
+                .padding(.bottom, 20)
             }
         }
         .background(

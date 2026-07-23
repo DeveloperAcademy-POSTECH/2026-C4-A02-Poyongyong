@@ -9,7 +9,8 @@ import SwiftUI
 
 struct CreateButton: View {
     var systemImage: String? = nil
-    var showsTint: Bool = true   // 추가: false면 그라디언트 없이 표시
+    var showsTint: Bool = true
+    var iconSize: CGFloat? = 20
     let action: () -> Void
 
     var body: some View {
@@ -35,11 +36,11 @@ struct CreateButton: View {
                             .stroke(.white.opacity(0.25), lineWidth: 1)
                     }
                     .glassEffect(.regular, in: Circle())
-
+                
                 iconView
-                    .frame(width: 20, height: 20)
+                    .frame(width: iconSize, height: iconSize)
             }
-            .frame(width: 48, height: 48)
+            .frame(width: 56, height: 56)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
