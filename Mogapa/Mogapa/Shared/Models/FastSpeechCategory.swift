@@ -10,16 +10,19 @@ import SwiftData
 
 @Model
 final class FastSpeechCategory {
-
+    
     @Attribute(.unique)
     var id: UUID
-
+    
     var name: String
     var sortOrder: Int
-
-    @Relationship(deleteRule: .cascade, inverse: \FastSpeechPhrase.category)
-    var phrases: [FastSpeechPhrase]
-
+    
+    @Relationship(
+        deleteRule: .cascade,
+        inverse: \FastSpeechPhrase.category
+    )
+    var phrases: [FastSpeechPhrase] = []
+    
     init(
         id: UUID = UUID(),
         name: String,

@@ -10,17 +10,17 @@ import SwiftData
 
 @Model
 final class FastSpeechPhrase {
-
+    
     @Attribute(.unique)
     var id: UUID
-
+    
     var text: String
     var isPinned: Bool
     var sortOrder: Int
     var createdAt: Date
-
+    
     var category: FastSpeechCategory?
-
+    
     init(
         id: UUID = UUID(),
         text: String,

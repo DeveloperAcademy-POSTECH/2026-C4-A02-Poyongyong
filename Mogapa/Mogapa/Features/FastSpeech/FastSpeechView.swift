@@ -6,79 +6,110 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct FastSpeechView: View {
-    @Environment(\.dismiss) private var dismiss
-
-    @State private var selectedCategoryIndex = 0
-    @State private var isEditing = false
-    @State private var selectedIDs: Set<UUID> = []
-    @State private var presentedModal: FastSpeechModal?
-
-    @State private var categories: [FastSpeechCategory]
-    @State private var phrases: [FastSpeechViewPhrase]
-
-    init() {
-        let dummyData = FastSpeechViewDummyData.make()
-
-        _categories = State(
-            initialValue: dummyData.categories
-        )
-
-        _phrases = State(
-            initialValue: dummyData.phrases
-        )
-    }
-
+    
+    // MARK: - Environment
+    
+    @Environment(\.dismiss)
+    private var dismiss
+    
+    @Environment(\.modelContext)
+    private var modelContext
+    
+    
+    // MARK: - SwiftData
+    
+    @Query(
+        sort: [
+            SortDescriptor(
+                \FastSpeechCategory.sortOrder,
+                order: .forward
+            )
+        ]
+    )
+    private var categories: [FastSpeechCategory]
+    
+    @Query(
+        sort: [
+            SortDescriptor(
+                \FastSpeechPhrase.createdAt,
+                order: .reverse
+            )
+        ]
+    )
+    private var phrases: [FastSpeechPhrase]
+    
+    
+    // MARK: - State
+    
+    @State
+    private var selectedCategoryIndex = 0
+    
+    @State
+    private var isEditing = false
+    
+    @State
+    private var selectedIDs: Set<UUID> = []
+    
+    @State
+    private var presentedModal: FastSpeechModal?
+    
+    
+    // MARK: - Body
+    
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
+        ZStack(
+            alignment: .bottomTrailing
+        ) {
             VStack(spacing: 18) {
                 header
-
+                
                 FastSpeechCategorySelector(
                     categories: categories,
-                    selectedIndex: $selectedCategoryIndex,
+                    selectedIndex:
+                        $selectedCategoryIndex,
                     defaultTitle: "최근 말하기",
                     showsAddButton: true,
-                    onAddCategory: {}
+                    onAddCategory: {
+                        // 카테고리 추가 모달 연결 위치
+                    }
                 )
                 .padding(.horizontal, 20)
-
+                
                 QuickSpeechBubbleList(
                     sections: bubbleSections,
                     isEditing: isEditing,
                     selectedIDs: $selectedIDs,
                     onTap: { id in
                         guard let phrase = phrases.first(
-                            where: { $0.id == id }
+                            where: {
+                                $0.id == id
+                            }
                         ) else {
                             return
                         }
-
+                        
                         presentedModal = .edit(
+                            phrase.id,
                             phrase.text
                         )
                     },
-                    onPin: { id in
+                    onPin: {
                         updatePinnedState(
-                            for: id,
+                            for: $0,
                             isPinned: true
                         )
                     },
-                    onUnpin: { id in
+                    onUnpin: {
                         updatePinnedState(
-                            for: id,
+                            for: $0,
                             isPinned: false
                         )
                     },
-                    onDelete: { id in
-                        deletePhrase(id)
-                    },
-                    onMove: { sourceID, destinationID in
-                        movePhrase(
-                            sourceID: sourceID,
-                            destinationID: destinationID
-                        )
+                    onDelete: {
+                        deletePhrase($0)
                     }
                 )
                 .padding(.horizontal, 20)
@@ -88,7 +119,7 @@ struct FastSpeechView: View {
                 maxHeight: .infinity,
                 alignment: .top
             )
-
+            
             if !isEditing {
                 CreateButton {
                     presentedModal = .add
@@ -97,12 +128,21 @@ struct FastSpeechView: View {
                 .padding(.bottom, 8)
             }
         }
-        .background(.backgroundbgCanvas)
+        .background(
+            .backgroundbgCanvas
+        )
         .navigationBarBackButtonHidden(true)
         .toolbar(
             .hidden,
             for: .navigationBar
         )
+        .onChange(
+            of: categories.count
+        ) { _, count in
+            adjustSelectedCategoryIndex(
+                categoryCount: count
+            )
+        }
         .sheet(
             item: $presentedModal
         ) { modal in
@@ -120,105 +160,182 @@ struct FastSpeechView: View {
     }
 }
 
-// MARK: - Computed Properties
+// MARK: - Header
 
 private extension FastSpeechView {
+    
     var header: some View {
         MogapaNavigationHeader(
             title: "빠른 말하기",
-            rightTitle: isEditing
-                ? nil
-                : "편집",
-            rightSystemImage: isEditing
-                ? "trash.fill"
-                : nil,
+            rightTitle:
+                isEditing ? nil : "편집",
+            rightSystemImage:
+                isEditing ? "trash.fill" : nil,
             isRightDisabled:
-                isEditing &&
-                selectedIDs.isEmpty,
-            rightTint: isEditing
+                isEditing && selectedIDs.isEmpty,
+            rightTint:
+                isEditing
                 ? .accentsRed
                 : .clear,
-            rightForegroundStyle: isEditing
+            rightForegroundStyle:
+                isEditing
                 ? .iconinverse
                 : .textsecondary,
-            leftTitle: isEditing
-                ? "취소"
-                : nil,
-            leftIcon: isEditing
+            leftTitle:
+                isEditing ? "취소" : nil,
+            leftIcon:
+                isEditing
                 ? nil
                 : "chevron.left",
-            leftAccessibilityLabel: isEditing
+            leftAccessibilityLabel:
+                isEditing
                 ? "편집 종료"
                 : "뒤로 가기",
-            onLeftTap: handleLeftTap,
-            onRightTap: handleRightTap
+            onLeftTap:
+                handleLeftTap,
+            onRightTap:
+                handleRightTap
         )
     }
+}
 
+// MARK: - Categories
+
+private extension FastSpeechView {
+    
     var categoryNames: [String] {
         categories.map(\.name)
     }
-
-    var filteredPhrases: [FastSpeechViewPhrase] {
-        guard selectedCategoryIndex > 0 else {
-            return phrases
+    
+    func adjustSelectedCategoryIndex(
+        categoryCount: Int
+    ) {
+        /*
+         0 = 최근 말하기
+         1 = categories[0]
+         2 = categories[1]
+         */
+        
+        guard selectedCategoryIndex <= categoryCount else {
+            selectedCategoryIndex = 0
+            return
         }
+    }
+}
 
+// MARK: - Filtered Phrases
+
+private extension FastSpeechView {
+    
+    var filteredPhrases: [FastSpeechPhrase] {
+        
+        // 0번 탭: category가 없는 최근 문구
+        if selectedCategoryIndex == 0 {
+            return phrases
+                .filter {
+                    $0.category == nil
+                }
+                .sorted {
+                    $0.createdAt > $1.createdAt
+                }
+        }
+        
+        // 화면 인덱스에서 최근 탭 제외
         let categoryIndex =
             selectedCategoryIndex - 1
-
+        
         guard categories.indices.contains(
             categoryIndex
         ) else {
             return []
         }
-
+        
         let selectedCategoryID =
             categories[categoryIndex].id
-
-        return phrases.filter {
-            $0.categoryID == selectedCategoryID
-        }
-    }
-
-    var bubbleSections:
-        [QuickSpeechBubbleListSection<UUID>] {
-        let pinnedItems = filteredPhrases
-            .filter(\.isPinned)
-            .map(quickSpeechBubbleItem)
-
-        let recentItems = filteredPhrases
+        
+        return phrases
             .filter {
-                !$0.isPinned
+                $0.category?.id ==
+                    selectedCategoryID
             }
-            .map(quickSpeechBubbleItem)
+            .sorted {
+                if $0.isPinned != $1.isPinned {
+                    return $0.isPinned &&
+                        !$1.isPinned
+                }
+                
+                return $0.sortOrder <
+                    $1.sortOrder
+            }
+    }
+}
 
-        guard !pinnedItems.isEmpty else {
+// MARK: - Bubble Sections
+
+private extension FastSpeechView {
+    
+    var bubbleSections:
+    [QuickSpeechBubbleListSection<UUID>] {
+        
+        let pinnedItems =
+            filteredPhrases
+                .filter(\.isPinned)
+                .map(
+                    quickSpeechBubbleItem
+                )
+        
+        let normalItems =
+            filteredPhrases
+                .filter {
+                    !$0.isPinned
+                }
+                .map(
+                    quickSpeechBubbleItem
+                )
+        
+        if selectedCategoryIndex == 0 {
+            guard !pinnedItems.isEmpty else {
+                return [
+                    QuickSpeechBubbleListSection(
+                        title: "최신순",
+                        items: normalItems
+                    )
+                ]
+            }
+            
             return [
                 QuickSpeechBubbleListSection(
-                    items: recentItems
+                    title: "고정됨",
+                    items: pinnedItems
+                ),
+                QuickSpeechBubbleListSection(
+                    title: "최신순",
+                    items: normalItems
                 )
             ]
         }
-
+        
+        guard !pinnedItems.isEmpty else {
+            return [
+                QuickSpeechBubbleListSection(
+                    items: normalItems
+                )
+            ]
+        }
+        
         return [
             QuickSpeechBubbleListSection(
                 title: "고정됨",
                 items: pinnedItems
             ),
             QuickSpeechBubbleListSection(
-                title: "최신순",
-                items: recentItems
+                items: normalItems
             )
         ]
     }
-}
-
-// MARK: - Mapping
-
-private extension FastSpeechView {
+    
     func quickSpeechBubbleItem(
-        _ phrase: FastSpeechViewPhrase
+        _ phrase: FastSpeechPhrase
     ) -> QuickSpeechBubbleListItem<UUID> {
         QuickSpeechBubbleListItem(
             id: phrase.id,
@@ -231,6 +348,7 @@ private extension FastSpeechView {
 // MARK: - Navigation Actions
 
 private extension FastSpeechView {
+    
     func handleLeftTap() {
         if isEditing {
             withAnimation(.snappy) {
@@ -241,7 +359,7 @@ private extension FastSpeechView {
             dismiss()
         }
     }
-
+    
     func handleRightTap() {
         if isEditing {
             deleteSelectedPhrases()
@@ -253,111 +371,78 @@ private extension FastSpeechView {
     }
 }
 
-// MARK: - Phrase Actions
+// MARK: - SwiftData Actions
 
 private extension FastSpeechView {
+    
     func updatePinnedState(
         for id: UUID,
         isPinned: Bool
     ) {
-        guard let index = phrases.firstIndex(
-            where: { $0.id == id }
+        guard let phrase = phrases.first(
+            where: {
+                $0.id == id
+            }
         ) else {
             return
         }
-
+        
         withAnimation(.snappy) {
-            phrases[index].isPinned = isPinned
+            phrase.isPinned = isPinned
         }
+        
+        saveModelContext()
     }
-
+    
     func deletePhrase(
         _ id: UUID
     ) {
-        withAnimation(.snappy) {
-            selectedIDs.remove(id)
-
-            phrases.removeAll {
+        guard let phrase = phrases.first(
+            where: {
                 $0.id == id
             }
+        ) else {
+            return
         }
+        
+        withAnimation(.snappy) {
+            selectedIDs.remove(id)
+            modelContext.delete(phrase)
+        }
+        
+        saveModelContext()
     }
-
+    
     func deleteSelectedPhrases() {
         guard !selectedIDs.isEmpty else {
             return
         }
-
-        withAnimation(.snappy) {
-            phrases.removeAll {
-                selectedIDs.contains($0.id)
+        
+        let phrasesToDelete =
+            phrases.filter {
+                selectedIDs.contains(
+                    $0.id
+                )
             }
-
+        
+        withAnimation(.snappy) {
+            for phrase in phrasesToDelete {
+                modelContext.delete(phrase)
+            }
+            
             selectedIDs.removeAll()
+            isEditing = false
         }
+        
+        saveModelContext()
     }
-}
-
-// MARK: - Reordering
-
-private extension FastSpeechView {
-    func movePhrase(
-        sourceID: UUID,
-        destinationID: UUID
-    ) {
-        guard sourceID != destinationID else {
-            return
-        }
-
-        guard let sourceIndex = phrases.firstIndex(
-            where: { $0.id == sourceID }
-        ) else {
-            return
-        }
-
-        guard let destinationIndex = phrases.firstIndex(
-            where: { $0.id == destinationID }
-        ) else {
-            return
-        }
-
-        let sourcePhrase =
-            phrases[sourceIndex]
-
-        let destinationPhrase =
-            phrases[destinationIndex]
-
-        /*
-         고정된 문구와 일반 문구는 서로 다른 섹션이므로
-         섹션을 넘어가는 이동을 허용하지 않습니다.
-         */
-        guard sourcePhrase.isPinned ==
-                destinationPhrase.isPinned else {
-            return
-        }
-
-        /*
-         카테고리가 선택된 상태에서는
-         다른 카테고리 문구로 이동하지 않도록 막습니다.
-         */
-        guard sourcePhrase.categoryID ==
-                destinationPhrase.categoryID else {
-            return
-        }
-
-        withAnimation(
-            .interactiveSpring(
-                response: 0.25,
-                dampingFraction: 0.85
-            )
-        ) {
-            phrases.move(
-                fromOffsets: IndexSet(
-                    integer: sourceIndex
-                ),
-                toOffset: sourceIndex < destinationIndex
-                    ? destinationIndex + 1
-                    : destinationIndex
+    
+    func saveModelContext() {
+        do {
+            try modelContext.save()
+        } catch {
+            print(
+                "빠른 말하기 저장 실패: \(error)"
             )
         }
     }
@@ -366,35 +451,36 @@ private extension FastSpeechView {
 // MARK: - Modal
 
 private enum FastSpeechModal: Identifiable {
+    
     case add
-    case edit(String)
-
+    case edit(UUID, String)
+    
     var id: String {
         switch self {
         case .add:
             return "add"
-
-        case let .edit(text):
-            return "edit-\(text)"
+            
+        case let .edit(id, _):
+            return "edit-\(id.uuidString)"
         }
     }
-
+    
     var title: String {
         switch self {
         case .add:
             return "빠른 말하기 추가"
-
+            
         case .edit:
             return "빠른 말하기 수정"
         }
     }
-
+    
     var existingText: String {
         switch self {
         case .add:
             return ""
-
-        case let .edit(text):
+            
+        case let .edit(_, text):
             return text
         }
     }
@@ -403,9 +489,18 @@ private enum FastSpeechModal: Identifiable {
 // MARK: - Preview
 
 #Preview {
-    FastSpeechView()
-        .environment(
-            \.locale,
-            Locale(identifier: "ko")
-        )
+    NavigationStack {
+        FastSpeechView()
+    }
+    .modelContainer(
+        for: [
+            FastSpeechCategory.self,
+            FastSpeechPhrase.self
+        ],
+        inMemory: true
+    )
+    .environment(
+        \.locale,
+        Locale(identifier: "ko")
+    )
 }
