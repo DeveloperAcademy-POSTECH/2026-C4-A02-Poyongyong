@@ -59,7 +59,7 @@ struct CustomAlertView: View {
         }
         .padding(14)
         .padding(.top, 8)
-        .background(Color.white.opacity(0.7))
+        .background(Color.white.opacity(0.95))
         .clipShape(
             RoundedRectangle(
                 cornerRadius: 28)
