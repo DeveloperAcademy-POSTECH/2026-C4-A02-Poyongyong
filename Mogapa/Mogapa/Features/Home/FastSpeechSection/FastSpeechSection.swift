@@ -32,6 +32,7 @@ struct FastSpeechSection: View {
                 selectedIndex: $selectedCategoryIndex,
                 defaultTitle: "최근 문구"
             )
+            .padding(.horizontal, 10)
             
             FastSpeechCardsPager(
                 phrases: selectedPhrases,
@@ -74,6 +75,7 @@ private extension FastSpeechSection {
             }
             .buttonStyle(.plain)
         }
+        .padding(.horizontal, 20)
     }
 }
 

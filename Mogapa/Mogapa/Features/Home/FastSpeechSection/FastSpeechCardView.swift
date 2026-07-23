@@ -44,12 +44,15 @@ private extension FastSpeechCardView {
             
             cardBackground
             
-            VStack {
+            VStack{
                 Text(previewText)
-                    .typography(.subTitleMedium)
+                    .typography(.bodyRegular)
                     .foregroundColor(.textsecondary)
                     .frame(
-                        maxWidth: .infinity, alignment: .leading
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .topLeading
+
                     )
             }
             .padding(24)
@@ -160,8 +163,7 @@ private extension FastSpeechCardView {
         columns: [
             GridItem(.flexible()),
             GridItem(.flexible())
-        ],
-        spacing: 8
+        ]
     ) {
         
         FastSpeechCardView(
