@@ -11,18 +11,15 @@ struct FastSpeechViewPhrase: Identifiable {
     let id: UUID
     var text: String
     var categoryID: UUID?
-    var isPinned: Bool
 
     init(
         id: UUID = UUID(),
         text: String,
-        categoryID: UUID? = nil,
-        isPinned: Bool = false
+        categoryID: UUID? = nil
     ) {
         self.id = id
         self.text = text
         self.categoryID = categoryID
-        self.isPinned = isPinned
     }
 }
 
@@ -44,18 +41,15 @@ enum FastSpeechViewDummyData {
             phrases: [
                 FastSpeechViewPhrase(
                     text: "잠시만 기다려 주세요. 천천히 말씀드릴게요.",
-                    categoryID: nil,
-                    isPinned: true
+                    categoryID: nil
                 ),
                 FastSpeechViewPhrase(
                     text: "제가 듣고 이해하는 데 시간이 조금 필요해요.",
-                    categoryID: nil,
-                    isPinned: true
+                    categoryID: nil
                 ),
                 FastSpeechViewPhrase(
                     text: "말씀하신 내용을 바로 답하기 어려워서 잠깐 정리한 뒤에 다시 말씀드려도 괜찮을까요?",
-                    categoryID: nil,
-                    isPinned: true
+                    categoryID: nil
                 ),
                 FastSpeechViewPhrase(
                     text: "회의 자료는 메일로 다시 공유해 주세요.",
