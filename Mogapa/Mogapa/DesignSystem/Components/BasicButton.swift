@@ -71,7 +71,7 @@ struct BasicButton: View {
             .foregroundStyle(foregroundStyle)
             .padding(.horizontal, shape == .circle ? 0 : 4)
             .frame(
-                width: shape == .circle ? 32 : nil,
+                width: shape == .circle ? 22 : nil,
                 height: 32
             )
         }
@@ -85,7 +85,7 @@ private extension View {
     ) -> some View {
         switch shape {
         case .circle:
-            self.buttonBorderShape(.circle)
+            self/*.buttonBorderShape(.circle)*/
             
         case .capsule:
             self

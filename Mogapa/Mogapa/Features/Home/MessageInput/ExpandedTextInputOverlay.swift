@@ -49,7 +49,10 @@ struct ExpandedTextInputOverlay: View {
                 // MARK: - Expanded Text Field
                 
                 expandedTextField
-                    .padding(.top, geometry.size.height * 0.14)
+                    .padding(
+                        .top,
+                        geometry.size.height * 0.08
+                    )
             }
             .frame(
                 maxWidth: .infinity,
@@ -60,7 +63,11 @@ struct ExpandedTextInputOverlay: View {
                 .keyboard, edges: .bottom
             )
             .onAppear {
-                focusTextEditor()
+                DispatchQueue.main.asyncAfter(
+                    deadline: .now() + 0.3
+                ) {
+                    isTextEditorFocused = true
+                }
             }
         }
     }
@@ -71,18 +78,14 @@ struct ExpandedTextInputOverlay: View {
 
 private extension ExpandedTextInputOverlay {
     
-    var expandedTextField:
-    some View {
+    var expandedTextField: some View {
         
         VStack(alignment: .leading) {
             
-            
-            // MARK: - Landscape Instruction
-            
             HStack(spacing: 8) {
-                Image(systemName:"rectangle.portrait.rotate")
-                .font(.system(size:16))
-                .foregroundColor(.iconmuted)
+                Image(systemName: "rectangle.portrait.rotate")
+                    .font(.system(size: 16))
+                    .foregroundColor(.iconmuted)
                 
                 Text("가로로 돌려 표현하기")
                     .typography(.calloutRegular)
@@ -91,13 +94,7 @@ private extension ExpandedTextInputOverlay {
                 Spacer()
             }
             
-            
-            // MARK: - Divider
-        
             Divider()
-            
-            
-            // MARK: - Text Editor
             
             TextEditor(
                 text: $text
@@ -110,22 +107,16 @@ private extension ExpandedTextInputOverlay {
             .foregroundColor(.textprimary)
             .multilineTextAlignment(.leading)
             .frame(
-                maxWidth:.infinity,
-                maxHeight:.infinity
+                width: 312,
+                height: 240
             )
-            
             .onChange(
-                of:text
+                of: text
             ) { _, newValue in
-                onTextChanged(
-                    newValue
-                )
+                onTextChanged(newValue)
             }
             
-            
-            // MARK: - Bottom Controls
-            
-            HStack {
+            HStack(alignment: .bottom) {
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)
                     .foregroundColor(.texttertiary)
@@ -138,24 +129,20 @@ private extension ExpandedTextInputOverlay {
         .padding(.leading, 32)
         .padding(.trailing, 18)
         .padding(.top, 25)
-        .padding(.bottom,22)
-        .frame(width:362, height:329)
+        .padding(.bottom, 22)
+        .frame(
+            width: 362,
+            height: 365
+        )
         .background(Color.backgroundbgCanvas)
-        
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: 0,
-                bottomLeadingRadius:40,
-                bottomTrailingRadius:40,
-                topTrailingRadius:40,
-                style:.continuous
+                bottomLeadingRadius: 40,
+                bottomTrailingRadius: 40,
+                topTrailingRadius: 40,
+                style: .continuous
             )
-        )
-        .shadow(
-            color:.black.opacity(0.15),
-            radius:12,
-            x:0,
-            y:6
         )
     }
 }
@@ -165,8 +152,7 @@ private extension ExpandedTextInputOverlay {
 
 private extension ExpandedTextInputOverlay {
     
-    var speakButton:
-    some View {
+    var speakButton: some View {
         
         Button {
             guard !text.isEmpty else {
@@ -174,15 +160,14 @@ private extension ExpandedTextInputOverlay {
             }
             onSpeak()
         } label: {
-            Image(systemName: "waveform")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame( width: 40, height: 40)
+            Image(systemName:"waveform")
+                .font(.system(size:20,weight:.semibold))
+                .foregroundColor(text.isEmpty ? Color(.iconmuted) : Color(.textwhite))
+                .frame(width:40,height:40)
                 .background(
-                    text.isEmpty ? Color.iconmuted : Color(.labelprimary))
-                .clipShape(
-                    Circle()
+                    text.isEmpty ? Color(.backgroundbgDisabled) : Color(.labelprimary)
                 )
+                .clipShape(Circle())
         }
         .disabled(text.isEmpty)
     }
