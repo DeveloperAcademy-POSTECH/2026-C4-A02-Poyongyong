@@ -74,6 +74,7 @@ struct DragGestureView: View {
             DragGestureEditView(
                 viewModel: DragGestureEditViewModel()
             )
+            .swipeBackEnabled(true)
         }
         .onAppear {
             withAnimation(
