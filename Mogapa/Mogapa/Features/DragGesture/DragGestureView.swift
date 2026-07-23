@@ -9,17 +9,20 @@ import SwiftUI
 import SwiftData
 
 struct DragGestureView: View {
-    
+
     @Environment(\.dismiss) private var dismiss
 
     @Query(sort: \RegisteredDragGesture.createdAt)
     private var registeredGestures: [RegisteredDragGesture]
+
+    @State private var speechManager = SpeechManager()
 
     @State private var currentPoints: [CGPoint] = []
     @State private var dragState: DragState = .none
     @State private var recognizedTitle = "시작해 볼까요?"
     @State private var isShowingEditView = false
     @State private var isDimmed = false
+    @State private var isFinishing = false
 
     private let recognitionThreshold = 0.14
 
@@ -68,7 +71,10 @@ struct DragGestureView: View {
         .navigationDestination(
             isPresented: $isShowingEditView
         ) {
-            DragGestureEditView(viewModel: DragGestureEditViewModel())
+            DragGestureEditView(
+                viewModel: DragGestureEditViewModel()
+            )
+            .swipeBackEnabled(true)
         }
         .onAppear {
             withAnimation(
@@ -79,8 +85,14 @@ struct DragGestureView: View {
                 isDimmed = true
             }
         }
+        .onDisappear {
+            speechManager.stop()
+        }
     }
 }
+
+
+// MARK: - UI
 
 private extension DragGestureView {
 
@@ -99,6 +111,7 @@ private extension DragGestureView {
             shape: .circle,
             foregroundStyle: .white
         ) {
+            speechManager.stop()
             dismiss()
         }
         .padding(
@@ -107,11 +120,18 @@ private extension DragGestureView {
     }
 }
 
+
+// MARK: - Recognition
+
 private extension DragGestureView {
 
     func recognize(
         _ points: [CGPoint]
     ) {
+        guard !isFinishing else {
+            return
+        }
+
         guard points.count >= 8 else {
             presentResult(
                 state: .failed,
@@ -130,14 +150,11 @@ private extension DragGestureView {
 
         guard
             let match =
-                DragGestureMatcher
-                    .findBestMatch(
-                        drawnPoints: points,
-                        gestures:
-                            registeredGestures
-                    ),
-            match.score <=
-                recognitionThreshold
+                DragGestureMatcher.findBestMatch(
+                    drawnPoints: points,
+                    gestures: registeredGestures
+                ),
+            match.score <= recognitionThreshold
         else {
             presentResult(
                 state: .failed,
@@ -146,11 +163,30 @@ private extension DragGestureView {
             return
         }
 
+        isFinishing = true
+
+        let matchedPhrase = match.gesture.phrase
+
         presentResult(
             state: .succeeded,
-            title:
-                match.gesture.phrase
+            title: matchedPhrase
         )
+
+        speechManager.play(
+            matchedPhrase
+        )
+
+        let dismissDelay =
+            estimatedSpeechDuration(
+                for: matchedPhrase
+            )
+
+        DispatchQueue.main.asyncAfter(
+            deadline:
+                .now() + dismissDelay
+        ) {
+            dismiss()
+        }
     }
 
     func presentResult(
@@ -159,6 +195,11 @@ private extension DragGestureView {
     ) {
         dragState = state
         recognizedTitle = title
+        currentPoints.removeAll()
+
+        guard !isFinishing else {
+            return
+        }
 
         let resetDelay =
             estimatedDisplayDuration(
@@ -178,19 +219,36 @@ private extension DragGestureView {
     func estimatedDisplayDuration(
         for text: String
     ) -> TimeInterval {
-        let charactersPerSecond =
-            12.0
-
-        let minimumDuration:
-            TimeInterval = 1.0
+        let charactersPerSecond = 12.0
+        let minimumDuration: TimeInterval = 1.0
 
         return max(
-            Double(text.count) /
-                charactersPerSecond,
+            Double(text.count)
+                / charactersPerSecond,
             minimumDuration
         )
     }
+
+    func estimatedSpeechDuration(
+        for text: String
+    ) -> TimeInterval {
+        let charactersPerSecond = 4.5
+        let minimumDuration: TimeInterval = 0.8
+        let completionBuffer: TimeInterval = 0.2
+
+        let estimatedDuration =
+            Double(text.count)
+            / charactersPerSecond
+
+        return max(
+            estimatedDuration,
+            minimumDuration
+        ) + completionBuffer
+    }
 }
+
+
+// MARK: - Preview
 
 #Preview {
     NavigationStack {
