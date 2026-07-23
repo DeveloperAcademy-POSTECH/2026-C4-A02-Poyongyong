@@ -56,7 +56,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drag Gesture plays audio only — no captions"
+            "value" : "Drag Gesture plays audio only — no captions. Short and simple messages work best."
           }
         }
       }
