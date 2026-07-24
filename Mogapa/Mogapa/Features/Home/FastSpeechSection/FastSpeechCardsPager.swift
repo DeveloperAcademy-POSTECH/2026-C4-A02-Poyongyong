@@ -99,21 +99,14 @@ struct FastSpeechCardsPager: View {
 private extension FastSpeechCardsPager {
     
     var emptyState: some View {
-        HStack {
-            Text(
-                "여기에 말한 기록이 남아요!"
+        Text("여기에 말한 기록이 남아요!")
+            .typography(.subTitleMedium)
+            .foregroundStyle(.texttertiary)
+            .frame(
+                maxWidth: .infinity,
+                maxHeight: .infinity,
+                alignment: .center
             )
-            .typography(
-                .subTitleMedium
-            )
-            .foregroundStyle(
-                .texttertiary
-            )
-        }
-        .frame(
-            maxWidth: .infinity,
-            maxHeight: .infinity
-        )
     }
 }
 
