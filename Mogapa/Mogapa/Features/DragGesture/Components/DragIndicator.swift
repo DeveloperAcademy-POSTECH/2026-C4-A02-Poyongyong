@@ -26,8 +26,8 @@ extension DragState {
     var iconName: String? {
         switch self {
         case .none: nil
-        case .failed: "face.dashed"
-        case .succeeded: "face.smiling"
+        case .failed: "😭"
+        case .succeeded: "☺️"
         }
     }
 }
@@ -51,7 +51,7 @@ struct DragIndicator: View {
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(alignment: .trailing) {
                 if let iconName = state.iconName {
-                    Image(systemName: iconName)
+                    Text(iconName)
                         .foregroundStyle(.white)
                         .padding(.trailing, 16)
                 }
