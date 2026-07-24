@@ -8,12 +8,27 @@
 import SwiftUI
 
 struct SettingView: View {
-    @State private var playbackSpeed = 50.0
-    @State private var voicePitch = 50.0
-    @State private var isBrightnessOn = true
-    @State private var manualBrightness = 50.0
-    @State private var isRotateOn = true
+    @AppStorage("settings.playbackSpeed") private var playbackSpeed = 50.0
+    @AppStorage("settings.voicePitch") private var voicePitch = 50.0
+    @AppStorage("settings.isBrightnessOn") private var isBrightnessOn = true
+    @AppStorage("settings.manualBrightness") private var manualBrightness = 50.0
+    @AppStorage("settings.isRotateOn") private var isRotateOn = true
     @Environment(\.dismiss) private var dismiss
+
+    // 재설정 버튼 활성/비활성 판단 기준값
+    private let defaultPlaybackSpeed = 50.0
+    private let defaultVoicePitch = 50.0
+    private let defaultIsBrightnessOn = true
+    private let defaultManualBrightness = 50.0
+    private let defaultIsRotateOn = true
+
+    private var hasChanges: Bool {
+        playbackSpeed != defaultPlaybackSpeed ||
+        voicePitch != defaultVoicePitch ||
+        isBrightnessOn != defaultIsBrightnessOn ||
+        manualBrightness != defaultManualBrightness ||
+        isRotateOn != defaultIsRotateOn
+    }
 
     var body: some View {
         VStack(spacing: 0){
@@ -21,8 +36,16 @@ struct SettingView: View {
             MogapaNavigationHeader(
                 title: "설정",
                 rightTitle: "재설정",
+                isRightDisabled: !hasChanges,
+                rightForegroundStyle: Color.textsecondary.opacity(hasChanges ? 1 : 0.4),
                 onLeftTap: {dismiss()},
-                onRightTap: {},
+                onRightTap: {
+                    playbackSpeed = defaultPlaybackSpeed
+                    voicePitch = defaultVoicePitch
+                    isBrightnessOn = defaultIsBrightnessOn
+                    manualBrightness = defaultManualBrightness
+                    isRotateOn = defaultIsRotateOn
+                },
                 backgroundColor: Color("Backgroundbg-disabled")
             )
             

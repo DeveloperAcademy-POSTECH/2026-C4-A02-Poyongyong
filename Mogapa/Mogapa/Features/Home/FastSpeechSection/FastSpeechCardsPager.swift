@@ -17,7 +17,7 @@ import SwiftUI
 struct FastSpeechCardsPager: View {
     
     let phrases: [FastSpeechPhrase]
-    let selectedPhraseID: UUID?
+    let selectedPhraseIDs: [UUID]
     let previewText: (String) -> String
     let onPhraseSelected: (FastSpeechPhrase) -> Void
     
@@ -182,7 +182,7 @@ private extension FastSpeechCardsPager {
                 phrase: phrase,
                 position: positions[index],
                 isSelected:
-                    selectedPhraseID == phrase.id,
+                    selectedPhraseIDs.contains(phrase.id),
                 previewText:
                     previewText(
                         phrase.text
@@ -332,8 +332,9 @@ private struct FastSpeechCardsPagerPreview: View {
         
         FastSpeechCardsPager(
             phrases: phrases,
-            selectedPhraseID:
-                phrases.first?.id,
+            selectedPhraseIDs: [
+                phrases.first!.id
+            ],
             previewText: { text in
                 text
             },

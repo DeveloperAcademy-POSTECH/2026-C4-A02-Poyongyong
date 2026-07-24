@@ -15,7 +15,7 @@ struct FastSpeechSection: View {
     @Binding
     var selectedCategoryIndex: Int
     
-    let selectedPhraseID: UUID?
+    let selectedPhraseIDs: [UUID]
     let previewText: (String) -> String
     let onPhraseSelected: (FastSpeechPhrase) -> Void
     let onShowAllFastSpeech: () -> Void
@@ -36,7 +36,7 @@ struct FastSpeechSection: View {
             
             FastSpeechCardsPager(
                 phrases: selectedPhrases,
-                selectedPhraseID: selectedPhraseID,
+                selectedPhraseIDs: selectedPhraseIDs,
                 previewText: previewText,
                 onPhraseSelected: onPhraseSelected
             )
@@ -136,7 +136,7 @@ private struct FastSpeechSectionPreview: View {
             recentPhrases: [],
             selectedCategoryIndex:
                 $selectedCategoryIndex,
-            selectedPhraseID: nil,
+            selectedPhraseIDs: [],
             previewText: { $0 },
             onPhraseSelected: { phrase in
                 print(phrase.text)

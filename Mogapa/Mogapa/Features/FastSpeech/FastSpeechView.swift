@@ -94,8 +94,10 @@ struct FastSpeechView: View {
                 
                 ZStack(alignment: .top) {
                     QuickSpeechBubbleList(
-                        sections: bubbleSections,
+                        items: bubbleItems,
                         isEditing: isEditing,
+                        allowsMove: canMoveSelectedPhrases,
+                        allowsFullSwipeDelete: true,
                         selectedIDs: $selectedIDs,
                         onTap: { id in
                             guard let phrase = phrases.first(
@@ -111,20 +113,14 @@ struct FastSpeechView: View {
                                 phrase.text
                             )
                         },
-                        onPin: {
-                            updatePinnedState(
-                                for: $0,
-                                isPinned: true
-                            )
-                        },
-                        onUnpin: {
-                            updatePinnedState(
-                                for: $0,
-                                isPinned: false
-                            )
-                        },
                         onDelete: {
                             deletePhrase($0)
+                        },
+                        onMove: { source, destination in
+                            movePhrases(
+                                from: source,
+                                to: destination
+                            )
                         }
                     )
 
@@ -144,8 +140,13 @@ struct FastSpeechView: View {
                 CreateButton {
                     presentedModal = .add
                 }
-                .padding(.trailing, 31)
-                .padding(.bottom, 8)
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity,
+                    alignment: .bottomTrailing
+                )
+                .padding(.trailing, 20)
+                .padding(.bottom, 20)
             }
         }
         .background(
@@ -346,77 +347,25 @@ private extension FastSpeechView {
                     selectedCategoryID
             }
             .sorted {
-                if $0.isPinned != $1.isPinned {
-                    return $0.isPinned &&
-                        !$1.isPinned
-                }
-                
                 return $0.sortOrder <
                     $1.sortOrder
             }
     }
 }
 
-// MARK: - Bubble Sections
+// MARK: - Bubble Items
 
 private extension FastSpeechView {
     
-    var bubbleSections:
-    [QuickSpeechBubbleListSection<UUID>] {
-        
-        let pinnedItems =
-            filteredPhrases
-                .filter(\.isPinned)
-                .map(
-                    quickSpeechBubbleItem
-                )
-        
-        let normalItems =
-            filteredPhrases
-                .filter {
-                    !$0.isPinned
-                }
-                .map(
-                    quickSpeechBubbleItem
-                )
-        
-        if selectedCategoryIndex == 0 {
-            guard !pinnedItems.isEmpty else {
-                return [
-                    QuickSpeechBubbleListSection(
-                        items: normalItems
-                    )
-                ]
-            }
-            
-            return [
-                QuickSpeechBubbleListSection(
-                    title: "고정됨",
-                    items: pinnedItems
-                ),
-                QuickSpeechBubbleListSection(
-                    items: normalItems
-                )
-            ]
-        }
-        
-        guard !pinnedItems.isEmpty else {
-            return [
-                QuickSpeechBubbleListSection(
-                    items: normalItems
-                )
-            ]
-        }
-        
-        return [
-            QuickSpeechBubbleListSection(
-                title: "고정됨",
-                items: pinnedItems
-            ),
-            QuickSpeechBubbleListSection(
-                items: normalItems
-            )
-        ]
+    var bubbleItems:
+    [QuickSpeechBubbleListItem<UUID>] {
+        filteredPhrases.map(
+            quickSpeechBubbleItem
+        )
+    }
+
+    var canMoveSelectedPhrases: Bool {
+        selectedCategoryIndex != 0
     }
     
     func quickSpeechBubbleItem(
@@ -424,8 +373,7 @@ private extension FastSpeechView {
     ) -> QuickSpeechBubbleListItem<UUID> {
         QuickSpeechBubbleListItem(
             id: phrase.id,
-            text: phrase.text,
-            isPinned: phrase.isPinned
+            text: phrase.text
         )
     }
 }
@@ -460,25 +408,6 @@ private extension FastSpeechView {
 
 private extension FastSpeechView {
     
-    func updatePinnedState(
-        for id: UUID,
-        isPinned: Bool
-    ) {
-        guard let phrase = phrases.first(
-            where: {
-                $0.id == id
-            }
-        ) else {
-            return
-        }
-        
-        withAnimation(.snappy) {
-            phrase.isPinned = isPinned
-        }
-        
-        saveModelContext()
-    }
-
     func addCategory(_ name: String) {
         let firstSortOrder =
             categories
@@ -654,6 +583,32 @@ private extension FastSpeechView {
             modelContext.delete(phrase)
         }
         
+        saveModelContext()
+    }
+
+    func movePhrases(
+        from source: IndexSet,
+        to destination: Int
+    ) {
+        guard canMoveSelectedPhrases else {
+            return
+        }
+
+        var reorderedPhrases =
+            filteredPhrases
+
+        reorderedPhrases.move(
+            fromOffsets: source,
+            toOffset: destination
+        )
+
+        withAnimation(.snappy) {
+            for (index, phrase) in
+                reorderedPhrases.enumerated() {
+                phrase.sortOrder = index
+            }
+        }
+
         saveModelContext()
     }
     

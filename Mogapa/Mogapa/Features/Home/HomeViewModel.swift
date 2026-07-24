@@ -23,12 +23,13 @@ final class HomeViewModel: ObservableObject {
     
     // MARK: - Fast Speech Selection
     
+    // 여러 개의 빠른 문구 선택 가능
     @Published
-    var selectedPhraseID: UUID?
+    var selectedPhrases: [FastSpeechPhrase] = []
     
     // 0번은 최근 문구, 1번부터 실제 카테고리
     @Published
-    var selectedCategoryIndex: Int = 1
+    var selectedCategoryIndex: Int = 0
     
     
     // MARK: - Constants
@@ -68,7 +69,8 @@ final class HomeViewModel: ObservableObject {
             )
         }
         
-        selectedPhraseID = nil
+        // 직접 입력하면 빠른 문구 선택 해제
+        selectedPhrases.removeAll()
     }
     
     
@@ -83,8 +85,8 @@ final class HomeViewModel: ObservableObject {
         
         selectedCategoryIndex = index
         
-        // 다른 카테고리로 이동하면 기존 카드 선택 해제
-        selectedPhraseID = nil
+        // 다른 카테고리로 이동하면 기존 선택 해제
+        selectedPhrases.removeAll()
         inputText = ""
     }
     
@@ -94,15 +96,40 @@ final class HomeViewModel: ObservableObject {
     func selectPhrase(
         _ phrase: FastSpeechPhrase
     ) {
-        if selectedPhraseID == phrase.id {
-            selectedPhraseID = nil
-            inputText = ""
-            return
+        
+        if let index = selectedPhrases.firstIndex(
+            where: {
+                $0.id == phrase.id
+            }
+        ) {
+            
+            // 이미 선택된 카드 → 제거
+            selectedPhrases.remove(
+                at: index
+            )
+            
+        } else {
+            
+            // 선택되지 않은 카드 → 추가
+            selectedPhrases.append(
+                phrase
+            )
         }
         
-        selectedPhraseID = phrase.id
+        rebuildSelectedPhraseText()
+    }
+    
+    
+    private func rebuildSelectedPhraseText() {
+        
+        let combinedText = selectedPhrases
+            .map(\.text)
+            .joined(
+                separator: " "
+            )
+        
         inputText = String(
-            phrase.text.prefix(
+            combinedText.prefix(
                 maximumCharacterCount
             )
         )
@@ -118,12 +145,13 @@ final class HomeViewModel: ObservableObject {
             $0.isWhitespace
         }
         
-        guard words.count > maximumPreviewWordCount else {
+        guard words.count <= maximumPreviewWordCount else {
             return text
         }
         
         return words
             .prefix(maximumPreviewWordCount)
-            .joined(separator: " ") + "..."
+            .joined(separator: " ")
+            + "..."
     }
 }

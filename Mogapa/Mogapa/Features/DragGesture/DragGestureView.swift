@@ -36,7 +36,8 @@ struct DragGestureView: View {
             }
 
             VStack(
-                alignment: .leading
+                alignment: .leading,
+                spacing: 24
             ) {
                 DragIndicator(
                     title: recognizedTitle,
@@ -52,10 +53,8 @@ struct DragGestureView: View {
                 }
             }
         }
-        .padding(
-            [.bottom, .top],
-            32
-        )
+        .padding(.top,32)
+        .padding(.bottom,25)
         .padding(
             [.leading, .trailing],
             20
@@ -99,24 +98,26 @@ private extension DragGestureView {
     var dimBackground: some View {
         Color.black
             .opacity(
-                isDimmed ? 0.6 : 0
+                isDimmed ? 0.8 : 0
             )
             .ignoresSafeArea()
     }
 
     var homeButton: some View {
-        BasicButton(
-            systemImage:
-                "arrow.down.right.and.arrow.up.left",
-            shape: .circle,
-            foregroundStyle: .white
+        CreateButton(
+            systemImage: "arrow.down.right.and.arrow.up.left",
+            showsTint: false
         ) {
             speechManager.stop()
             dismiss()
         }
-        .padding(
-            20
+        .frame(
+            maxWidth: .infinity,
+            maxHeight: .infinity,
+            alignment: .bottomTrailing
         )
+        .padding(.trailing, 20)
+        .padding(.bottom, 15)
     }
 }
 

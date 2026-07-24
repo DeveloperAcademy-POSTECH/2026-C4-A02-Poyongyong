@@ -66,6 +66,8 @@ struct HomeView: View {
     @State
     private var presentationOrientation:
     UIInterfaceOrientationMask = .landscapeRight
+
+    @AppStorage("settings.isRotateOn") private var isRotateOn: Bool = true
     
     
     // MARK: - ViewModel
@@ -128,8 +130,7 @@ struct HomeView: View {
                         fastSpeechSection
                             .padding(.horizontal, 10)
                     }
-                    
-                    
+
                     
                     // MARK: Expanded Input
                     
@@ -145,11 +146,7 @@ struct HomeView: View {
                             },
                             onSpeak: {
                                 presentIfPossible(
-                                    orientation:
-                                        orientationMask(
-                                            for:
-                                                motionManager.pose
-                                        )
+                                    orientation: buttonTapOrientation
                                 )
                             },
                             onClose: {
@@ -158,7 +155,23 @@ struct HomeView: View {
                             }
                         )
                     }
+                    
+                    // MARK: Floating Edit Button
+                    CreateButton(
+                        systemImage: "pencil.and.scribble",
+                        iconSize: 30
+                    ) {
+                        isGesturePresented = true
+                    }
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .bottomTrailing
+                    )
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 35)
                 }
+                
             }
             .navigationDestination(
                 isPresented:
@@ -181,10 +194,6 @@ struct HomeView: View {
             .onAppear {
                 motionManager.start()
                 
-                AppDelegate.lock(
-                    to: .portrait
-                )
-                
                 adjustSelectedCategoryIndex()
             }
             .onDisappear {
@@ -198,8 +207,16 @@ struct HomeView: View {
             .onChange(
                 of: motionManager.pose
             ) { _, pose in
+                // 자동 전환 꺼져 있으면 기기 돌려도 반응 안 함
+                guard isRotateOn else { return }
+
                 guard pose.isLandscape else {
-                    isPresentationPresented = false
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+
+                    withTransaction(transaction) {
+                        isPresentationPresented = false
+                    }
                     return
                 }
                 
@@ -254,6 +271,7 @@ struct HomeView: View {
         )
     }
 }
+
 
 // MARK: - Header
 
@@ -360,11 +378,7 @@ private extension HomeView {
             },
             onSpeak: {
                 presentIfPossible(
-                    orientation:
-                        orientationMask(
-                            for:
-                                motionManager.pose
-                        )
+                    orientation: buttonTapOrientation
                 )
             }
         )
@@ -402,8 +416,8 @@ private extension HomeView {
             selectedCategoryIndex:
                 $viewModel.selectedCategoryIndex,
             
-            selectedPhraseID:
-                viewModel.selectedPhraseID,
+            selectedPhraseIDs:
+                viewModel.selectedPhrases.map(\.id),
             
             previewText: { text in
                 viewModel.previewText(
@@ -456,30 +470,19 @@ private extension HomeView {
 
 private extension HomeView {
     
-    func presentIfPossible(
-        orientation:
-        UIInterfaceOrientationMask
-    ) {
-        let trimmedText =
-        viewModel.inputText
-            .trimmingCharacters(
-                in:
-                        .whitespacesAndNewlines
-            )
-        
-        guard !trimmedText.isEmpty else {
-            return
-        }
-        
+    func presentIfPossible(orientation: UIInterfaceOrientationMask) {
+        let trimmedText = viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else { return }
+
         viewModel.isTextFieldExpanded = false
-        
-        AppDelegate.orientationLock =
-        orientation
-        
-        presentationOrientation =
-        orientation
-        
-        isPresentationPresented = true
+        presentationOrientation = orientation
+
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+
+        withTransaction(transaction) {
+            isPresentationPresented = true
+        }
     }
 }
 
@@ -500,6 +503,14 @@ private extension HomeView {
         default:
             return .landscapeRight
         }
+    }
+
+    // 자동 전환 꺼져 있을 때 버튼 탭으로 들어가면 항상 landscapeRight로 고정
+    var buttonTapOrientation: UIInterfaceOrientationMask {
+        guard isRotateOn else {
+            return .landscapeRight
+        }
+        return orientationMask(for: motionManager.pose)
     }
 }
 
