@@ -26,41 +26,41 @@ struct PresentationView: View {
 
     @AppStorage("settings.isBrightnessOn") private var isBrightnessOn: Bool = true
     @AppStorage("settings.manualBrightness") private var manualBrightness: Double = 50.0
-    @AppStorage("settings.isRotateOn") private var isRotateOn: Bool = true
 
     @State private var originalBrightness: CGFloat = UIScreen.main.brightness
 
+    @State private var contentOpacity: Double = 0
+
     init(text: String, orientation: UIInterfaceOrientationMask) {
-        _viewModel = State(
-            initialValue: PresentationViewModel(text: text)
-        )
+        _viewModel = State(initialValue: PresentationViewModel(text: text))
         self.orientation = orientation
     }
 
     // MARK: - Body
 
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { proxy in
             ZStack {
                 background
 
-                HStack(
-                    alignment: .top,
-                    spacing: 28
-                ) {
+                HStack(alignment: .top, spacing: 28) {
                     controls
 
                     textArea(
-                        fontSize:
-                            viewModel.responsiveFontSize(
-                                for: geometry.size
-                            )
+                        fontSize: viewModel.responsiveFontSize(
+                            for: CGSize(width: proxy.size.height, height: proxy.size.width)
+                        )
                     )
                 }
-                .padding(.horizontal, 40)
-                .padding(.vertical, 28)
+                .padding(.horizontal, 80)
+                .padding(.vertical, 40)
+                .frame(width: proxy.size.height, height: proxy.size.width)
+                .rotationEffect(targetRotationAngle)
             }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
+        .ignoresSafeArea()
+        .opacity(contentOpacity)
         .onAppear {
             originalBrightness = UIScreen.main.brightness
 
@@ -68,20 +68,44 @@ struct PresentationView: View {
                 UIScreen.main.brightness = CGFloat(manualBrightness / 100)
             }
 
-            if isRotateOn {
-                AppDelegate.lock(to: orientation)
-            } else {
-                AppDelegate.lock(to: .portrait)
+            withAnimation(.easeOut(duration: 0.25)) {
+                contentOpacity = 1
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                handlePlaybackButtonTap()
+                viewModel.handleMainPlaybackButton()
             }
         }
         .onDisappear {
             viewModel.stop()
             UIScreen.main.brightness = originalBrightness
-            AppDelegate.lock(to: .portrait)
+        }
+    }
+
+    // MARK: - 회전 각도
+
+    private var targetRotationAngle: Angle {
+        switch orientation {
+        case .landscapeLeft:
+            return .degrees(-90)
+        case .landscapeRight:
+            return .degrees(90)
+        default:
+            return .degrees(0)
+        }
+    }
+
+    // MARK: - 닫기 애니메이션
+
+    private func closeWithAnimation() {
+        viewModel.stop()
+
+        withAnimation(.easeIn(duration: 0.2)) {
+            contentOpacity = 0
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            dismiss()
         }
     }
 
@@ -101,8 +125,7 @@ struct PresentationView: View {
                 shape: .circle,
                 foregroundStyle: .white
             ) {
-                viewModel.stop()
-                dismiss()
+                closeWithAnimation()
             }
 
             BasicButton(
@@ -110,7 +133,7 @@ struct PresentationView: View {
                 shape: .circle,
                 foregroundStyle: .white
             ) {
-                handlePlaybackButtonTap()
+                viewModel.handleMainPlaybackButton()
             }
 
             BasicButton(
@@ -129,27 +152,5 @@ struct PresentationView: View {
 
     private func textArea(fontSize: CGFloat) -> some View {
         ReadAlongText(viewModel: viewModel, fontSize: fontSize)
-    }
-}
-
-// MARK: - 화면 방향 강제
-
-private extension PresentationView {
-    func lockOrientation(to mask: UIInterfaceOrientationMask) {
-        AppDelegate.orientationLock = mask
-
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
-            return
-        }
-
-        windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
-        windowScene.windows.first?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
-    }
-
-    func handlePlaybackButtonTap() {
-        if !isRotateOn {
-            AppDelegate.lock(to: .landscapeRight)
-        }
-        viewModel.handleMainPlaybackButton()
     }
 }
