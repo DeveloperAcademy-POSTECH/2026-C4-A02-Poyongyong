@@ -152,7 +152,6 @@ struct HomeView: View {
                             }
                         )
                     }
-                }
                     // MARK: Floating Edit Button
                     CreateButton(
                         systemImage: "pencil.and.scribble",
@@ -167,7 +166,7 @@ struct HomeView: View {
                     )
                     .padding(.trailing, 20)
                     .padding(.bottom, 15)
-                
+                }
             }
             .navigationDestination(
                 isPresented:

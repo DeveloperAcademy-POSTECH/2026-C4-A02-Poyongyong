@@ -36,7 +36,6 @@ final class HomeViewModel: ObservableObject {
     
     let maximumCharacterCount: Int = 150
     
-    let maximumPreviewWordCount: Int = 20
     
     
     // MARK: - Character Count
@@ -141,17 +140,6 @@ final class HomeViewModel: ObservableObject {
     func previewText(
         for text: String
     ) -> String {
-        let words = text.split {
-            $0.isWhitespace
-        }
-        
-        guard words.count > maximumPreviewWordCount else {
-            return text
-        }
-        
-        return words
-            .prefix(maximumPreviewWordCount)
-            .joined(separator: " ")
-            + "..."
+        text
     }
 }
