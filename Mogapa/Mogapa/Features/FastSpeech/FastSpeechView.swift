@@ -97,6 +97,7 @@ struct FastSpeechView: View {
                         items: bubbleItems,
                         isEditing: isEditing,
                         allowsMove: canMoveSelectedPhrases,
+                        allowsFullSwipeDelete: true,
                         selectedIDs: $selectedIDs,
                         onTap: { id in
                             guard let phrase = phrases.first(

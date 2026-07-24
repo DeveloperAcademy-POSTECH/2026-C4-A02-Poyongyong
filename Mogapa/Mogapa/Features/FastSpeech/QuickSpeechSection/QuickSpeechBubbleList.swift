@@ -31,6 +31,7 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
     let items: [QuickSpeechBubbleListItem<ID>]
     let isEditing: Bool
     let allowsMove: Bool
+    let allowsFullSwipeDelete: Bool
 
     @Binding var selectedIDs: Set<ID>
 
@@ -53,6 +54,7 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
         items: [QuickSpeechBubbleListItem<ID>],
         isEditing: Bool = false,
         allowsMove: Bool = true,
+        allowsFullSwipeDelete: Bool = false,
         selectedIDs: Binding<Set<ID>>,
         spacing: CGFloat = 10,
         showsIndicators: Bool = false,
@@ -66,6 +68,7 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
         self.items = items
         self.isEditing = isEditing
         self.allowsMove = allowsMove
+        self.allowsFullSwipeDelete = allowsFullSwipeDelete
         self._selectedIDs = selectedIDs
         self.spacing = spacing
         self.showsIndicators = showsIndicators
@@ -94,7 +97,7 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
                     .listRowBackground(Color.clear)
                     .swipeActions(
                         edge: .trailing,
-                        allowsFullSwipe: false
+                        allowsFullSwipe: allowsFullSwipeDelete
                     ) {
                         if !isEditing {
                             Button(role: .destructive) {
@@ -276,6 +279,7 @@ private extension QuickSpeechBubbleList {
 
 private struct QuickSpeechBubbleListPreview: View {
     @State private var isEditing = false
+    @State private var allowsFullSwipeDelete = false
     @State private var selectedIDs: Set<UUID> = []
 
     @State private var items = [
@@ -329,9 +333,15 @@ private struct QuickSpeechBubbleListPreview: View {
                 }
             }
 
+            Toggle(
+                "전체 스와이프 삭제",
+                isOn: $allowsFullSwipeDelete
+            )
+
             QuickSpeechBubbleList(
                 items: items,
                 isEditing: isEditing,
+                allowsFullSwipeDelete: allowsFullSwipeDelete,
                 selectedIDs: $selectedIDs,
                 onTap: { _ in },
                 onDelete: { id in
