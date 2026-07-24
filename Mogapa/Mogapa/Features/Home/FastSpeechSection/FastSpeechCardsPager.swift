@@ -44,49 +44,53 @@ struct FastSpeechCardsPager: View {
         let sortedPhrases = phrases.sorted {
             $0.sortOrder < $1.sortOrder
         }
-        
-        let pages = sortedPhrases.chunked(
-            into: 4
-        )
-        
-        VStack {
+
+        Group {
             if sortedPhrases.isEmpty {
                 emptyState
             } else {
-                TabView(
-                    selection: $currentPage
-                ) {
-                    ForEach(
-                        pages.indices,
-                        id: \.self
-                    ) { index in
-                        
-                        cardPage(
-                            pages[index]
+                let pages = sortedPhrases.chunked(
+                    into: 4
+                )
+
+                VStack {
+                    TabView(
+                        selection: $currentPage
+                    ) {
+                        ForEach(
+                            pages.indices,
+                            id: \.self
+                        ) { index in
+
+                            cardPage(
+                                pages[index]
+                            )
+                            .padding(.horizontal, 10)
+                            .tag(index)
+                        }
+                    }
+                    .tabViewStyle(
+                        .page(
+                            indexDisplayMode: .never
                         )
-                        .padding(
-                            .horizontal,
-                            10
+                    )
+                    .frame(
+                        height:
+                            cardHeight * 2
+                            + spacing
+                    )
+
+                    if pages.count > 1 {
+                        pageIndicator(
+                            pageCount: pages.count
                         )
-                        .tag(index)
                     }
                 }
-                .tabViewStyle(
-                    .page(
-                        indexDisplayMode: .never
-                    )
-                )
-                .frame(
-                    height: cardAreaHeight
-                )
-            }
-            
-            if pages.count > 1 {
-                pageIndicator(
-                    pageCount: pages.count
-                )
             }
         }
+        .frame(
+            height: cardHeight * 2 + spacing + 20
+        )
     }
 }
 
@@ -107,10 +111,8 @@ private extension FastSpeechCardsPager {
             )
         }
         .frame(
-            maxWidth: .infinity
-        )
-        .frame(
-            height: cardAreaHeight
+            maxWidth: .infinity,
+            maxHeight: .infinity
         )
     }
 }
