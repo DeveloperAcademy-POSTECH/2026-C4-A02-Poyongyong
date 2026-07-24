@@ -30,6 +30,7 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
 
     let items: [QuickSpeechBubbleListItem<ID>]
     let isEditing: Bool
+    let allowsMove: Bool
 
     @Binding var selectedIDs: Set<ID>
 
@@ -39,14 +40,11 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
     let onTap: (ID) -> Void
     let onDelete: (ID) -> Void
 
-    /// sourceID를 destinationID 위치로 이동합니다.
     let onMove: (
-        _ sourceID: ID,
-        _ destinationID: ID
+        _ source: IndexSet,
+        _ destination: Int
     ) -> Void
 
-    @State private var openedRowID: ID?
-    @State private var draggedItemID: ID?
     @State private var lineLimits: [ID: Int] = [:]
 
     // MARK: Initializer
@@ -54,18 +52,20 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
     init(
         items: [QuickSpeechBubbleListItem<ID>],
         isEditing: Bool = false,
+        allowsMove: Bool = true,
         selectedIDs: Binding<Set<ID>>,
         spacing: CGFloat = 10,
         showsIndicators: Bool = false,
         onTap: @escaping (ID) -> Void = { _ in },
         onDelete: @escaping (ID) -> Void = { _ in },
         onMove: @escaping (
-            _ sourceID: ID,
-            _ destinationID: ID
+            _ source: IndexSet,
+            _ destination: Int
         ) -> Void = { _, _ in }
     ) {
         self.items = items
         self.isEditing = isEditing
+        self.allowsMove = allowsMove
         self._selectedIDs = selectedIDs
         self.spacing = spacing
         self.showsIndicators = showsIndicators
@@ -77,28 +77,68 @@ struct QuickSpeechBubbleList<ID: Hashable>: View {
     // MARK: Body
 
     var body: some View {
-        ScrollView(
-            .vertical,
-            showsIndicators: showsIndicators
-        ) {
-            LazyVStack(
-                alignment: .leading,
-                spacing: spacing
-            ) {
-                ForEach(items) { item in
-                    rowView(item)
-                }
+        List {
+            ForEach(items) { item in
+                rowView(item)
+                    .listRowInsets(
+                        EdgeInsets(
+                            top: spacing / 2,
+                            leading: isEditing
+                            ? 2
+                            : 0,
+                            bottom: spacing / 2,
+                            trailing: 0
+                        )
+                    )
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .swipeActions(
+                        edge: .trailing,
+                        allowsFullSwipe: false
+                    ) {
+                        if !isEditing {
+                            Button(role: .destructive) {
+                                delete(item.id)
+                            } label: {
+                                Image(.quickSpeechTrash)
+                            }
+                            .tint(.accentsRed)
+                        }
+                    }
             }
-            .frame(
-                maxWidth: .infinity,
-                alignment: .leading
-            )
+            .onMove { source, destination in
+                guard isEditing, allowsMove else {
+                    return
+                }
+
+                onMove(
+                    source,
+                    destination
+                )
+            }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .environment(
+            \.editMode,
+            .constant(
+                isEditing
+                ? EditMode.active
+                : EditMode.inactive
+            )
+        )
+        .environment(
+            \.defaultMinListRowHeight,
+            0
+        )
+        .scrollIndicators(
+            showsIndicators
+            ? .visible
+            : .hidden
+        )
         .onChange(of: isEditing) { _, newValue in
-            if newValue {
-                openedRowID = nil
-            } else {
-                draggedItemID = nil
+            guard !newValue else {
+                return
             }
         }
         .onChange(of: itemIDs) { _, newValue in
@@ -119,75 +159,80 @@ private extension QuickSpeechBubbleList {
     func rowView(
         _ item: QuickSpeechBubbleListItem<ID>
     ) -> some View {
-        QuickSpeechBubbleRow(
-            id: item.id,
-            text: item.text,
-            isSelected: selectedIDs.contains(item.id),
-            isEditing: isEditing,
-            preservedLineLimit: lineLimits[item.id],
-            onLineLimitMeasured: {
-                lineLimits[item.id] = $0
-            },
-            openedRowID: $openedRowID,
-            onTap: {
-                onTap(item.id)
-            },
-            onSelectionToggle: {
-                toggleSelection(
-                    for: item.id
+        HStack(spacing: 12) {
+            if isEditing {
+                checkbox(
+                    isSelected:
+                        selectedIDs.contains(item.id)
                 )
-            },
-            onDelete: {
-                delete(item.id)
             }
+
+            QuickSpeechBubble(
+                text: item.text,
+                isEditing: isEditing,
+                preservedLineLimit: lineLimits[item.id],
+                onLineLimitMeasured: {
+                    lineLimits[item.id] = $0
+                },
+                action: nil
+            )
+            .padding(
+                .trailing,
+                isEditing && allowsMove
+                ? 12
+                : 0
+            )
+        }
+        .contentShape(Rectangle())
+        .moveDisabled(
+            !isEditing ||
+            !allowsMove
         )
-        .opacity(
-            draggedItemID == item.id
-            ? 0.5
-            : 1
-        )
-        .animation(
-            .easeInOut(duration: 0.15),
-            value: draggedItemID
-        )
-        .dragDrop(
-            isEditing: isEditing,
-            itemID: item.id,
-            draggedItemID: $draggedItemID,
-            canMove: { sourceID, destinationID in
-                guard sourceID != destinationID else {
-                    return false
+        .onTapGesture {
+            if isEditing {
+                toggleSelection(for: item.id)
+            } else {
+                onTap(item.id)
+            }
+        }
+    }
+
+    func checkbox(
+        isSelected: Bool
+    ) -> some View {
+        ZStack {
+            Circle()
+                .fill(
+                    isSelected
+                    ? .accentsBlue
+                    : .backgroundbgCanvas
+                )
+                .overlay {
+                    Circle()
+                        .stroke(
+                            isSelected
+                            ? .accentsBlue
+                            : .strokedefault,
+                            lineWidth: 1
+                        )
                 }
 
-                return itemIDs.contains(sourceID) &&
-                    itemIDs.contains(destinationID)
-            },
-            onMove: { sourceID, destinationID in
-                onMove(
-                    sourceID,
-                    destinationID
-                )
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .font(
+                        .system(
+                            size: 10,
+                            weight: .bold
+                        )
+                    )
+                    .foregroundStyle(.iconinverse)
             }
-        )
-    }
-}
-
-// MARK: - Drag and Drop
-
-private extension QuickSpeechBubbleList {
-    func startDragging(
-        itemID: ID
-    ) {
-        guard isEditing else {
-            return
         }
-
-        openedRowID = nil
-        draggedItemID = itemID
-    }
-
-    func endDragging() {
-        draggedItemID = nil
+        .frame(
+            width: 18,
+            height: 18
+        )
+        .contentShape(Circle())
     }
 }
 
@@ -210,14 +255,6 @@ private extension QuickSpeechBubbleList {
         selectedIDs.remove(id)
         lineLimits[id] = nil
 
-        if openedRowID == id {
-            openedRowID = nil
-        }
-
-        if draggedItemID == id {
-            draggedItemID = nil
-        }
-
         onDelete(id)
     }
 
@@ -232,15 +269,6 @@ private extension QuickSpeechBubbleList {
             validIDs.contains($0.key)
         }
 
-        if let openedRowID,
-           !validIDs.contains(openedRowID) {
-            self.openedRowID = nil
-        }
-
-        if let draggedItemID,
-           !validIDs.contains(draggedItemID) {
-            self.draggedItemID = nil
-        }
     }
 }
 
@@ -313,10 +341,10 @@ private struct QuickSpeechBubbleListPreview: View {
                         }
                     }
                 },
-                onMove: { sourceID, destinationID in
+                onMove: { source, destination in
                     moveItem(
-                        sourceID: sourceID,
-                        destinationID: destinationID
+                        from: source,
+                        to: destination
                     )
                 }
             )
@@ -326,47 +354,13 @@ private struct QuickSpeechBubbleListPreview: View {
     }
 
     private func moveItem(
-        sourceID: UUID,
-        destinationID: UUID
+        from source: IndexSet,
+        to destination: Int
     ) {
-        guard let sourceIndex = items.firstIndex(
-            where: { $0.id == sourceID }
-        ) else {
-            return
-        }
-
-        guard let destinationIndex = items.firstIndex(
-            where: { $0.id == destinationID }
-        ) else {
-            return
-        }
-
-        guard sourceIndex != destinationIndex else {
-            return
-        }
-
         withAnimation(.interactiveSpring) {
-            let movedItem = items.remove(
-                at: sourceIndex
-            )
-
-            /*
-             sourceIndex의 아이템을 먼저 제거하면
-             뒤쪽 destinationIndex가 한 칸 당겨집니다.
-             */
-            let insertionIndex: Int
-
-            if sourceIndex < destinationIndex {
-                insertionIndex =
-                    destinationIndex - 1
-            } else {
-                insertionIndex =
-                    destinationIndex
-            }
-
-            items.insert(
-                movedItem,
-                at: insertionIndex
+            items.move(
+                fromOffsets: source,
+                toOffset: destination
             )
         }
     }
