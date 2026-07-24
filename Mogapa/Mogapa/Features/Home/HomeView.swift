@@ -194,10 +194,6 @@ struct HomeView: View {
             .onAppear {
                 motionManager.start()
                 
-                AppDelegate.lock(
-                    to: .portrait
-                )
-                
                 adjustSelectedCategoryIndex()
             }
             .onDisappear {
@@ -215,7 +211,12 @@ struct HomeView: View {
                 guard isRotateOn else { return }
 
                 guard pose.isLandscape else {
-                    isPresentationPresented = false
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+
+                    withTransaction(transaction) {
+                        isPresentationPresented = false
+                    }
                     return
                 }
                 
@@ -469,30 +470,19 @@ private extension HomeView {
 
 private extension HomeView {
     
-    func presentIfPossible(
-        orientation:
-        UIInterfaceOrientationMask
-    ) {
-        let trimmedText =
-        viewModel.inputText
-            .trimmingCharacters(
-                in:
-                        .whitespacesAndNewlines
-            )
-        
-        guard !trimmedText.isEmpty else {
-            return
-        }
-        
+    func presentIfPossible(orientation: UIInterfaceOrientationMask) {
+        let trimmedText = viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedText.isEmpty else { return }
+
         viewModel.isTextFieldExpanded = false
-        
-        AppDelegate.orientationLock =
-        orientation
-        
-        presentationOrientation =
-        orientation
-        
-        isPresentationPresented = true
+        presentationOrientation = orientation
+
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+
+        withTransaction(transaction) {
+            isPresentationPresented = true
+        }
     }
 }
 
