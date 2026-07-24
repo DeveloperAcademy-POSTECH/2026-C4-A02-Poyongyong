@@ -24,6 +24,12 @@ struct PresentationView: View {
 
     let orientation: UIInterfaceOrientationMask
 
+    @AppStorage("settings.isBrightnessOn") private var isBrightnessOn: Bool = true
+    @AppStorage("settings.manualBrightness") private var manualBrightness: Double = 50.0
+    @AppStorage("settings.isRotateOn") private var isRotateOn: Bool = true
+
+    @State private var originalBrightness: CGFloat = UIScreen.main.brightness
+
     init(text: String, orientation: UIInterfaceOrientationMask) {
         _viewModel = State(
             initialValue: PresentationViewModel(text: text)
@@ -56,14 +62,25 @@ struct PresentationView: View {
             }
         }
         .onAppear {
-            AppDelegate.lock(to: orientation)
+            originalBrightness = UIScreen.main.brightness
+
+            if !isBrightnessOn {
+                UIScreen.main.brightness = CGFloat(manualBrightness / 100)
+            }
+
+            if isRotateOn {
+                AppDelegate.lock(to: orientation)
+            } else {
+                AppDelegate.lock(to: .portrait)
+            }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                viewModel.handleMainPlaybackButton()
+                handlePlaybackButtonTap()
             }
         }
         .onDisappear {
             viewModel.stop()
+            UIScreen.main.brightness = originalBrightness
             AppDelegate.lock(to: .portrait)
         }
     }
@@ -93,7 +110,7 @@ struct PresentationView: View {
                 shape: .circle,
                 foregroundStyle: .white
             ) {
-                viewModel.handleMainPlaybackButton()
+                handlePlaybackButtonTap()
             }
 
             BasicButton(
@@ -127,5 +144,12 @@ private extension PresentationView {
 
         windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: mask))
         windowScene.windows.first?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+    }
+
+    func handlePlaybackButtonTap() {
+        if !isRotateOn {
+            AppDelegate.lock(to: .landscapeRight)
+        }
+        viewModel.handleMainPlaybackButton()
     }
 }

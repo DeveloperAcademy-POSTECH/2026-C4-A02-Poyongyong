@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct SettingView: View {
-    // 현재 실제 설정값
     @AppStorage("settings.playbackSpeed") private var playbackSpeed = 50.0
     @AppStorage("settings.voicePitch") private var voicePitch = 50.0
     @AppStorage("settings.isBrightnessOn") private var isBrightnessOn = true
     @AppStorage("settings.manualBrightness") private var manualBrightness = 50.0
     @AppStorage("settings.isRotateOn") private var isRotateOn = true
     @Environment(\.dismiss) private var dismiss
+
+    // 화면 나갈 때 복원할 원래 밝기
+    @State private var originalBrightness: CGFloat = UIScreen.main.brightness
 
     // 재설정 버튼 활성/비활성 판단 기준값
     private let defaultPlaybackSpeed = 50.0
@@ -38,7 +40,7 @@ struct SettingView: View {
                 title: "설정",
                 rightTitle: "재설정",
                 isRightDisabled: !hasChanges,
-                rightForegroundStyle: Color.textsecondary.opacity(hasChanges ? 1 : 0.4), // 임의로 설정한 비활성화 상태 색상
+                rightForegroundStyle: Color.textsecondary.opacity(hasChanges ? 1 : 0.4),
                 onLeftTap: {dismiss()},
                 onRightTap: {
                     playbackSpeed = defaultPlaybackSpeed
@@ -95,6 +97,27 @@ struct SettingView: View {
         }
         .background(Color("Backgroundbg-disabled"))
         .environment(\.locale, Locale(identifier: "ko"))
+        .onAppear {
+            originalBrightness = UIScreen.main.brightness
+
+            if !isBrightnessOn {
+                UIScreen.main.brightness = CGFloat(manualBrightness / 100)
+            }
+        }
+        .onDisappear {
+            UIScreen.main.brightness = originalBrightness
+        }
+        .onChange(of: manualBrightness) { _, newValue in
+            guard !isBrightnessOn else { return }
+            UIScreen.main.brightness = CGFloat(newValue / 100)
+        }
+        .onChange(of: isBrightnessOn) { _, autoIsOn in
+            if autoIsOn {
+                UIScreen.main.brightness = originalBrightness
+            } else {
+                UIScreen.main.brightness = CGFloat(manualBrightness / 100)
+            }
+        }
     }
 }
 
