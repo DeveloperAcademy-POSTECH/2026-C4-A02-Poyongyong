@@ -66,6 +66,8 @@ struct HomeView: View {
     @State
     private var presentationOrientation:
     UIInterfaceOrientationMask = .landscapeRight
+
+    @AppStorage("settings.isRotateOn") private var isRotateOn: Bool = true
     
     
     // MARK: - ViewModel
@@ -145,11 +147,7 @@ struct HomeView: View {
                             },
                             onSpeak: {
                                 presentIfPossible(
-                                    orientation:
-                                        orientationMask(
-                                            for:
-                                                motionManager.pose
-                                        )
+                                    orientation: buttonTapOrientation
                                 )
                             },
                             onClose: {
@@ -214,6 +212,9 @@ struct HomeView: View {
             .onChange(
                 of: motionManager.pose
             ) { _, pose in
+                // 자동 전환 꺼져 있으면 기기 돌려도 반응 안 함
+                guard isRotateOn else { return }
+
                 guard pose.isLandscape else {
                     isPresentationPresented = false
                     return
@@ -377,11 +378,7 @@ private extension HomeView {
             },
             onSpeak: {
                 presentIfPossible(
-                    orientation:
-                        orientationMask(
-                            for:
-                                motionManager.pose
-                        )
+                    orientation: buttonTapOrientation
                 )
             }
         )
@@ -517,6 +514,14 @@ private extension HomeView {
         default:
             return .landscapeRight
         }
+    }
+
+    // 자동 전환 꺼져 있을 때 버튼 탭으로 들어가면 항상 landscapeRight로 고정
+    var buttonTapOrientation: UIInterfaceOrientationMask {
+        guard isRotateOn else {
+            return .landscapeRight
+        }
+        return orientationMask(for: motionManager.pose)
     }
 }
 

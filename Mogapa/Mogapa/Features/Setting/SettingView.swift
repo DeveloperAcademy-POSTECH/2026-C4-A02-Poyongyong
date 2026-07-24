@@ -15,9 +15,6 @@ struct SettingView: View {
     @AppStorage("settings.isRotateOn") private var isRotateOn = true
     @Environment(\.dismiss) private var dismiss
 
-    // 화면 나갈 때 복원할 원래 밝기
-    @State private var originalBrightness: CGFloat = UIScreen.main.brightness
-
     // 재설정 버튼 활성/비활성 판단 기준값
     private let defaultPlaybackSpeed = 50.0
     private let defaultVoicePitch = 50.0
@@ -97,27 +94,6 @@ struct SettingView: View {
         }
         .background(Color("Backgroundbg-disabled"))
         .environment(\.locale, Locale(identifier: "ko"))
-        .onAppear {
-            originalBrightness = UIScreen.main.brightness
-
-            if !isBrightnessOn {
-                UIScreen.main.brightness = CGFloat(manualBrightness / 100)
-            }
-        }
-        .onDisappear {
-            UIScreen.main.brightness = originalBrightness
-        }
-        .onChange(of: manualBrightness) { _, newValue in
-            guard !isBrightnessOn else { return }
-            UIScreen.main.brightness = CGFloat(newValue / 100)
-        }
-        .onChange(of: isBrightnessOn) { _, autoIsOn in
-            if autoIsOn {
-                UIScreen.main.brightness = originalBrightness
-            } else {
-                UIScreen.main.brightness = CGFloat(manualBrightness / 100)
-            }
-        }
     }
 }
 
