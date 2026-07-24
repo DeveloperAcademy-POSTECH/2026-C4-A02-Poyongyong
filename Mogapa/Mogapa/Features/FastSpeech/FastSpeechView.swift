@@ -96,6 +96,8 @@ struct FastSpeechView: View {
                     QuickSpeechBubbleList(
                         items: bubbleItems,
                         isEditing: isEditing,
+                        allowsMove: canMoveSelectedPhrases,
+                        allowsFullSwipeDelete: true,
                         selectedIDs: $selectedIDs,
                         onTap: { id in
                             guard let phrase = phrases.first(
@@ -113,6 +115,12 @@ struct FastSpeechView: View {
                         },
                         onDelete: {
                             deletePhrase($0)
+                        },
+                        onMove: { source, destination in
+                            movePhrases(
+                                from: source,
+                                to: destination
+                            )
                         }
                     )
 
@@ -355,6 +363,10 @@ private extension FastSpeechView {
             quickSpeechBubbleItem
         )
     }
+
+    var canMoveSelectedPhrases: Bool {
+        selectedCategoryIndex != 0
+    }
     
     func quickSpeechBubbleItem(
         _ phrase: FastSpeechPhrase
@@ -571,6 +583,32 @@ private extension FastSpeechView {
             modelContext.delete(phrase)
         }
         
+        saveModelContext()
+    }
+
+    func movePhrases(
+        from source: IndexSet,
+        to destination: Int
+    ) {
+        guard canMoveSelectedPhrases else {
+            return
+        }
+
+        var reorderedPhrases =
+            filteredPhrases
+
+        reorderedPhrases.move(
+            fromOffsets: source,
+            toOffset: destination
+        )
+
+        withAnimation(.snappy) {
+            for (index, phrase) in
+                reorderedPhrases.enumerated() {
+                phrase.sortOrder = index
+            }
+        }
+
         saveModelContext()
     }
     

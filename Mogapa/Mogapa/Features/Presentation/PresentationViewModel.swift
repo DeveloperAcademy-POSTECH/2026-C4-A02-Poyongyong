@@ -19,6 +19,13 @@ final class PresentationViewModel {
 
     private(set) var tokens: [SpeechToken] = []
 
+    // SettingView와 동일한 키로 UserDefaults를 직접 읽음
+    @ObservationIgnored
+    @AppStorage("settings.playbackSpeed") private var playbackSpeedSetting: Double = 50.0
+
+    @ObservationIgnored
+    @AppStorage("settings.voicePitch") private var voicePitchSetting: Double = 50.0
+
     init(
         text: String = """
         안녕하세요 이게 150자까지만 가능해서 확인용 텍스트를 작성 중입니다. 리스트에 표시된 특정 단어를 누르면 해당 단어부터 음성 재생이 시작됩니다. 현재 읽고 있는 단어는 노란색으로 표시되고 이미 읽은 단어는 흰색으로 표시됩니다.안녕하세요 이게 150자까지만 가능해서 확인용 텍스트를 작성 중입니다. 리스트에 표시된 특정 단어를 누르면 해당 단어부터 음성 재생이 시작됩니다. 현재 읽고 있는 단어는 노란색으로 표시되고 이미 읽은 단어는 흰색으로 표시됩니다.안녕하세요 이게 150자까지만 가능해서 확인용 텍스트를 작성 중입니다. 리스트에 표시된 특정 단어를 누르면 해당 단어부터 음성 재생이 시작됩니다. 현재 읽고 있는 단어는 노란색으로 표시되고 이미 읽은 단어는 흰색으로 표시됩니다.
@@ -56,11 +63,27 @@ final class PresentationViewModel {
         }
     }
 
+    // MARK: - 설정값 → 실제 음성 파라미터 변환
+
+    private var currentRate: Float {
+        let minRate: Float = 0.3
+        let maxRate: Float = 0.66
+        let normalized = Float(playbackSpeedSetting / 100)
+        return minRate + (maxRate - minRate) * normalized
+    }
+
+    private var currentPitch: Float {
+        let minPitch: Float = 0.5
+        let maxPitch: Float = 1.5
+        let normalized = Float(voicePitchSetting / 100)
+        return minPitch + (maxPitch - minPitch) * normalized
+    }
+
     // MARK: - 재생 제어
 
     func handleMainPlaybackButton() {
         guard isActive else {
-            speechManager.play(text)
+            speechManager.play(text, rate: currentRate, pitchMultiplier: currentPitch)
             return
         }
 
@@ -72,7 +95,7 @@ final class PresentationViewModel {
             speechManager.resume()
 
         case .stopped:
-            speechManager.play(text)
+            speechManager.play(text, rate: currentRate, pitchMultiplier: currentPitch)
         }
     }
 
@@ -81,7 +104,9 @@ final class PresentationViewModel {
 
         speechManager.play(
             text,
-            fromUTF16Offset: startOffset
+            fromUTF16Offset: startOffset,
+            rate: currentRate,
+            pitchMultiplier: currentPitch
         )
     }
 

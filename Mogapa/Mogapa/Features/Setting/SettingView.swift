@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SettingView: View {
-    // 현재 실제 설정값
     @AppStorage("settings.playbackSpeed") private var playbackSpeed = 50.0
     @AppStorage("settings.voicePitch") private var voicePitch = 50.0
     @AppStorage("settings.isBrightnessOn") private var isBrightnessOn = true
@@ -38,7 +37,7 @@ struct SettingView: View {
                 title: "설정",
                 rightTitle: "재설정",
                 isRightDisabled: !hasChanges,
-                rightForegroundStyle: Color.textsecondary.opacity(hasChanges ? 1 : 0.4), // 임의로 설정한 비활성화 상태 색상
+                rightForegroundStyle: Color.textsecondary.opacity(hasChanges ? 1 : 0.4),
                 onLeftTap: {dismiss()},
                 onRightTap: {
                     playbackSpeed = defaultPlaybackSpeed
