@@ -96,26 +96,45 @@ private extension ExpandedTextInputOverlay {
             
             Divider()
             
-            TextEditor(
-                text: $text
-            )
-            .tint(.labelprimary)
-            .scrollDisabled(true)
-            .focused($isTextEditorFocused)
-            .scrollContentBackground(.hidden)
-            .typography(.subTitleMedium)
-            .foregroundColor(.textprimary)
-            .multilineTextAlignment(.leading)
+        
+            ZStack(alignment: .topLeading) {
+                
+                TextEditor(
+                    text: $text
+                )
+                .tint(.labelprimary)
+                .scrollDisabled(true)
+                .focused($isTextEditorFocused)
+                .scrollContentBackground(.hidden)
+                .typography(.subTitleMedium)
+                .foregroundColor(.textprimary)
+                .multilineTextAlignment(.leading)
+                .onChange(
+                    of: text
+                ) { _, newValue in
+                    onTextChanged(newValue)
+                }
+                
+                if text.isEmpty {
+                    Text("무엇을 이야기하고 싶은가요?")
+                        .typography(.subTitleMedium)
+                        .foregroundColor(.textplaceholder)
+                        .padding(
+                            .top,
+                            8
+                        )
+                        .padding(
+                            .leading,
+                            5
+                        )
+                        .allowsHitTesting(false)
+                }
+            }
             .frame(
                 width: 312,
                 height: 240
             )
-            .onChange(
-                of: text
-            ) { _, newValue in
-                onTextChanged(newValue)
-            }
-            
+         
             HStack(alignment: .bottom) {
                 Text("\(characterCount)/150")
                     .typography(.calloutRegular)

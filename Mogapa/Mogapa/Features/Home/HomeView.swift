@@ -130,8 +130,7 @@ struct HomeView: View {
                         fastSpeechSection
                             .padding(.horizontal, 10)
                     }
-                    
-                    
+
                     
                     // MARK: Expanded Input
                     

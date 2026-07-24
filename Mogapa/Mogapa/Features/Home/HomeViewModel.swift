@@ -29,7 +29,7 @@ final class HomeViewModel: ObservableObject {
     
     // 0번은 최근 문구, 1번부터 실제 카테고리
     @Published
-    var selectedCategoryIndex: Int = 1
+    var selectedCategoryIndex: Int = 0
     
     
     // MARK: - Constants
