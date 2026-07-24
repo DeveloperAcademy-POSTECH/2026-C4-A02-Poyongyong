@@ -99,15 +99,6 @@ private extension ExpandedTextInputOverlay {
         
             ZStack(alignment: .topLeading) {
                 
-                if text.isEmpty {
-                    Text("무엇을 이야기하고 싶은가요?")
-                        .typography(.subTitleMedium)
-                        .foregroundColor(.textplaceholder)
-                        .padding(.top, 8)
-                        .padding(.leading, 5)
-                        .allowsHitTesting(false)
-                }
-                
                 TextEditor(
                     text: $text
                 )
@@ -122,6 +113,21 @@ private extension ExpandedTextInputOverlay {
                     of: text
                 ) { _, newValue in
                     onTextChanged(newValue)
+                }
+                
+                if text.isEmpty {
+                    Text("무엇을 이야기하고 싶은가요?")
+                        .typography(.subTitleMedium)
+                        .foregroundColor(.textplaceholder)
+                        .padding(
+                            .top,
+                            8
+                        )
+                        .padding(
+                            .leading,
+                            5
+                        )
+                        .allowsHitTesting(false)
                 }
             }
             .frame(
