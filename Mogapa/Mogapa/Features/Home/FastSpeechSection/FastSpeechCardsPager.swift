@@ -26,6 +26,10 @@ struct FastSpeechCardsPager: View {
     
     private let cardHeight: CGFloat = 130
     private let spacing: CGFloat = 8
+
+    private var cardAreaHeight: CGFloat {
+        cardHeight * 2 + spacing
+    }
     
     private let positions: [
         FastSpeechCardPosition
@@ -41,14 +45,14 @@ struct FastSpeechCardsPager: View {
             $0.sortOrder < $1.sortOrder
         }
         
-        if sortedPhrases.isEmpty {
-            emptyState
-        } else {
-            let pages = sortedPhrases.chunked(
-                into: 4
-            )
-            
-            VStack{
+        let pages = sortedPhrases.chunked(
+            into: 4
+        )
+        
+        VStack {
+            if sortedPhrases.isEmpty {
+                emptyState
+            } else {
                 TabView(
                     selection: $currentPage
                 ) {
@@ -60,7 +64,10 @@ struct FastSpeechCardsPager: View {
                         cardPage(
                             pages[index]
                         )
-                        .padding(.horizontal, 10)
+                        .padding(
+                            .horizontal,
+                            10
+                        )
                         .tag(index)
                     }
                 }
@@ -70,16 +77,14 @@ struct FastSpeechCardsPager: View {
                     )
                 )
                 .frame(
-                    height:
-                        cardHeight * 2
-                    + spacing
+                    height: cardAreaHeight
                 )
-                
-                if pages.count > 1 {
-                    pageIndicator(
-                        pageCount: pages.count
-                    )
-                }
+            }
+            
+            if pages.count > 1 {
+                pageIndicator(
+                    pageCount: pages.count
+                )
             }
         }
     }
@@ -100,15 +105,13 @@ private extension FastSpeechCardsPager {
             .foregroundStyle(
                 .texttertiary
             )
-            .frame(
-                maxWidth: .infinity
-            )
-            .frame(
-                height:
-                    cardHeight * 2
-                + spacing
-            )
         }
+        .frame(
+            maxWidth: .infinity
+        )
+        .frame(
+            height: cardAreaHeight
+        )
     }
 }
 

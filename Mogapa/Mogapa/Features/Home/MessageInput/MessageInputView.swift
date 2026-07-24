@@ -102,7 +102,9 @@ private extension MessageInputView {
         .padding(.top, 25)
         .padding(.bottom, 22)
         .frame(
-            width: 362,
+            maxWidth: .infinity
+        )
+        .frame(
             height: 204
         )
         .background(Color.backgroundbgCanvas)

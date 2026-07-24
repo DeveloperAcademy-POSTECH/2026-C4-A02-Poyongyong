@@ -124,13 +124,10 @@ struct HomeView: View {
                             20
                         )
                         
-                        .frame(
-                            width: geometry.size.width
-                        )
                         fastSpeechSection
                             .padding(.horizontal, 10)
                     }
-
+                    
                     
                     // MARK: Expanded Input
                     
@@ -155,7 +152,7 @@ struct HomeView: View {
                             }
                         )
                     }
-                    
+                }
                     // MARK: Floating Edit Button
                     CreateButton(
                         systemImage: "pencil.and.scribble",
@@ -169,8 +166,7 @@ struct HomeView: View {
                         alignment: .bottomTrailing
                     )
                     .padding(.trailing, 20)
-                    .padding(.bottom, 35)
-                }
+                    .padding(.bottom, 15)
                 
             }
             .navigationDestination(
@@ -381,13 +377,8 @@ private extension HomeView {
                 )
             }
         )
-        .frame(
-            width: 362,
-            height: 204
-        )
-        .frame(
-            maxWidth: .infinity
-        )
+        .frame(maxWidth: .infinity)
+        .frame(height: 204)
         .padding(
             .bottom,
             16

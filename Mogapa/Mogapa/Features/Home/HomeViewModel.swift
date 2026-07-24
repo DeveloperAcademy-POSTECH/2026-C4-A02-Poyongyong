@@ -145,7 +145,7 @@ final class HomeViewModel: ObservableObject {
             $0.isWhitespace
         }
         
-        guard words.count <= maximumPreviewWordCount else {
+        guard words.count > maximumPreviewWordCount else {
             return text
         }
         
