@@ -48,6 +48,8 @@ private extension FastSpeechCardView {
                 Text(previewText)
                     .typography(.bodyRegular)
                     .foregroundColor(.textsecondary)
+                    .lineLimit(4)
+                    .truncationMode(.tail)
                     .frame(
                         maxWidth: .infinity,
                         maxHeight: .infinity,

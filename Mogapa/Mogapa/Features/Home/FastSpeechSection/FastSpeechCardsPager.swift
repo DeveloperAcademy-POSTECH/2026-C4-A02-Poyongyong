@@ -26,6 +26,10 @@ struct FastSpeechCardsPager: View {
     
     private let cardHeight: CGFloat = 130
     private let spacing: CGFloat = 8
+
+    private var cardAreaHeight: CGFloat {
+        cardHeight * 2 + spacing
+    }
     
     private let positions: [
         FastSpeechCardPosition
@@ -40,48 +44,53 @@ struct FastSpeechCardsPager: View {
         let sortedPhrases = phrases.sorted {
             $0.sortOrder < $1.sortOrder
         }
-        
-        if sortedPhrases.isEmpty {
-            emptyState
-        } else {
-            let pages = sortedPhrases.chunked(
-                into: 4
-            )
-            
-            VStack{
-                TabView(
-                    selection: $currentPage
-                ) {
-                    ForEach(
-                        pages.indices,
-                        id: \.self
-                    ) { index in
-                        
-                        cardPage(
-                            pages[index]
-                        )
-                        .padding(.horizontal, 10)
-                        .tag(index)
+
+        Group {
+            if sortedPhrases.isEmpty {
+                emptyState
+            } else {
+                let pages = sortedPhrases.chunked(
+                    into: 4
+                )
+
+                VStack {
+                    TabView(
+                        selection: $currentPage
+                    ) {
+                        ForEach(
+                            pages.indices,
+                            id: \.self
+                        ) { index in
+
+                            cardPage(
+                                pages[index]
+                            )
+                            .padding(.horizontal, 10)
+                            .tag(index)
+                        }
                     }
-                }
-                .tabViewStyle(
-                    .page(
-                        indexDisplayMode: .never
+                    .tabViewStyle(
+                        .page(
+                            indexDisplayMode: .never
+                        )
                     )
-                )
-                .frame(
-                    height:
-                        cardHeight * 2
-                    + spacing
-                )
-                
-                if pages.count > 1 {
-                    pageIndicator(
-                        pageCount: pages.count
+                    .frame(
+                        height:
+                            cardHeight * 2
+                            + spacing
                     )
+
+                    if pages.count > 1 {
+                        pageIndicator(
+                            pageCount: pages.count
+                        )
+                    }
                 }
             }
         }
+        .frame(
+            height: cardHeight * 2 + spacing + 20
+        )
     }
 }
 
@@ -90,25 +99,14 @@ struct FastSpeechCardsPager: View {
 private extension FastSpeechCardsPager {
     
     var emptyState: some View {
-        HStack {
-            Text(
-                "여기에 말한 기록이 남아요!"
-            )
-            .typography(
-                .subTitleMedium
-            )
-            .foregroundStyle(
-                .texttertiary
-            )
+        Text("여기에 말한 기록이 남아요!")
+            .typography(.subTitleMedium)
+            .foregroundStyle(.texttertiary)
             .frame(
-                maxWidth: .infinity
+                maxWidth: .infinity,
+                maxHeight: .infinity,
+                alignment: .center
             )
-            .frame(
-                height:
-                    cardHeight * 2
-                + spacing
-            )
-        }
     }
 }
 
