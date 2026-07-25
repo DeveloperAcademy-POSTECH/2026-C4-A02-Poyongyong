@@ -131,9 +131,12 @@ private extension ExpandedTextInputOverlay {
                 }
             }
             .frame(
-                width: 312,
+                maxWidth: .infinity
+            )
+            .frame(
                 height: 240
             )
+            
          
             HStack(alignment: .bottom) {
                 Text("\(characterCount)/150")
@@ -150,7 +153,9 @@ private extension ExpandedTextInputOverlay {
         .padding(.top, 25)
         .padding(.bottom, 22)
         .frame(
-            width: 362,
+            maxWidth: .infinity
+        )
+        .frame(
             height: 365
         )
         .background(Color.backgroundbgCanvas)
@@ -163,6 +168,7 @@ private extension ExpandedTextInputOverlay {
                 style: .continuous
             )
         )
+        .padding(.horizontal, 20)
     }
 }
 

@@ -66,7 +66,7 @@ struct HomeView: View {
     @State
     private var presentationOrientation:
     UIInterfaceOrientationMask = .landscapeRight
-
+    
     @AppStorage("settings.isRotateOn") private var isRotateOn: Bool = true
     
     
@@ -124,13 +124,26 @@ struct HomeView: View {
                             20
                         )
                         
-                        .frame(
-                            width: geometry.size.width
-                        )
                         fastSpeechSection
                             .padding(.horizontal, 10)
                     }
-
+                    
+                    // MARK: Floating Edit Button
+                    
+                    CreateButton(
+                        systemImage: "pencil.and.scribble",
+                        iconSize: 30
+                    ) {
+                        isGesturePresented = true
+                    }
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .bottomTrailing
+                    )
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 35)
+                    
                     
                     // MARK: Expanded Input
                     
@@ -155,23 +168,7 @@ struct HomeView: View {
                             }
                         )
                     }
-                    
-                    // MARK: Floating Edit Button
-                    CreateButton(
-                        systemImage: "pencil.and.scribble",
-                        iconSize: 30
-                    ) {
-                        isGesturePresented = true
-                    }
-                    .frame(
-                        maxWidth: .infinity,
-                        maxHeight: .infinity,
-                        alignment: .bottomTrailing
-                    )
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 35)
                 }
-                
             }
             .navigationDestination(
                 isPresented:
@@ -209,7 +206,7 @@ struct HomeView: View {
             ) { _, pose in
                 // 자동 전환 꺼져 있으면 기기 돌려도 반응 안 함
                 guard isRotateOn else { return }
-
+                
                 guard pose.isLandscape else {
                     var transaction = Transaction()
                     transaction.disablesAnimations = true
@@ -382,13 +379,8 @@ private extension HomeView {
                 )
             }
         )
-        .frame(
-            width: 362,
-            height: 204
-        )
-        .frame(
-            maxWidth: .infinity
-        )
+        .frame(maxWidth: .infinity)
+        .frame(height: 204)
         .padding(
             .bottom,
             16
@@ -504,7 +496,7 @@ private extension HomeView {
             return .landscapeRight
         }
     }
-
+    
     // 자동 전환 꺼져 있을 때 버튼 탭으로 들어가면 항상 landscapeRight로 고정
     var buttonTapOrientation: UIInterfaceOrientationMask {
         guard isRotateOn else {
