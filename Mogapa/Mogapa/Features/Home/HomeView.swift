@@ -142,7 +142,7 @@ struct HomeView: View {
                         alignment: .bottomTrailing
                     )
                     .padding(.trailing, 20)
-                    .padding(.bottom, 35)
+                    .padding(.bottom, 40)
                     
                     
                     // MARK: Expanded Input
@@ -210,7 +210,7 @@ struct HomeView: View {
                 guard pose.isLandscape else {
                     var transaction = Transaction()
                     transaction.disablesAnimations = true
-
+                    
                     withTransaction(transaction) {
                         isPresentationPresented = false
                     }
@@ -465,13 +465,13 @@ private extension HomeView {
     func presentIfPossible(orientation: UIInterfaceOrientationMask) {
         let trimmedText = viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else { return }
-
+        
         viewModel.isTextFieldExpanded = false
         presentationOrientation = orientation
-
+        
         var transaction = Transaction()
         transaction.disablesAnimations = true
-
+        
         withTransaction(transaction) {
             isPresentationPresented = true
         }

@@ -40,6 +40,7 @@ struct FastSpeechSection: View {
                 previewText: previewText,
                 onPhraseSelected: onPhraseSelected
             )
+            .id(selectedCategoryIndex)
         }
     }
 }
