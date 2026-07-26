@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ImageIO
 
 
 struct ExpandedTextInputOverlay: View {
@@ -83,9 +84,16 @@ private extension ExpandedTextInputOverlay {
         VStack(alignment: .leading) {
             
             HStack(spacing: 8) {
-                Image(systemName: "rectangle.portrait.rotate")
-                    .font(.system(size: 16))
-                    .foregroundColor(.iconmuted)
+                GifImageView(
+                    "RotateLandscapeHint",
+                    isAnimating: !text.isEmpty
+                )
+                .frame(
+                    width: 18,
+                    height: 18
+                )
+                .scaleEffect(0.1)
+                .accessibilityHidden(true)
                 
                 Text("가로로 돌려 표현하기")
                     .typography(.calloutRegular)
@@ -173,6 +181,150 @@ private extension ExpandedTextInputOverlay {
 }
 
 
+// MARK: - GIF Image View
+
+private struct GifImageView: UIViewRepresentable {
+    
+    private static let animationDuration = 3.3
+    
+    let gifName: String
+    
+    let isAnimating: Bool
+    
+    init(
+        _ gifName: String,
+        isAnimating: Bool
+    ) {
+        self.gifName = gifName
+        self.isAnimating = isAnimating
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    func makeUIView(context: Context) -> UIImageView {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .clear
+        imageView.clipsToBounds = true
+        
+        guard let asset = NSDataAsset(name: gifName),
+              let source = CGImageSourceCreateWithData(
+                asset.data as CFData,
+                nil
+              ) else {
+            return imageView
+        }
+        
+        let frameCount = CGImageSourceGetCount(source)
+        var images: [UIImage] = []
+        
+        for index in 0..<frameCount {
+            guard let cgImage = CGImageSourceCreateImageAtIndex(
+                source,
+                index,
+                nil
+            ) else {
+                continue
+            }
+            
+            images.append(
+                UIImage(cgImage: cgImage)
+            )
+        }
+        
+        imageView.image = images.first
+        imageView.animationImages = images
+        imageView.animationDuration = Self.animationDuration
+        imageView.animationRepeatCount = 0
+        
+        updateAnimation(
+            for: imageView,
+            coordinator: context.coordinator
+        )
+        
+        return imageView
+    }
+    
+    func updateUIView(
+        _ uiView: UIImageView,
+        context: Context
+    ) {
+        updateAnimation(
+            for: uiView,
+            coordinator: context.coordinator
+        )
+    }
+    
+    private func updateAnimation(
+        for imageView: UIImageView,
+        coordinator: Coordinator
+    ) {
+        if isAnimating {
+            coordinator.playForever(
+                imageView: imageView,
+                animationDuration: Self.animationDuration
+            )
+        } else {
+            coordinator.stopAfterCurrentLoop(
+                imageView: imageView,
+                animationDuration: Self.animationDuration
+            )
+        }
+    }
+    
+    final class Coordinator {
+        
+        private var pendingStopTimer: Timer?
+        
+        func playForever(
+            imageView: UIImageView,
+            animationDuration: Double
+        ) {
+            pendingStopTimer?.invalidate()
+            pendingStopTimer = nil
+            
+            guard !imageView.isAnimating else {
+                return
+            }
+            
+            imageView.animationDuration = animationDuration
+            imageView.animationRepeatCount = 0
+            imageView.startAnimating()
+        }
+        
+        func stopAfterCurrentLoop(
+            imageView: UIImageView,
+            animationDuration: Double
+        ) {
+            guard imageView.isAnimating else {
+                imageView.image = imageView.animationImages?.first
+                return
+            }
+            
+            guard pendingStopTimer == nil else {
+                return
+            }
+            
+            pendingStopTimer = Timer.scheduledTimer(
+                withTimeInterval: animationDuration,
+                repeats: false
+            ) { [weak self, weak imageView] _ in
+                guard let self,
+                      let imageView else {
+                    return
+                }
+                
+                self.pendingStopTimer = nil
+                imageView.stopAnimating()
+                imageView.image = imageView.animationImages?.first
+            }
+        }
+    }
+}
+
+
 // MARK: - Speak Button
 
 private extension ExpandedTextInputOverlay {
@@ -236,5 +388,7 @@ private extension ExpandedTextInputOverlay {
             print("Close")
         }
     )
-}
+    .environment(\.locale,Locale(identifier: "ko")
+    )
 
+}
