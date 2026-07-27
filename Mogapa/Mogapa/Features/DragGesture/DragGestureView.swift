@@ -65,7 +65,7 @@ struct DragGestureView: View {
             [.leading, .trailing],
             20
         )
-        .background(dimBackground)
+        .background(Color.black.ignoresSafeArea())
         .overlay(
             alignment: .bottomTrailing
         ) {
@@ -82,12 +82,8 @@ struct DragGestureView: View {
             .swipeBackEnabled(true)
         }
         .onAppear {
-            withAnimation(
-                .easeInOut(duration: 0.25)
-            ) {
                 viewModel.appear()
             }
-        }
         .onDisappear {
             viewModel.disappear()
         }
@@ -97,15 +93,7 @@ struct DragGestureView: View {
 // MARK: - UI
 
 private extension DragGestureView {
-
-    var dimBackground: some View {
-        Color.black
-            .opacity(
-                viewModel.isDimmed ? 0.8 : 0
-            )
-            .ignoresSafeArea()
-    }
-
+    
     var homeButton: some View {
         CreateButton(
             systemImage:
