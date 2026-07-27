@@ -40,7 +40,7 @@ struct FastSpeechView: View {
     )
     private var phrases: [FastSpeechPhrase]
 
-    // MARK: - ViewModel
+    // MARK: - State
 
     @State
     private var viewModel =
@@ -51,120 +51,32 @@ struct FastSpeechView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
 
-        ZStack(
-            alignment: .bottomTrailing
+        SpeechListView(
+            title: "빠른 말하기",
+            isEditing: viewModel.isEditing,
+            hasSelection:
+                !viewModel.selectedIDs.isEmpty,
+            onBack: {
+                dismiss()
+            },
+            onCancelEditing: {
+                viewModel.cancelEditing()
+            },
+            onStartEditing: {
+                viewModel.startEditing()
+            },
+            onDeleteSelected: {
+                viewModel.deleteSelectedPhrases(
+                    phrases: phrases,
+                    modelContext: modelContext
+                )
+            },
+            onCreate: {
+                viewModel.presentAddModal()
+            }
         ) {
-            VStack(spacing: 18) {
-                header
-
-                FastSpeechCategorySelector(
-                    categories: categories,
-                    selectedIndex:
-                        $viewModel.selectedCategoryIndex,
-                    defaultTitle: "최근 문구",
-                    showsAddButton: true,
-                    isEditing: viewModel.isEditing,
-                    onAddCategory: { name in
-                        withAnimation(.snappy) {
-                            viewModel.addCategory(
-                                name,
-                                categories: categories,
-                                modelContext: modelContext
-                            )
-                        }
-                    },
-                    onAddingStateChange: { isAdding in
-                        withAnimation(.snappy) {
-                            viewModel
-                                .updateAddingCategoryState(
-                                    isAdding
-                                )
-                        }
-                    },
-                    onDeleteCategory: {
-                        viewModel
-                            .presentDeleteCategoryAlert($0)
-                    }
-                )
-                .padding(.horizontal, 20)
-
-                ZStack(alignment: .top) {
-                    QuickSpeechBubbleList(
-                        items: viewModel.bubbleItems(
-                            categories: categories,
-                            phrases: phrases
-                        ),
-                        isEditing: viewModel.isEditing,
-                        allowsMove:
-                            viewModel.canMoveSelectedPhrases,
-                        allowsFullSwipeDelete: true,
-                        selectedIDs:
-                            $viewModel.selectedIDs,
-                        onTap: { id in
-                            viewModel.presentEditModal(
-                                phraseID: id,
-                                phrases: phrases
-                            )
-                        },
-                        onDelete: { id in
-                            withAnimation(.snappy) {
-                                viewModel.deletePhrase(
-                                    id,
-                                    phrases: phrases,
-                                    modelContext:
-                                        modelContext
-                                )
-                            }
-                        },
-                        onMove: { source, destination in
-                            withAnimation(.snappy) {
-                                viewModel.movePhrases(
-                                    from: source,
-                                    to: destination,
-                                    categories: categories,
-                                    phrases: phrases,
-                                    modelContext:
-                                        modelContext
-                                )
-                            }
-                        }
-                    )
-
-                    if viewModel
-                        .showsEmptyCategoryMessage(
-                            categories: categories,
-                            phrases: phrases
-                        ) {
-                        emptyCategoryMessage
-                    }
-                }
-                .padding(.horizontal, 20)
-            }
-            .frame(
-                maxWidth: .infinity,
-                maxHeight: .infinity,
-                alignment: .top
-            )
-
-            if !viewModel.isEditing {
-                CreateButton {
-                    viewModel.presentAddModal()
-                }
-                .frame(
-                    maxWidth: .infinity,
-                    maxHeight: .infinity,
-                    alignment: .bottomTrailing
-                )
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
-            }
+            content
         }
-        .background(.backgroundbgCanvas)
-        .navigationBarBackButtonHidden(true)
-        .toolbar(
-            .hidden,
-            for: .navigationBar
-        )
         .onChange(
             of: categories.count
         ) { _, count in
@@ -194,7 +106,9 @@ struct FastSpeechView: View {
                         categories: categories
                     ),
                 onConfirm: { text, categoryName in
-                    withAnimation(.snappy) {
+                    withAnimation(
+                        .snappy
+                    ) {
                         viewModel.handleModalConfirm(
                             modal,
                             text: text,
@@ -216,7 +130,9 @@ struct FastSpeechView: View {
             message:
                 "카테고리 내 문구들도 한번에 지워집니다.",
             onConfirm: {
-                withAnimation(.snappy) {
+                withAnimation(
+                    .snappy
+                ) {
                     viewModel.confirmDeleteCategory(
                         categories: categories,
                         modelContext: modelContext
@@ -227,121 +143,142 @@ struct FastSpeechView: View {
     }
 }
 
-// MARK: - Header
-
 private extension FastSpeechView {
 
-    var header: some View {
-        MogapaNavigationHeader(
-            title: "빠른 말하기",
-            rightTitle:
-                viewModel.isEditing
-                ? nil
-                : "편집",
-            rightSystemImage:
-                viewModel.isEditing
-                ? "trash.fill"
-                : nil,
-            isRightDisabled:
-                viewModel.isEditing &&
-                viewModel.selectedIDs.isEmpty,
-            isRightProminent:
-                viewModel.isEditing &&
-                !viewModel.selectedIDs.isEmpty,
-            rightTint:
-                viewModel.isEditing &&
-                !viewModel.selectedIDs.isEmpty
-                ? .accentsRed
-                : .clear,
-            rightForegroundStyle:
-                rightForegroundStyle,
-            leftTitle:
-                viewModel.isEditing
-                ? "취소"
-                : nil,
-            leftIcon:
-                viewModel.isEditing
-                ? nil
-                : "chevron.left",
-            leftAccessibilityLabel:
-                viewModel.isEditing
-                ? "편집 종료"
-                : "뒤로 가기",
-            onLeftTap: handleLeftTap,
-            onRightTap: handleRightTap
+    var content: some View {
+        VStack(
+            spacing: 18
+        ) {
+            categorySelector
+
+            phraseList
+        }
+    }
+
+    var categorySelector: some View {
+        FastSpeechCategorySelector(
+            categories: categories,
+            selectedIndex:
+                $viewModel.selectedCategoryIndex,
+            defaultTitle: "최근 문구",
+            showsAddButton: true,
+            isEditing: viewModel.isEditing,
+            onAddCategory: { name in
+                withAnimation(
+                    .snappy
+                ) {
+                    viewModel.addCategory(
+                        name,
+                        categories: categories,
+                        modelContext: modelContext
+                    )
+                }
+            },
+            onAddingStateChange: { isAdding in
+                withAnimation(
+                    .snappy
+                ) {
+                    viewModel
+                        .updateAddingCategoryState(
+                            isAdding
+                        )
+                }
+            },
+            onDeleteCategory: {
+                viewModel
+                    .presentDeleteCategoryAlert(
+                        $0
+                    )
+            }
+        )
+        .padding(
+            .horizontal,
+            20
         )
     }
 
-    var rightForegroundStyle: AnyShapeStyle {
-        if !viewModel.isEditing {
-            return AnyShapeStyle(
-                .textsecondary
+    var phraseList: some View {
+        ZStack(
+            alignment: .top
+        ) {
+            QuickSpeechBubbleList(
+                items: viewModel.bubbleItems(
+                    categories: categories,
+                    phrases: phrases
+                ),
+                isEditing: viewModel.isEditing,
+                allowsMove:
+                    viewModel.canMoveSelectedPhrases,
+                allowsFullSwipeDelete: true,
+                selectedIDs:
+                    $viewModel.selectedIDs,
+                onTap: { id in
+                    viewModel.presentEditModal(
+                        phraseID: id,
+                        phrases: phrases
+                    )
+                },
+                onDelete: { id in
+                    withAnimation(
+                        .snappy
+                    ) {
+                        viewModel.deletePhrase(
+                            id,
+                            phrases: phrases,
+                            modelContext: modelContext
+                        )
+                    }
+                },
+                onMove: { source, destination in
+                    withAnimation(
+                        .snappy
+                    ) {
+                        viewModel.movePhrases(
+                            from: source,
+                            to: destination,
+                            categories: categories,
+                            phrases: phrases,
+                            modelContext: modelContext
+                        )
+                    }
+                }
             )
-        }
 
-        return viewModel.selectedIDs.isEmpty
-            ? AnyShapeStyle(.textmuted)
-            : AnyShapeStyle(.iconinverse)
+            if viewModel.showsEmptyCategoryMessage(
+                categories: categories,
+                phrases: phrases
+            ) {
+                emptyCategoryMessage
+            }
+        }
+        .padding(
+            .horizontal,
+            20
+        )
     }
 
     var emptyCategoryMessage: some View {
         Text(
             "+ 버튼을 눌러 빠른 말하기를 추가해보세요"
         )
-        .typography(.bodyMedium)
-        .foregroundStyle(.textmuted)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
-        .padding(.top, 72)
-        .allowsHitTesting(false)
+        .typography(
+            .bodyMedium
+        )
+        .foregroundStyle(
+            .textmuted
+        )
+        .multilineTextAlignment(
+            .center
+        )
+        .frame(
+            maxWidth: .infinity
+        )
+        .padding(
+            .top,
+            72
+        )
+        .allowsHitTesting(
+            false
+        )
     }
-}
-
-// MARK: - Navigation Actions
-
-private extension FastSpeechView {
-
-    func handleLeftTap() {
-        if viewModel.isEditing {
-            withAnimation(.snappy) {
-                viewModel.cancelEditing()
-            }
-        } else {
-            dismiss()
-        }
-    }
-
-    func handleRightTap() {
-        if viewModel.isEditing {
-            withAnimation(.snappy) {
-                viewModel.deleteSelectedPhrases(
-                    phrases: phrases,
-                    modelContext: modelContext
-                )
-            }
-        } else {
-            withAnimation(.snappy) {
-                viewModel.startEditing()
-            }
-        }
-    }
-}
-
-// MARK: - Preview
-
-#Preview {
-    NavigationStack {
-        FastSpeechView()
-    }
-    .modelContainer(
-        for: [
-            FastSpeechCategory.self,
-            FastSpeechPhrase.self
-        ],
-        inMemory: true
-    )
-    .environment(
-        \.locale,
-        Locale(identifier: "ko")
-    )
 }

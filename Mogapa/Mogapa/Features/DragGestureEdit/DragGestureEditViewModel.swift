@@ -8,6 +8,7 @@
 import Foundation
 import Observation
 import SwiftData
+import SwiftUI
 
 @MainActor
 @Observable
@@ -19,14 +20,11 @@ final class DragGestureEditViewModel {
     var isEditing = false
     var selectedIDs: Set<UUID> = []
     var presentedModal: DragGestureEditModal?
-    var draggingID: UUID?
-
 
     // MARK: - Private
 
     private var modelContext: ModelContext?
     private let usesInjectedData: Bool
-
 
     // MARK: - Initializer
 
@@ -41,16 +39,17 @@ final class DragGestureEditViewModel {
             return $0.sortOrder < $1.sortOrder
         }
 
-        usesInjectedData = !gestures.isEmpty
+        usesInjectedData =
+            !gestures.isEmpty
     }
-
 
     // MARK: - Load
 
     func load(
         modelContext: ModelContext
     ) {
-        self.modelContext = modelContext
+        self.modelContext =
+            modelContext
 
         guard !usesInjectedData else {
             normalizeSortOrder(
@@ -82,9 +81,10 @@ final class DragGestureEditViewModel {
             )
 
         do {
-            gestures = try modelContext.fetch(
-                descriptor
-            )
+            gestures =
+                try modelContext.fetch(
+                    descriptor
+                )
 
             normalizeSortOrder(
                 shouldSave: false
@@ -97,13 +97,26 @@ final class DragGestureEditViewModel {
     }
 }
 
+// MARK: - UI State
+
+extension DragGestureEditViewModel {
+
+    var bubbleItems:
+        [QuickSpeechBubbleListItem<UUID>] {
+        gestures.map {
+            QuickSpeechBubbleListItem(
+                id: $0.id,
+                text: $0.phrase
+            )
+        }
+    }
+}
 
 // MARK: - Edit Mode
 
 extension DragGestureEditViewModel {
 
     func beginEditing() {
-        draggingID = nil
         selectedIDs.removeAll()
         isEditing = true
     }
@@ -113,7 +126,6 @@ extension DragGestureEditViewModel {
         isEditing = false
     }
 }
-
 
 // MARK: - Selection
 
@@ -151,7 +163,6 @@ extension DragGestureEditViewModel {
     }
 }
 
-
 // MARK: - Modal
 
 extension DragGestureEditViewModel {
@@ -161,10 +172,29 @@ extension DragGestureEditViewModel {
     }
 
     func presentEditModal(
+        gestureID: UUID
+    ) {
+        guard let gesture =
+                gestures.first(
+                    where: {
+                        $0.id == gestureID
+                    }
+                )
+        else {
+            return
+        }
+
+        presentEditModal(
+            for: gesture
+        )
+    }
+
+    func presentEditModal(
         for gesture: RegisteredDragGesture
     ) {
         presentedModal = .edit(
-            id: gesture.id, name: gesture.phrase,
+            id: gesture.id,
+            name: gesture.phrase,
             phrase: gesture.phrase
         )
     }
@@ -173,7 +203,6 @@ extension DragGestureEditViewModel {
         presentedModal = nil
     }
 }
-
 
 // MARK: - Create
 
@@ -201,10 +230,10 @@ extension DragGestureEditViewModel {
         }
 
         normalizeSortOrder()
+
         presentedModal = nil
     }
 }
-
 
 // MARK: - Update
 
@@ -234,10 +263,10 @@ extension DragGestureEditViewModel {
         }
 
         saveModelContext()
+
         presentedModal = nil
     }
 }
-
 
 // MARK: - Delete
 
@@ -293,12 +322,6 @@ extension DragGestureEditViewModel {
                 )
             }
 
-        gestures.removeAll {
-            selectedIDs.contains(
-                $0.id
-            )
-        }
-
         if !usesInjectedData {
             for gesture in deletingGestures {
                 modelContext?.delete(
@@ -307,126 +330,39 @@ extension DragGestureEditViewModel {
             }
         }
 
+        gestures.removeAll {
+            selectedIDs.contains(
+                $0.id
+            )
+        }
+
         selectedIDs.removeAll()
         isEditing = false
 
         normalizeSortOrder()
     }
-    
-    func moveGesture(
-        sourceID: UUID,
-        destinationID: UUID
-    ) {
-        guard
-            let sourceIndex = gestures.firstIndex(
-                where: { $0.id == sourceID }
-            ),
-            let destinationIndex = gestures.firstIndex(
-                where: { $0.id == destinationID }
-            ),
-            sourceIndex != destinationIndex
-        else {
-            return
-        }
-
-        let gesture = gestures.remove(
-            at: sourceIndex
-        )
-
-        let adjustedDestinationIndex =
-            sourceIndex < destinationIndex
-            ? destinationIndex - 1
-            : destinationIndex
-
-        gestures.insert(
-            gesture,
-            at: adjustedDestinationIndex
-        )
-    }
 }
-
 
 // MARK: - Reordering
 
 extension DragGestureEditViewModel {
 
-    func beginDragging(
-        _ id: UUID
+    func moveGestures(
+        from source: IndexSet,
+        to destination: Int
     ) {
         guard !isEditing else {
             return
         }
 
-        guard gestures.contains(
-            where: {
-                $0.id == id
-            }
-        ) else {
-            return
-        }
-
-        draggingID = id
-    }
-
-    func moveDraggingGesture(
-        before destinationID: UUID
-    ) {
-        guard
-            !isEditing,
-            let draggingID,
-            draggingID != destinationID,
-            let sourceIndex =
-                gestures.firstIndex(
-                    where: {
-                        $0.id == draggingID
-                    }
-                ),
-            let destinationIndex =
-                gestures.firstIndex(
-                    where: {
-                        $0.id == destinationID
-                    }
-                )
-        else {
-            return
-        }
-
-        let movedGesture =
-            gestures.remove(
-                at: sourceIndex
-            )
-
-        let insertionIndex: Int
-
-        if sourceIndex < destinationIndex {
-            insertionIndex = min(
-                destinationIndex,
-                gestures.count
-            )
-        } else {
-            insertionIndex = destinationIndex
-        }
-
-        gestures.insert(
-            movedGesture,
-            at: insertionIndex
+        gestures.move(
+            fromOffsets: source,
+            toOffset: destination
         )
-    }
 
-    func finishDragging() {
-        guard draggingID != nil else {
-            return
-        }
-
-        draggingID = nil
         normalizeSortOrder()
     }
-
-    func cancelDragging() {
-        draggingID = nil
-    }
 }
-
 
 // MARK: - Sort Order
 
@@ -449,7 +385,6 @@ private extension DragGestureEditViewModel {
         saveModelContext()
     }
 }
-
 
 // MARK: - Save
 
@@ -474,7 +409,6 @@ private extension DragGestureEditViewModel {
     }
 }
 
-
 // MARK: - Modal
 
 enum DragGestureEditModal: Identifiable {
@@ -492,7 +426,11 @@ enum DragGestureEditModal: Identifiable {
         case .add:
             return "add"
 
-        case let .edit(id, _, _):
+        case let .edit(
+            id,
+            _,
+            _
+        ):
             return "edit-\(id.uuidString)"
         }
     }
@@ -512,7 +450,11 @@ enum DragGestureEditModal: Identifiable {
         case .add:
             return nil
 
-        case let .edit(id, _, _):
+        case let .edit(
+            id,
+            _,
+            _
+        ):
             return id
         }
     }
@@ -522,7 +464,11 @@ enum DragGestureEditModal: Identifiable {
         case .add:
             return ""
 
-        case let .edit(_, name, _):
+        case let .edit(
+            _,
+            name,
+            _
+        ):
             return name
         }
     }
@@ -532,7 +478,11 @@ enum DragGestureEditModal: Identifiable {
         case .add:
             return ""
 
-        case let .edit(_, _, phrase):
+        case let .edit(
+            _,
+            _,
+            phrase
+        ):
             return phrase
         }
     }
