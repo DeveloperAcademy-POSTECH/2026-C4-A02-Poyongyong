@@ -1,0 +1,7 @@
+{
+  "catalogs": ["Mogapa/Shared/Resources/Localizable.xcstrings"],
+  "requiredLocales": ["ko", "en"],
+  "excludedPaths": ["Tests", "Generated", "PreviewContent", ".build"],
+  "ignoredFunctions": ["print", "debugPrint", "assertionFailure", "preconditionFailure", "os_log"],
+  "severity": "warning"
+}

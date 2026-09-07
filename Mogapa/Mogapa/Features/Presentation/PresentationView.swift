@@ -27,7 +27,7 @@ struct PresentationView: View {
     @AppStorage("settings.isBrightnessOn") private var isBrightnessOn: Bool = true
     @AppStorage("settings.manualBrightness") private var manualBrightness: Double = 50.0
 
-    @State private var originalBrightness: CGFloat = UIScreen.main.brightness
+    @State private var originalBrightness: CGFloat = 0.5
 
     @State private var contentOpacity: Double = 0
 
@@ -62,10 +62,12 @@ struct PresentationView: View {
         .ignoresSafeArea()
         .opacity(contentOpacity)
         .onAppear {
-            originalBrightness = UIScreen.main.brightness
+            if let screen = currentScreen {
+                originalBrightness = screen.brightness
 
-            if !isBrightnessOn {
-                UIScreen.main.brightness = CGFloat(manualBrightness / 100)
+                if !isBrightnessOn {
+                    screen.brightness = CGFloat(manualBrightness / 100)
+                }
             }
 
             withAnimation(.easeOut(duration: 0.25)) {
@@ -78,8 +80,15 @@ struct PresentationView: View {
         }
         .onDisappear {
             viewModel.stop()
-            UIScreen.main.brightness = originalBrightness
+            currentScreen?.brightness = originalBrightness
         }
+    }
+
+    private var currentScreen: UIScreen? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }?
+            .screen
     }
 
     // MARK: - 회전 각도

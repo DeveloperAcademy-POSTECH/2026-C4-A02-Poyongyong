@@ -190,9 +190,10 @@ extension SpeechManager: AVSpeechSynthesizerDelegate {
         willSpeakRangeOfSpeechString characterRange: NSRange,
         utterance: AVSpeechUtterance
     ) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             guard let self,
-                  self.activeUtterance === utterance else {
+                  self.activeUtterance.map(ObjectIdentifier.init) == utteranceID else {
                 return
             }
 
@@ -213,9 +214,10 @@ extension SpeechManager: AVSpeechSynthesizerDelegate {
         _ synthesizer: AVSpeechSynthesizer,
         didStart utterance: AVSpeechUtterance
     ) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             guard let self,
-                  self.activeUtterance === utterance else {
+                  self.activeUtterance.map(ObjectIdentifier.init) == utteranceID else {
                 return
             }
 
@@ -227,9 +229,10 @@ extension SpeechManager: AVSpeechSynthesizerDelegate {
         _ synthesizer: AVSpeechSynthesizer,
         didPause utterance: AVSpeechUtterance
     ) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             guard let self,
-                  self.activeUtterance === utterance else {
+                  self.activeUtterance.map(ObjectIdentifier.init) == utteranceID else {
                 return
             }
 
@@ -241,9 +244,10 @@ extension SpeechManager: AVSpeechSynthesizerDelegate {
         _ synthesizer: AVSpeechSynthesizer,
         didContinue utterance: AVSpeechUtterance
     ) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             guard let self,
-                  self.activeUtterance === utterance else {
+                  self.activeUtterance.map(ObjectIdentifier.init) == utteranceID else {
                 return
             }
 
@@ -255,9 +259,10 @@ extension SpeechManager: AVSpeechSynthesizerDelegate {
         _ synthesizer: AVSpeechSynthesizer,
         didFinish utterance: AVSpeechUtterance
     ) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             guard let self,
-                  self.activeUtterance === utterance else {
+                  self.activeUtterance.map(ObjectIdentifier.init) == utteranceID else {
                 return
             }
 
@@ -276,9 +281,10 @@ extension SpeechManager: AVSpeechSynthesizerDelegate {
         _ synthesizer: AVSpeechSynthesizer,
         didCancel utterance: AVSpeechUtterance
     ) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             guard let self,
-                  self.activeUtterance === utterance else {
+                  self.activeUtterance.map(ObjectIdentifier.init) == utteranceID else {
                 return
             }
 

@@ -101,7 +101,7 @@ enum DragGestureNormalizer {
             .reduce(0, +)
     }
 
-    private static func distance(_ first: CGPoint, _ second: CGPoint) -> CGFloat {
+    nonisolated private static func distance(_ first: CGPoint, _ second: CGPoint) -> CGFloat {
         hypot(second.x - first.x, second.y - first.y)
     }
 }
